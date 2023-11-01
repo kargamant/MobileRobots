@@ -6,10 +6,12 @@ namespace Robots
 	class ManageOverlay
 	{
 	private:
-		Table* info;
 		int robots;
 		ManageModule* modules;
 	public:
+		ManageOverlay(int robots, ManageModule* modules);
+		ManageOverlay(ManageOverlay& mo);
+
 		Cell* getReport(int ind);
 		void move(int ind, std::pair vector);
 	};

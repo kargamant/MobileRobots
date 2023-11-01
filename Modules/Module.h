@@ -7,6 +7,7 @@ namespace Robots
 		medium,
 		high
 	};
+
 	class Module
 	{
 	private:
@@ -15,6 +16,9 @@ namespace Robots
 		Priority priority;
 		int cost;
 	public:
+		Module(double energy, bool state, Priority priority, int cost);
+		Module(Module& module);
+
 		Module& turnOn();
 		Module& turnOff();
 

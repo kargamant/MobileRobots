@@ -13,8 +13,11 @@ namespace Robots
 		int cost;
 		Module* robo;
 	public:
-		Platform(double energy, int slots, int cost, std::pair coordinates); //name will be chosen randomly 
+		Platform(double energy, int slots, int cost, std::pair coordinates); //name will be chosen randomly
 		Platform(std::string name, double energy, int slots, int cost, std::pair coordinates);
+		Platform(double energy, int slots, int cost, Cell& cell);
+		Platform(std::string name, double energy, int slots, int cost, Cell& cell);
+		Platform(Platform& plt);
 		
 		int getSlots() { return slots; }
 		double getEnergyLevel() { return energyLevel; }

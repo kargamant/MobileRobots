@@ -14,6 +14,7 @@ namespace Field
 	public:
 		Cell(std::pair coordinates);
 		Cell(int x, int y);
+		Cell(Cell& cell);
 
 		std::pair getCoordinates() { return coordinates; }
 		int getX() { return coordinates.first; }

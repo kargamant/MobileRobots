@@ -2,8 +2,6 @@
 
 namespace Field
 {
-	//also should add a moving obstacle(animal)
-	//massive obstacle(house or cave)
 	enum class ObstacleType
 	{
 		rock,
@@ -16,6 +14,17 @@ namespace Field
 	{
 	private:
 		ObstacleType type;
+		int cost; //cost to destroy an obstacle
+		bool isDestroyed;
+	public:
+		Obstacle(ObstacleType type, int cost, std::pair coordinates);
+		Obstacle(ObstacleType type, int cost, Cell& cell);
+		Obstacle(Obstacle& obs);
 
+		ObstacleType getType() { return type; }
+		int getCost() { return cost; }
+
+
+		void destroy() { isDestroyed = true; }
 	};
 }

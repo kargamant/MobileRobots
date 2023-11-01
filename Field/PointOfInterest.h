@@ -8,6 +8,9 @@ namespace Field
 		int id;
 		bool isDiscovered;
 	public:
+		PointOfInterest(id, std::pair coordinates);
+		PointOfInterest(id, Cell& cell);
+
 		int getId() { return id; }
 		void Discover() { isDiscovered = true; }
 	};

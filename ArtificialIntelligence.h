@@ -11,6 +11,8 @@ namespace Robots
 		int commanders;
 		ManageOverlay* modules;
 	public:
+		ArtificialIntelligence(int commanders, ManageOverlay* modules);
+
 		PointOfInterest* find(Field* field);
 	};
 }
