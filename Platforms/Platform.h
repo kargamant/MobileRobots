@@ -33,5 +33,7 @@ namespace Robots
 		void placeRobo(int ind);
 		void turnOn(int ind);
 		void turnOff(int ind);
+
+		virtual void move(std::pair vector)=0;
 	};
 }

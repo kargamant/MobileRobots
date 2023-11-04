@@ -5,7 +5,7 @@ namespace Field
 	class Field
 	{
 	private:
-		std::pair size;
+		std::pair<int, int> size;
 		Cell** map;
 	public:
 		Field(); //absolutely random field

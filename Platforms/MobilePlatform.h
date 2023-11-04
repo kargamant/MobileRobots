@@ -11,6 +11,6 @@ namespace Robots
 		MobilePlatform(int velocity, Platform& plt);
 		MobilePlatform(MobilePlatform& mp);
 
-		void move(std::pair vector);
+		void move(std::pair vector) override;
 	};
 }

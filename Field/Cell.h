@@ -9,7 +9,7 @@ namespace Field
 	class Cell
 	{
 	private:
-		std::pair coordinates;
+		std::pair<int, int> coordinates;
 		CellType type;
 	public:
 		Cell(std::pair coordinates);

@@ -13,6 +13,6 @@ namespace Robots
 		ManageOverlay(ManageOverlay& mo);
 
 		Cell* getReport(int ind);
-		void move(int ind, std::pair vector);
+		void move(int ind, std::pair vector); //moves a robot
 	};
 }
