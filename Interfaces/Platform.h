@@ -1,13 +1,12 @@
-#include "Cell.h"
 #include "Module.h"
-using namespace Field;
 
 namespace Robots
 {
-	class Platform : public Cell 
+	class Platform
 	{
 	private:
 		std::string name;
+		std::pair<int, int> coordinates;
 		double energyLevel; //level of consumption
 		int slots;
 		int cost;
@@ -29,8 +28,8 @@ namespace Robots
 		Platform& setSlots(int slots);
 		Platform& setCost(int cost);
 
-		void deleteRobo(int ind);
-		void placeRobo(int ind);
+		virtual void deleteModule(int ind);
+		virtual void placeModule(int ind);
 		void turnOn(int ind);
 		void turnOff(int ind);
 

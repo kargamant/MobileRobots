@@ -1,15 +1,19 @@
-#include "Platform.h"
+#include "../Interfaces/Platform.h"
 
 namespace Robots
 {
 	class QuantumPlatform : public Platform
 	{
 	private:
-		bool quantumState;
-		int radius;
+		int linkageRadius;
+		int linked;
+		QuantumPlatform* platforms;
 	public:
-		QuantumPlatform(bool quantumState, int radius, Platform& plt);
+		QuantumPlatform(int linkageRadius);
 
-		void move(std::pair vector) override; //randomly teleports in a certain radius
+		void link(QuantumPlatform& platform);
+		void teleport(int ind);
+		void deleteModule(int ind) override;
+		void placeModule(int ind) override;
 	};
 }

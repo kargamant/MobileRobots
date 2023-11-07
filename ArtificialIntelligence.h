@@ -1,6 +1,8 @@
-#include "Platforms/ManageOverlay.h"
+#include "Modules/ManageModule.h"
 #include "Field/PointOfInterest.h"
 #include "Field/Field.h"
+#include "Interfaces/Platform.h"
+#include <unordered_map>
 using namespace Field;
 
 namespace Robots
@@ -9,7 +11,8 @@ namespace Robots
 	{
 	private:
 		int commanders;
-		ManageOverlay* modules;
+		ManageModule* modules;
+		std::unordered_map<Platform> map;
 	public:
 		ArtificialIntelligence(int commanders, ManageOverlay* modules);
 
