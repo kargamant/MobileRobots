@@ -11,28 +11,26 @@ namespace Robots
 		int slots;
 		int cost;
 		Module* robo;
+	protected:
+		Platform(double energy, int slots, int cost, std::pair<int, int> coordinates); //name will be chosen randomly
+		Platform(std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates);
 	public:
-		Platform(double energy, int slots, int cost, std::pair coordinates); //name will be chosen randomly
-		Platform(std::string name, double energy, int slots, int cost, std::pair coordinates);
-		Platform(double energy, int slots, int cost, Cell& cell);
-		Platform(std::string name, double energy, int slots, int cost, Cell& cell);
-		Platform(Platform& plt);
-		
 		int getSlots() { return slots; }
-		double getEnergyLevel() { return energyLevel; }
+		std::pair<int, int> getCoordinates() { return coordinates; }
+		double getEnergyLevel() { return energyLevel; }//flash
 		int getCost() { return cost; }
 		std::string getName() { return name; }
+		Module* getRobo() { return robo; }
 
-		Platform& setName(std::string nname);
-		Platform& setEnergyLevel(double nenergy);
-		Platform& setSlots(int slots);
-		Platform& setCost(int cost);
+		Platform& setName(std::string nname) { name = nname; return *this; }
+		Platform& setEnergyLevel(double nenergy) { energyLevel = nenergy; return *this; }
+		Platform& setSlots(int nslots) { slots = nslots; return *this; }
+		Platform& setCost(int ncost) { cost = ncost; return *this; }
+		Platform& setCoordinates(int x, int y) { coordinates.first = x; coordinates.second = y; return *this; }
 
 		virtual void deleteModule(int ind);
 		virtual void placeModule(int ind);
 		void turnOn(int ind);
 		void turnOff(int ind);
-
-		virtual void move(std::pair vector)=0;
 	};
 }

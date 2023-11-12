@@ -1,5 +1,6 @@
 #include "Module.h"
 #include "../Interfaces/Rulling.h"
+#include "../Field/Cell.h"
 
 namespace Robots
 {
@@ -7,11 +8,12 @@ namespace Robots
 	{
 	private:
 		int radius;
-		int subord;
-		Platform* subordinates;
 	public:
-		ManageModule(int radius, int subord, Module* subordinates, double energy, bool state, Priority priority, int cost); //automatically set priority high on module
-		ManageModule(int radius, int subord, Module* subordinates, Module& mod);
+		ManageModule(int radius, int subord, Platform* subordinates, double energy, bool state, Priority priority, int cost); //automatically set priority high on module
+		ManageModule(int radius, int subord, Platform* subordinates, Module& mod);
+
+		int getRad() { return radius; }
+		ManageModule& setRadius(int nrad) { radius = nrad; return *this; }
 
 		void subdue(Module& subordinate);
 

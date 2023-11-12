@@ -19,9 +19,12 @@ namespace Robots
 		Module(double energy, bool state, Priority priority, int cost);
 		Module(Module& module);
 
+		double getEnergy() { return energyLevel; }
+		bool getState() { return state; }
+		Priority getPriority() { return priority; }
+		int getCost() { return cost; }
+
 		Module& turnOn();
 		Module& turnOff();
-
-		double getEnergyLevel() { return energyLevel; }
 	};
 }

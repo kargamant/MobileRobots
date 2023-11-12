@@ -8,8 +8,11 @@ namespace Robots
 	private:
 		int max_radius;
 	public:
+		KamikazeRobot(int max_rad, std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates);
+
+		int getMaxRadius() { return max_radius; }
+		KamikazeRobot& setMaxRadius(int nrad) { max_radius = nrad; return *this; }
+
 		void destroy(int radius) override;
-		void deleteModule(int ind) override;
-		void placeModule(int ind) override;
 	};
 }

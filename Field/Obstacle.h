@@ -13,17 +13,17 @@ namespace Field
 	class Obstacle :public Cell
 	{
 	private:
-		ObstacleType type;
+		ObstacleType obsType;
 		int cost; //cost to destroy an obstacle
 		bool isDestroyed;
 	public:
-		Obstacle(ObstacleType type, int cost, std::pair coordinates);
-		Obstacle(ObstacleType type, int cost, Cell& cell);
-		Obstacle(Obstacle& obs);
+		Obstacle(ObstacleType type, int cost, std::pair<int, int> coordinates) :obsType(type), cost(cost), isDestroyed(false), Cell(coordinates, CellType::obstacle) {}
 
-		ObstacleType getType() { return type; }
+		ObstacleType getObsType() { return type; }
 		int getCost() { return cost; }
-
+		bool isDestroyed() { return isDestroyed; }
+		Obstacle& setObsType(ObstacleType ntype) { type = ntype; return *this; }
+		Obstacle& setCost(int ncost) { cost = ncost; return *this; }
 
 		void destroy() { isDestroyed = true; }
 	};
