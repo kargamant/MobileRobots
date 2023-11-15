@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kargamant/Game/MyGame/cocos2d/external/ConvertUTF/ConvertUTF.h
+stddef.h
+-
+vector
+-
+string
+-
+
+/home/kargamant/Game/MyGame/cocos2d/external/ConvertUTF/ConvertUTFWrapper.cpp
+ConvertUTF.h
+/home/kargamant/Game/MyGame/cocos2d/external/ConvertUTF/ConvertUTF.h
+string
+-
+vector
+-
+stdint.h
+-
+assert.h
+-
+memory.h
+-
+

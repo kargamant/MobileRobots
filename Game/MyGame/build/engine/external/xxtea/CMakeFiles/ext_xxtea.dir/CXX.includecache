@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kargamant/Game/MyGame/cocos2d/external/xxtea/xxtea.cpp
+xxtea.h
+/home/kargamant/Game/MyGame/cocos2d/external/xxtea/xxtea.h
+memory.h
+-
+stdlib.h
+-
+
+/home/kargamant/Game/MyGame/cocos2d/external/xxtea/xxtea.h
+stddef.h
+-
+inttypes.h
+-
+stdint.h
+-
+
