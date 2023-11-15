@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../lib/libext_convertUTF.a  CMakeFiles/ext_convertUTF.dir/ConvertUTF.c.o CMakeFiles/ext_convertUTF.dir/ConvertUTFWrapper.cpp.o
-/usr/bin/ranlib ../../../lib/libext_convertUTF.a

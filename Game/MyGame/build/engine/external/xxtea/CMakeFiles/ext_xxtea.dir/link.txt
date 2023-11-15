@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../lib/libext_xxtea.a  CMakeFiles/ext_xxtea.dir/xxtea.cpp.o
-/usr/bin/ranlib ../../../lib/libext_xxtea.a
