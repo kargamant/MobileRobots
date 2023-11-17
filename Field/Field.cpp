@@ -13,7 +13,7 @@ namespace Field
 			map.push_back(std::vector<Cell>());
 			for (int j = 0; j < height; j++)
 			{
-				map[i].push_back(Cell(i, j, CellType{ std::rand() % static_cast<int>(CellType::count) }))
+				map[i].push_back(Cell(i, j, CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) }));
 				//map[i][j].setX(i).setY(j).setType(CellType{ std::rand() % static_cast<int>(CellType::count) });
 			}
 		}
@@ -22,7 +22,7 @@ namespace Field
 
 	Field::Field()
 	{
-		platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
+		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
 		std::srand(time(NULL));
 
 		size = std::pair<int, int>(std::rand() % MAX_RANDOM_SIZE, std::rand() % MAX_RANDOM_SIZE);
@@ -31,16 +31,18 @@ namespace Field
 
 	Field::Field(int width, int height):size(std::pair<int, int>(width, height))
 	{
-		platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
+		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
 		map = createRandomMap(size.first, size.second);
 	}
 
-	Field::Field(int width, int height, Cell** map, std::vector<Robots::Platform> plt):size(std::pair<int, int>(width, height)), this->map(map)
+	Field::Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt):size(std::pair<int, int>(width, height)), map(map)
 	{
-		platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
-		for (int i : plt)
+		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
+		for (Robots::Platform& it : plt)
 		{
-			platfroms.emplace(std::pair<std::pair<int, int>, Robots::Platform>(plt[i].getCoordinates(), plt[i]));
+			platforms.insert({ it.getCoordinates(), it });
+			//platforms[it.getCoordinates()] = it;
+			//platforms.emplace(std::make_pair(it.getCoordinates(), it));
 		}
 	}
 
@@ -77,7 +79,7 @@ namespace Field
 			std::vector<std::vector<Cell>> dWnH = createRandomMap(nwidth, nheight - height);
 			for (int i = 0; i < nwidth; i++)
 			{
-				for (int j = height, j < nheight; j++) map[i].push_back(dWnH[i][j-height]);
+				for (int j = height; j < nheight; j++) map[i].push_back(dWnH[i][j - height]);
 			}
 		}
 		size.first = nwidth;
@@ -114,7 +116,7 @@ namespace Field
 
 	void Field::consoleOutField(std::ostream& stream)
 	{
-		for (int i = 0; i < size.first, i++)
+		for (int i = 0; i < size.first; i++)
 		{
 			for (int j = 0; j < size.second; j++)
 			{

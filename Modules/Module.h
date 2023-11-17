@@ -16,7 +16,7 @@ namespace Robots
 		Priority priority;
 		int cost;
 	public:
-		Module(double energy, bool state, Priority priority, int cost);
+		Module(double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):energyLevel(energy), state(state), priority(priority), cost(cost) {}
 		Module(Module& module);
 
 		double getEnergy() { return energyLevel; }

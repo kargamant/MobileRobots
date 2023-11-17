@@ -12,7 +12,7 @@ namespace Field
 			return 'o';
 		case CellType::pointOfInterest:
 			return 'i';
-		case default:
+		default:
 			return '\0';
 		}
 	}

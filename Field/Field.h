@@ -1,25 +1,43 @@
 ﻿#include "Cell.h"
 #include <unordered_map>
+#include <utility>
+#include <vector>
 #include "../Interfaces/Platform.h"
 #include <iostream>
 
 namespace Field
 {
-	Cell** createRandomMap(int width, int height);
+	struct CoordHash
+	{
+		std::size_t operator()(const std::pair<int, int>& key) const
+		{
+			return std::hash<int>()((key.first + key.second)* (key.first - key.second));
+		}
+	};
+
+	struct CoordEqual
+	{
+		bool operator()(const std::pair<int, int>& key1, const std::pair<int, int>& key2) const
+		{
+			return (key1.first == key2.first) && (key1.second == key2.second);
+		}
+	};
+	
+	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	class Field
 	{
 	private:
-		static int MAX_RANDOM_SIZE = 100;
 		std::pair<int, int> size;
-		std::unordered_map<std::pair<int, int>, Robots::Platform> platfroms; //all manage platforms
+		std::unordered_map<std::pair<int, int>, Robots::Platform&, CoordHash, CoordEqual> platforms; //all manage platforms
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
 	public:
-		static void changeMaxRandomSize(int nsize) { MAX_RANDOM_SIZE = nsize; }
+		static int MAX_RANDOM_SIZE;
+		//void changeMaxRandomSize(int nsize) { MAX_RANDOM_SIZE = nsize; }
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size
-		Field(int width, int height, Cell** map, std::vector<Robots::Platform> plt);
+		Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt);
 		
 		int getWidth() { return size.first; }
 		int getHeight() { return size.second; }
