@@ -18,7 +18,7 @@ namespace Robots
 		Module* robo;
 	public:
 		Platform(double energy, int slots, int cost, std::pair<int, int> coordinates); //name will be chosen randomly
-		Platform(std::string name=std::string("c3po"), double energy=0, int slots=1, int cost=0, std::pair<int, int> coordinates=std::pair<int, int>(-1, -1));
+		Platform(std::string name=std::string("c3po"), double energy=0, int slots=1, int cost=0, std::pair<int, int> coordinates=std::pair<int, int>(0, 0));
 		void changeNickNameFileName(std::string nname) { NICKNAME_FILENAME = nname; }
 
 		int getSlots() { return slots; }

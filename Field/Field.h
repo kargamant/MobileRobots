@@ -28,7 +28,7 @@ namespace Field
 	{
 	private:
 		std::pair<int, int> size;
-		std::unordered_map<std::pair<int, int>, Robots::Platform&, CoordHash, CoordEqual> platforms; //all manage platforms
+		std::unordered_map<std::pair<int, int>, Robots::Platform, CoordHash, CoordEqual> platforms; //all manage platforms
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
@@ -44,12 +44,15 @@ namespace Field
 		std::pair<int, int> getSize() { return size; }
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
+		std::unordered_map<std::pair<int, int>, Robots::Platform, CoordHash, CoordEqual> getPlatforms() { return platforms; }
 		
 		void resize(int nwidth, int nheight);
 		void resize(std::pair<int, int> nsize);
 
 		void changeCellType(std::pair<int, int> coordinates, CellType ntype);
 		void changeCellType(int x, int y, CellType ntype);
+
+		void placePlatform(Robots::Platform& plt);
 
 		void consoleOutField(std::ostream& stream=std::cout);
 	};

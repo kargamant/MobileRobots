@@ -40,7 +40,7 @@ namespace Field
 		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
 		for (Robots::Platform& it : plt)
 		{
-			platforms.insert({ it.getCoordinates(), it });
+			placePlatform(it);
 			//platforms[it.getCoordinates()] = it;
 			//platforms.emplace(std::make_pair(it.getCoordinates(), it));
 		}
@@ -114,13 +114,19 @@ namespace Field
 		getCellByCoordinates(coordinates).setType(ntype);
 	}
 
+	void Field::placePlatform(Robots::Platform& plt)
+	{
+		platforms.insert({plt.getCoordinates(), plt});
+	}
+
 	void Field::consoleOutField(std::ostream& stream)
 	{
 		for (int i = 0; i < size.first; i++)
 		{
 			for (int j = 0; j < size.second; j++)
 			{
-				stream << "[" << CellTypeToChar(map[i][j].getType()) << "] ";
+				if (auto search = platforms.find(std::pair<int, int>(i, j)); search != platforms.end()) stream << "[" << platforms[std::pair<int, int>(i, j)].getName() << "] ";
+				else stream << "[" << CellTypeToChar(map[i][j].getType()) << "] ";
 
 			}
 			stream << std::endl;
