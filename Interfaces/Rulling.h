@@ -1,8 +1,9 @@
 #include "../Field/Cell.h"
+#include "Platform.h"
 
 namespace Robots
 {
-	class Rulling
+	class Rulling : public Platform
 	{
 	private:
 		int subord;
@@ -13,7 +14,7 @@ namespace Robots
 		int getSub() { return subord; }
 		Platform* getOrd() { return subordinates; }
 
-		virtual Cell* getReport(int ind)=0;
-		virtual void moveRobo(int ind, std::pair<int, int> vector)=0;
+		virtual Cell* getReport(int ind);
+		virtual void moveRobo(int ind, std::pair<int, int> vector);
 	};
 }

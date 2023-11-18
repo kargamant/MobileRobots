@@ -1,4 +1,5 @@
 #include <utility>
+#pragma once
 namespace Field
 {
 	enum class CellType

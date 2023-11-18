@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 #include "../Interfaces/Platform.h"
+#include "../Interfaces/Moving.h"
 #include <iostream>
 
 namespace Field
@@ -22,16 +23,19 @@ namespace Field
 			return (key1.first == key2.first) && (key1.second == key2.second);
 		}
 	};
-	
+
+	void checkMoving(Robots::Platform* plt);
+
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	class Field
 	{
 	private:
 		std::pair<int, int> size;
-		std::unordered_map<std::pair<int, int>, Robots::Platform, CoordHash, CoordEqual> platforms; //all manage platforms
+		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> platforms;
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
+		void checkPlatformOnField(std::pair<int, int> coordinates);
 	public:
 		static int MAX_RANDOM_SIZE;
 		//void changeMaxRandomSize(int nsize) { MAX_RANDOM_SIZE = nsize; }
@@ -44,7 +48,7 @@ namespace Field
 		std::pair<int, int> getSize() { return size; }
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
-		std::unordered_map<std::pair<int, int>, Robots::Platform, CoordHash, CoordEqual> getPlatforms() { return platforms; }
+		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> getPlatforms() { return platforms; }
 		
 		void resize(int nwidth, int nheight);
 		void resize(std::pair<int, int> nsize);
@@ -52,7 +56,9 @@ namespace Field
 		void changeCellType(std::pair<int, int> coordinates, CellType ntype);
 		void changeCellType(int x, int y, CellType ntype);
 
-		void placePlatform(Robots::Platform& plt);
+		void placePlatform(Robots::Platform* plt);
+		void erasePlatform(std::pair<int, int> coordinates);
+		void movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector);
 
 		void consoleOutField(std::ostream& stream=std::cout);
 	};

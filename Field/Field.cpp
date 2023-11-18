@@ -25,7 +25,7 @@ namespace Field
 		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
 		std::srand(time(NULL));
 
-		size = std::pair<int, int>(std::rand() % MAX_RANDOM_SIZE, std::rand() % MAX_RANDOM_SIZE);
+		size = std::pair<int, int>(5+ std::rand() % MAX_RANDOM_SIZE, 5+ std::rand() % MAX_RANDOM_SIZE);
 		map = createRandomMap(size.first, size.second);
 	}
 
@@ -40,7 +40,7 @@ namespace Field
 		//platfroms = std::unordered_map<std::pair<int, int>, Robots::Platform>();
 		for (Robots::Platform& it : plt)
 		{
-			placePlatform(it);
+			placePlatform(&it);
 			//platforms[it.getCoordinates()] = it;
 			//platforms.emplace(std::make_pair(it.getCoordinates(), it));
 		}
@@ -114,9 +114,42 @@ namespace Field
 		getCellByCoordinates(coordinates).setType(ntype);
 	}
 
-	void Field::placePlatform(Robots::Platform& plt)
+	void Field::placePlatform(Robots::Platform* plt)
 	{
-		platforms.insert({plt.getCoordinates(), plt});
+		platforms.insert({plt->getCoordinates(), plt});
+	}
+
+	void Field::erasePlatform(std::pair<int, int> coordinates)
+	{
+		checkCoordinates(coordinates);
+		platforms.erase(coordinates);
+	}
+
+	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)
+	{
+		checkPlatformOnField(coordinates);
+		Robots::Platform* plt = platforms[coordinates];
+		checkMoving(plt);
+		plt->move(vector);
+		erasePlatform(coordinates);
+		placePlatform(plt);
+	}
+	
+	void Field::checkPlatformOnField(std::pair<int, int> coordinates)
+	{
+		if (platforms.find(coordinates) == platforms.end()) throw std::invalid_argument("Error. No platform with this coordinates on the field.");
+	}
+
+	void checkMoving(Robots::Platform* plt)
+	{
+		try
+		{
+			dynamic_cast<Robots::Moving*>(plt);
+		}
+		catch (std::bad_cast)
+		{
+			throw std::invalid_argument("Error. This platform is not movable.");
+		}
 	}
 
 	void Field::consoleOutField(std::ostream& stream)
@@ -125,7 +158,7 @@ namespace Field
 		{
 			for (int j = 0; j < size.second; j++)
 			{
-				if (auto search = platforms.find(std::pair<int, int>(i, j)); search != platforms.end()) stream << "[" << platforms[std::pair<int, int>(i, j)].getName() << "] ";
+				if (auto search = platforms.find(std::pair<int, int>(i, j)); search != platforms.end()) stream << "[" << platforms[std::pair<int, int>(i, j)]->getName() << "] ";
 				else stream << "[" << CellTypeToChar(map[i][j].getType()) << "] ";
 
 			}

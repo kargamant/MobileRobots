@@ -1,9 +1,10 @@
+#include "Platform.h"
 
 namespace Robots
 {
-	class Destroying
+	class Destroying : public Platform
 	{
 	public:
-		virtual void destroy(int radius)=0;
+		virtual void destroy(int radius);
 	};
 }

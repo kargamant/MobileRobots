@@ -1,14 +1,16 @@
 #include "../Modules/Module.h"
+#include "../Field/Cell.h"
 #include <string>
 #include <vector>
 #include <fstream>
+#pragma once
 
 namespace Robots
 {
 	std::string randomRoboName(std::fstream& file);
 	class Platform
 	{
-	private:
+	protected:
 		static std::string NICKNAME_FILENAME;
 		std::string name;
 		std::pair<int, int> coordinates;
@@ -38,5 +40,9 @@ namespace Robots
 		//virtual void placeModule(int ind);
 		//void turnOn(int ind);
 		//void turnOff(int ind);
+		virtual void move(std::pair<int, int> vector)=0;
+		virtual Field::Cell* getReport(int ind) = 0;
+		virtual void moveRobo(int ind, std::pair<int, int> vector) = 0;
+		virtual void destroy(int radius)=0;
 	};
 }
