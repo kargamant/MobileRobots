@@ -1,5 +1,5 @@
 #include "Module.h"
-#include "Cell.h"
+#include "../Field/Cell.h"
 
 namespace Robots
 {
@@ -22,6 +22,6 @@ namespace Robots
 		Sensor& setAngle(int nangle) { angle = nangle; return *this; }
 
 
-		Cell* scan();
+		std::vector<Field::Cell> scan(Field::Field* fld);
 	};
 }

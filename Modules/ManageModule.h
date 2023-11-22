@@ -4,7 +4,7 @@
 
 namespace Robots
 {
-	class ManageModule : public Module, public Rulling
+	class ManageModule : public Module
 	{
 	private:
 		int radius;

@@ -4,15 +4,11 @@
 namespace Robots
 {
 	//robots are moving anyway, but platforms can stay still
-	class CommandCentre: public Platform, public Rulling
+	class CommandCentre: public Rulling
 	{
 	public:
-		CommandCentre(int sub, std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates);
-		CommandCentre(int sub, Platform& plt);
+		CommandCentre(int radius = 0, int sub = 0, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0)) :Rulling(radius, sub, energy, slots, cost, coordinates) {}
 
-		void moveRobo(int ind, std::pair<int, int> vector) override;
-		Cell* getReport(int ind) override;
-		void deleteModule(int ind) override;
-		void placeModule(int ind) override;
+		void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector) override;
 	};
 }

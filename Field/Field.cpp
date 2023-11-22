@@ -1,5 +1,7 @@
 #include "Field.h"
+#include "../Interfaces/Rulling.h"
 #include <time.h>
+#include "../Platforms/RobotCommander.h"
 
 namespace Field
 {
@@ -92,16 +94,6 @@ namespace Field
 		resize(nsize.first, nsize.second);
 	}
 
-	void Field::checkCoordinates(int x, int y)
-	{
-		if (x >= size.first || x < 0 || y >= size.second || y < 0) throw std::invalid_argument("Error. Invalid coordinates for this field.");
-	}
-
-	void Field::checkCoordinates(std::pair<int, int> coordinates)
-	{
-		checkCoordinates(coordinates.first, coordinates.second);
-	}
-
 	void Field::changeCellType(int x, int y, CellType ntype)
 	{
 		checkCoordinates(x, y);
@@ -129,15 +121,81 @@ namespace Field
 	{
 		checkPlatformOnField(coordinates);
 		Robots::Platform* plt = platforms[coordinates];
+		//TODO: add checking for obstacle and tracking points of interest
 		checkMoving(plt);
-		plt->move(vector);
+		if (isCommander(plt))
+		{
+			for (Robots::Platform& it : dynamic_cast<Robots::RobotCommander*>(plt)->getSubOrd())
+			{
+				try
+				{
+					movePlatform(it.getCoordinates(), vector);
+				}
+				catch (std::invalid_argument)
+				{
+					continue;
+				}
+			}
+		}
+
+		dynamic_cast<Robots::Moving*>(plt)->move(vector);
 		erasePlatform(coordinates);
-		placePlatform(plt);
+		placePlatform(dynamic_cast<Robots::Moving*>(plt));
 	}
-	
-	void Field::checkPlatformOnField(std::pair<int, int> coordinates)
+
+	/*std::vector<Cell> Field::getPlatformReport(std::pair<int, int> coordinates, int ind)
 	{
-		if (platforms.find(coordinates) == platforms.end()) throw std::invalid_argument("Error. No platform with this coordinates on the field.");
+		checkPlatformOnField(coordinates);
+
+		Robots::Platform* subordinate = platforms[coordinates];
+
+		//if (distance(rulling_coordinates, coordinates) > dynamic_cast<Robots::Rulling*>(ruller)->getRadius()) throw std::invalid_argument("Error. Robot is not reachable from rulling robot.");
+
+		//int ind = checkSensor(platforms[coordinates]);
+		//if (ind == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
+		
+		Robots::Module& sensor = subordinate->getRobo()[ind];
+		return dynamic_cast<Robots::Sensor&>(sensor).scan(this);
+	}*/
+
+
+
+	void Field::consoleOutField(std::ostream& stream)
+	{
+		for (int i = 0; i < size.first; i++)
+		{
+			for (int j = 0; j < size.second; j++)
+			{
+				if (auto search = platforms.find(std::pair<int, int>(i, j)); search != platforms.end()) stream << "[" << platforms[std::pair<int, int>(i, j)]->getName() << "] ";
+				else stream << "[" << CellTypeToChar(map[i][j].getType()) << "] ";
+
+			}
+			stream << std::endl;
+		}
+	}
+
+	//extra funcs
+	void Field::checkCoordinates(int x, int y)
+	{
+		if (x >= size.first || x < 0 || y >= size.second || y < 0) throw std::invalid_argument("Error. Invalid coordinates for this field.");
+	}
+
+	void Field::checkCoordinates(std::pair<int, int> coordinates)
+	{
+		checkCoordinates(coordinates.first, coordinates.second);
+	}
+
+	bool isCommander(Robots::Platform* plt)
+	{
+		try
+		{
+			dynamic_cast<Robots::RobotCommander*>(plt);
+		}
+		catch (std::bad_cast)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	void checkMoving(Robots::Platform* plt)
@@ -152,17 +210,32 @@ namespace Field
 		}
 	}
 
-	void Field::consoleOutField(std::ostream& stream)
+	void checkRulling(Robots::Platform* plt)
 	{
-		for (int i = 0; i < size.first; i++)
+		try
 		{
-			for (int j = 0; j < size.second; j++)
-			{
-				if (auto search = platforms.find(std::pair<int, int>(i, j)); search != platforms.end()) stream << "[" << platforms[std::pair<int, int>(i, j)]->getName() << "] ";
-				else stream << "[" << CellTypeToChar(map[i][j].getType()) << "] ";
-
-			}
-			stream << std::endl;
+			dynamic_cast<Robots::Rulling*>(plt);
 		}
+		catch (std::bad_cast)
+		{
+			throw std::invalid_argument("Error. This platform is not a commander, command centre or any other type of rulling entity.");
+		}
+	}
+
+	void Field::checkPlatformOnField(std::pair<int, int> coordinates)
+	{
+		if (platforms.find(coordinates) == platforms.end()) throw std::invalid_argument("Error. No platform with this coordinates on the field.");
+	}
+
+	double Field::distance(std::pair<int, int> cell1, std::pair<int, int> cell2)
+	{
+		checkCoordinates(cell1);
+		checkCoordinates(cell2);
+		return std::sqrt((cell1.first - cell2.first) * (cell1.first - cell2.first) + (cell1.second - cell2.second) * (cell1.second - cell2.second));
+	}
+
+	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2)
+	{
+		return std::sqrt((cell1.first - cell2.first) * (cell1.first - cell2.first) + (cell1.second - cell2.second) * (cell1.second - cell2.second));
 	}
 }

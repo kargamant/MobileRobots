@@ -18,7 +18,10 @@ namespace Robots
 
 		EnergyGenerator& setEnergySup(double nsup) { energySupply = nsup; return *this; }
 
-		void turnOff(int ind);
+		//turn off/on modules supplied by EnergyGenerator
+		void turnOff(int ind);  
 		void turnOn(int ind);
+
+		//override of Module's virtual turn on/off that turn on/off generator itself and all connected modules recursively
 	};
 }

@@ -17,18 +17,19 @@ namespace Robots
 		double energyLevel; //level of consumption
 		int slots;
 		int cost;
-		Module* robo;
+		std::vector<Module> robo;
+		void checkInd(int ind);
 	public:
 		Platform(double energy, int slots, int cost, std::pair<int, int> coordinates); //name will be chosen randomly
 		Platform(std::string name=std::string("c3po"), double energy=0, int slots=1, int cost=0, std::pair<int, int> coordinates=std::pair<int, int>(0, 0));
 		void changeNickNameFileName(std::string nname) { NICKNAME_FILENAME = nname; }
 
-		int getSlots() { return slots; }
+		int getSlots() { return slots; } 
 		std::pair<int, int>& getCoordinates() { return coordinates; }
 		double getEnergyLevel() { return energyLevel; }//flash
 		int getCost() { return cost; }
 		std::string getName() { return name; }
-		Module* getRobo() { return robo; }
+		std::vector<Module> getRobo() { return robo; }
 
 		Platform& setName(std::string nname) { name = nname; return *this; }
 		Platform& setEnergyLevel(double nenergy) { energyLevel = nenergy; return *this; }
@@ -36,13 +37,9 @@ namespace Robots
 		Platform& setCost(int ncost) { cost = ncost; return *this; }
 		Platform& setCoordinates(int x, int y) { coordinates.first = x; coordinates.second = y; return *this; }
 
-		//virtual void deleteModule(int ind);
-		//virtual void placeModule(int ind);
-		//void turnOn(int ind);
-		//void turnOff(int ind);
-		virtual void move(std::pair<int, int> vector)=0;
-		virtual Field::Cell* getReport(int ind) = 0;
-		virtual void moveRobo(int ind, std::pair<int, int> vector) = 0;
-		virtual void destroy(int radius)=0;
+		virtual void deleteModule(int ind);
+		virtual void placeModule(int ind, Module& mod);
+		void turnOn(int ind);
+		void turnOff(int ind);
 	};
 }

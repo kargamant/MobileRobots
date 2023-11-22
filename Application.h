@@ -9,7 +9,7 @@ namespace Game
 	class Application
 	{
 	private:
-		Field field;
+		Field::Field field;
 		ArtificialIntelligence ai;
 	public:
 		Application(Field& fld, ArtificialIntelligence& ai);

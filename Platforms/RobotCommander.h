@@ -4,15 +4,11 @@
 
 namespace Robots
 {
-	class RobotCommander : public Platform, public Moving, public Rulling
+	class RobotCommander : public Moving, public Rulling
 	{
 	public:
-		RobotCommander(int velocity, std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates, int subord);
+		RobotCommander(int velocity = 0, int radius = 0, int sub = 0, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0)) : Moving(velocity, energy, slots, cost, coordinates), Rulling(radius, sub, energy, slots, cost, coordinates) {}
 
-		void moveRobo(int ind, std::pair<int, int> vector) override;
-		Cell* getReport(int ind) override;
-		void deleteModule(int ind) override;
-		void placeModule(int ind) override;
-		void move(std::pair<int, int> vector) override;
+		//void move(std::pair<int, int> vector) override;
 	};
 }

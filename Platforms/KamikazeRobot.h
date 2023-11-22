@@ -3,16 +3,14 @@
 
 namespace Robots
 {
-	class KamikazeRobot :public Platform, public Destroying
+	class KamikazeRobot : public Destroying
 	{
-	private:
-		int max_radius;
 	public:
-		KamikazeRobot(int max_rad, std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates);
+		KamikazeRobot(int max_rad = 1, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0)) :Destroying(max_rad, energy, slots, cost, coordinates) {}
 
 		int getMaxRadius() { return max_radius; }
 		KamikazeRobot& setMaxRadius(int nrad) { max_radius = nrad; return *this; }
 
-		void destroy(int radius) override;
+		void destroy(Field::Field* fld, std::pair<int, int> coordinates) override;
 	};
 }

@@ -1,20 +1,31 @@
-#include "../Field/Cell.h"
 #include "Platform.h"
+#include "../Field/Field.h"
 
 namespace Robots
 {
-	class Rulling : public Platform
+	int checkSensor(Platform* plt);
+
+	class Rulling : virtual public Platform
 	{
 	private:
+		int radius;
 		int subord;
-		Platform* subordinates;
+		std::vector<Platform> subordinates;
+		void checkReachable(Field::Field* fld, int ind);
 	public:
-		Rulling(int sub);
+		Rulling(int radius=0, int sub = 0, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0)) : radius(radius), subord(sub), subordinates(std::vector<Platform>(subord)), Platform(energy, slots, cost, coordinates) {}
 
 		int getSub() { return subord; }
-		Platform* getOrd() { return subordinates; }
+		std::vector<Platform> getSubOrd() { return subordinates; }
+		int getRadius() { return radius; }
 
-		virtual Cell* getReport(int ind);
-		virtual void moveRobo(int ind, std::pair<int, int> vector);
+		void subdue(Platform& plt);
+		void release(int ind);
+
+		void deleteModule(int ind) override;
+		void placeModule(int ind, Module& mod) override;
+		virtual std::vector<Field::Cell> getReport(Field::Field* fld, int ind);
+		virtual void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector);
+		void checkInd(int ind);
 	};
 }

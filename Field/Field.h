@@ -1,7 +1,9 @@
 ﻿#include "Cell.h"
 #include <unordered_map>
+#pragma once
 #include <utility>
 #include <vector>
+#include "../Modules/Sensor.h"
 #include "../Interfaces/Platform.h"
 #include "../Interfaces/Moving.h"
 #include <iostream>
@@ -25,6 +27,9 @@ namespace Field
 	};
 
 	void checkMoving(Robots::Platform* plt);
+	void checkRulling(Robots::Platform* plt);
+	bool isCommander(Robots::Platform* plt);
+	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	class Field
@@ -59,7 +64,10 @@ namespace Field
 		void placePlatform(Robots::Platform* plt);
 		void erasePlatform(std::pair<int, int> coordinates);
 		void movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector);
+		//std::vector<Cell> getPlatformReport(std::pair<int, int> coordinates, int ind);
+
 
 		void consoleOutField(std::ostream& stream=std::cout);
+		double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 	};
 }
