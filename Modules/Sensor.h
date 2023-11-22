@@ -1,26 +1,39 @@
 #include "Module.h"
 #include "../Field/Cell.h"
+#include "../Field/Field.h"
 
 namespace Robots
 {
+	enum class ViewAngles
+	{
+		quater,
+		half,
+		pie,
+		tau
+	};
+
+	int scalar(std::pair<int, int> cell1, std::pair<int, int> cell2);
+	double absVec(std::pair<int, int> vec);
+
 	class Sensor :public Module
 	{
 	private:
 		int radius;
 		std::pair<int, int> direction; //vector from current position to destination point
-		int angle;
+		ViewAngles angle;
 	public:
-		Sensor(int radius, std::pair<int, int> direction, int angle, double energy, bool state, Priority priority, int cost); //automatically sets priority to medium
-		Sensor(int radius, std::pair<int, int> direction, int angle, Module& mod);
+		static double PI;
+		Sensor(int radius, std::pair<int, int> direction, ViewAngles angle, Platform* mom, double energy, bool state, Priority priority, int cost) :radius(radius), direction(direction), angle(angle), Module(mom, energy, state, priority, cost) {} //automatically sets priority to medium
 
 		int getRad() { return radius; }
 		std::pair<int, int> getDirection() { return direction; }
-		int getAngle() { return angle; }
+		ViewAngles getAngle() { return angle; }
 
 		Sensor& setRadius(int nrad) { radius = nrad; return *this; }
 		Sensor& setDirection(int x, int y) { direction.first = x; direction.second = y; return *this; }
-		Sensor& setAngle(int nangle) { angle = nangle; return *this; }
+		Sensor& setAngle(ViewAngles nangle) { angle = nangle; return *this; }
 
+		double toRadians();
 
 		std::vector<Field::Cell> scan(Field::Field* fld);
 	};
