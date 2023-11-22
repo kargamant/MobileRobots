@@ -26,9 +26,9 @@ namespace Field
 		}
 	};
 
-	void checkMoving(Robots::Platform* plt);
-	void checkRulling(Robots::Platform* plt);
-	bool isCommander(Robots::Platform* plt);
+	//void checkMoving(Robots::Platform* plt);
+	//void checkRulling(Robots::Platform* plt);
+	//bool isCommander(Robots::Platform* plt);
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height);

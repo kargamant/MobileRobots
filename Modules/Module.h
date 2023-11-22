@@ -18,8 +18,10 @@ namespace Robots
 		bool state; //on/off
 		Priority priority;
 		int cost;
+	protected:
+		Module& setState(bool nstate) { state = nstate; return *this; }
 	public:
-		Module(Platform* mom, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):motherboard(mom), energyLevel(energy), state(state), priority(priority), cost(cost) {}
+		Module(Platform* mom=nullptr, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):motherboard(mom), energyLevel(energy), state(state), priority(priority), cost(cost) {}
 
 		double getEnergy() { return energyLevel; }
 		bool getState() { return state; }

@@ -18,9 +18,10 @@ namespace Robots
 		int getSub() { return subord; }
 		std::vector<Platform> getSubOrd() { return subordinates; }
 		int getRadius() { return radius; }
+		Module* getManageModule();
 
-		void subdue(Platform& plt);
-		void release(int ind);
+		//void subdue(Platform& plt);
+		//void release(int ind);
 
 		void deleteModule(int ind) override;
 		void placeModule(int ind, Module& mod) override;

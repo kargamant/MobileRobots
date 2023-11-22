@@ -2,6 +2,7 @@
 #include "../Interfaces/Rulling.h"
 #include <time.h>
 #include "../Platforms/RobotCommander.h"
+#include "../CheckComponent.h"
 
 namespace Field
 {
@@ -122,8 +123,8 @@ namespace Field
 		checkPlatformOnField(coordinates);
 		Robots::Platform* plt = platforms[coordinates];
 		//TODO: add checking for obstacle and tracking points of interest
-		checkMoving(plt);
-		if (isCommander(plt))
+		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
+		if (isComponentCastable<Robots::Platform*, Robots::RobotCommander*>(plt))
 		{
 			for (Robots::Platform& it : dynamic_cast<Robots::RobotCommander*>(plt)->getSubOrd())
 			{
@@ -185,7 +186,7 @@ namespace Field
 		checkCoordinates(coordinates.first, coordinates.second);
 	}
 
-	bool isCommander(Robots::Platform* plt)
+	/*bool isCommander(Robots::Platform* plt)
 	{
 		try
 		{
@@ -220,7 +221,7 @@ namespace Field
 		{
 			throw std::invalid_argument("Error. This platform is not a commander, command centre or any other type of rulling entity.");
 		}
-	}
+	}*/
 
 	void Field::checkPlatformOnField(std::pair<int, int> coordinates)
 	{

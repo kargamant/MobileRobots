@@ -2,6 +2,7 @@
 #include "../Modules/Module.h"
 #include "../Modules/Sensor.h"
 #include "../Modules/ManageModule.h"
+#include "../CheckComponent.h"
 
 namespace Robots
 {
@@ -64,7 +65,15 @@ namespace Robots
 		if (!flag) throw std::invalid_argument("Error. Cant delete manage module from rulling platform.");
 	}
 
-	void Rulling::subdue(Platform& plt)
+	Module* Rulling::getManageModule()
+	{
+		for (Module& mod : getRobo())
+		{
+
+		}
+	}
+
+	/*void Rulling::subdue(Platform& plt)
 	{
 		if (Field::distance(coordinates, plt.getCoordinates()) <= radius && subordinates.size() < slots) subordinates.push_back(plt);
 		else if (subordinates.size() < slots) throw std::invalid_argument("Error. Platform is full.");
@@ -75,23 +84,15 @@ namespace Robots
 	{
 		checkInd(ind);
 		subordinates.erase(subordinates.begin() + ind);
-	}
+	}*/
 
 	int checkSensor(Platform* plt)
 	{
 		int k = 0;
 		for (Module& mod : plt->getRobo())
 		{
-			try
-			{
-				dynamic_cast<Sensor&>(mod);
-			}
-			catch (std::bad_cast)
-			{
-				k++;
-				continue;
-			}
-			return k;
+			if (!isComponentCastable<Module&, Sensor&>(mod)) k++;
+			else return k;
 		}
 		return -1;
 	}
