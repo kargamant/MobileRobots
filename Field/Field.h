@@ -51,6 +51,8 @@ namespace Field
 		std::pair<int, int> getSize() { return size; }
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
+		//Robots::Platform* getPlatformByCoordinates(int x, int y) { return platforms[{x, y}]; }
+		//Robots::Platform* getPlatformByCoordinates(std::pair<int, int> coord) { checkPlatformOnField(coord);  return platforms[coord]; }
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> getPlatforms() { return platforms; }
 		
 		void resize(int nwidth, int nheight);

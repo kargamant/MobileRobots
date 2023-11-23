@@ -1,4 +1,5 @@
 #include "Cell.h"
+#include <string>
 
 namespace Field
 {
@@ -29,6 +30,21 @@ namespace Field
 			return 3;
 		default:
 			return -1;
+		}
+	}
+	
+	std::string CellTypeToString(CellType type)
+	{
+		switch (type)
+		{
+		case CellType::ground:
+			return "ground";
+		case CellType::obstacle:
+			return "obstacle";
+		case CellType::pointOfInterest:
+			return "point of interest";
+		default:
+			return "";
 		}
 	}
 }

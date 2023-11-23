@@ -1,4 +1,5 @@
 #include <utility>
+#include <string>
 #pragma once
 namespace Field
 {
@@ -11,6 +12,7 @@ namespace Field
 	};
 
 	char CellTypeToChar(CellType type);
+	std::string CellTypeToString(CellType type);
 	int CellTypeToInt(CellType type);
 
 	class Cell

@@ -3,43 +3,50 @@
 #include "Drawer.h"
 #include "../Platforms/RobotCommander.h"
 
+//Settings
 int Field::Field::MAX_RANDOM_SIZE = 10;
 std::string Drawer::GROUND_TEXTURE = "ground.jpg";
 std::string Drawer::OBSTACLE_TEXTURE = "obstacle.png";
 std::string Drawer::POI_TEXTURE = "poi.jpg";
 std::string Drawer::ROBOT_TEXTURE = "robot_default.jpg";
+int Drawer::LOG_INDENTATION = 300;
 
 int main()
 {
     
     
     Field::Field* fld = new Field::Field();
-    //fld->consoleOutField();
+
+    //test platform placement
     Robots::RobotCommander* rc = new Robots::RobotCommander();
     rc->setCoordinates(2, 3);
     fld->placePlatform(rc);
+
     Drawer dr;
     std::vector<sf::Sprite> sprites = dr.viewField(fld);
-    sf::RenderWindow window(sf::VideoMode(512*0.2*fld->getHeight(), 512*0.2*fld->getWidth()), "MobileRobots");
-    /*sf::Texture robo_text;
-    robo_text.loadFromFile("resources/robot_default.jpg");
+    sf::RenderWindow window(sf::VideoMode(dr.sprite.first*fld->getHeight()+dr.getLogIndentation(), dr.sprite.second * fld->getWidth()), "MobileRobots");
 
+    //text initializer
+    sf::Font pixel_font;
+    pixel_font.loadFromFile("resources/munro-small.ttf");
+    sf::Text consoleOut;
+    sf::Text description;
+    consoleOut.setFont(pixel_font);
+    consoleOut.setCharacterSize(20);
+    consoleOut.setFillColor(sf::Color::White);
+    //consoleOut.setPosition(sf::Vector2f(512 * 0.2 * fld->getHeight() + 5, 0));
 
-    std::vector<sf::Sprite> sprites(10);
-    std::pair<int, int> coordinates = { 0, 0 };
-
-    for(sf::Sprite& sp:sprites)
-    {
-        sp.setTexture(robo_text);
-        sp.scale(sf::Vector2f(0.2, 0.2));
-        sp.setPosition(sf::Vector2f(coordinates.first, coordinates.second));
-        coordinates.first += sp.getTexture()->getSize().x * sp.getScale().x;
-        //coordinates.second += sp.getTexture()->getSize().y * sp.getScale().y;
-    }*/
+    //pic initializer
+    sf::Sprite portrait;
+    portrait.scale(sf::Vector2f(0.4, 0.4));
+    sf::Texture* portrait_text = new sf::Texture();
     
-
+    bool isGameStart = true;
     while (window.isOpen())
     {
+        window.clear();
+        bool isSceneChanged = false;
+        
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -49,19 +56,59 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    //std::cout << event.mouseButton.x << " " <<event.mouseButton.y<< std::endl;
-                    std::pair<Field::Cell, sf::Sprite> closest_cell= dr.mouseClick(event);
-                    std::cout << "{" << closest_cell.first.getX() <<", " << closest_cell.first.getY() << "} " << "[" << Field::CellTypeToChar(closest_cell.first.getType()) << "]" << std::endl;
+                    std::pair<std::pair<int, int>, sf::Sprite> closest_cell = dr.mouseClick(event);
+                    std::pair<int, int> clickObj = closest_cell.first;
+                    Robots::Platform* plt = fld->checkPlatformOnField(clickObj);
+                    std::pair<sf::Sprite, sf::Text> picture;
+                    if (plt != nullptr)
+                    {
+                        picture = dr.drawRobot(*plt, consoleOut);
+                    }
+                    else
+                    {
+                        picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
+                    }
+                    portrait = picture.first;
+                    description = picture.second;
+                    //window.draw(picture.first);
+                    //window.draw(picture.second);
+                    /*std::string out;
+                    Robots::Platform* plt = fld->checkPlatformOnField(closest_cell.first);
+                    if (plt != nullptr)
+                    {
+                        out= "{" + std::to_string(closest_cell.first.first) + ", " + std::to_string(closest_cell.first.second) + "} " + plt->getName();
+                    }
+                    else out = "{" + std::to_string(closest_cell.first.first) + ", " + std::to_string(closest_cell.first.second) + "} " + Field::CellTypeToString(fld->getCellByCoordinates(closest_cell.first).getType());
+                    
+                    description = consoleOut;
+                    description.setString(out);
+                    description.setPosition(sf::Vector2f(dr.sprite.first * fld->getHeight() + 5, dr.sprite.second*2));
+                    
+                    
+                    portrait_text->loadFromFile("resources/" + dr.coordinatesToFileName(closest_cell.first));
+                    portrait.setTexture(*portrait_text);
+                    portrait.setPosition(sf::Vector2f(512 * 0.2 * fld->getHeight() + 5, 0));
+                    */
+                    
+                    //isSceneChanged = true;
                 }
             }
         }
 
-        window.clear();
+        
         //window.draw(sprites[0]);
+        //if (isSceneChanged || isGameStart)
+        //{
         for (sf::Sprite& robo : sprites)
         {
-            window.draw(robo);
+           window.draw(robo);
         }
+        window.draw(portrait);
+        window.draw(description);
+            //isGameStart = false;
+            //window.draw(picture.first);
+            //window.draw(picture.second);
+        //}
         window.display();
     }
 
@@ -70,6 +117,7 @@ int main()
         delete robo.getTexture();
     }
     delete fld;
+    delete portrait_text;
     return 0;
 }
 

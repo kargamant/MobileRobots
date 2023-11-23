@@ -1,5 +1,6 @@
 #include "Drawer.h"
 #include <math.h>
+#include <format>
 
 std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
 {
@@ -12,20 +13,7 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
         while (it.first<= brCorner.first)
         {
             sf::Texture* text = new sf::Texture();
-            std::string filename;
-            switch (fld->getCellByCoordinates(it).getType())
-            {
-            case Field::CellType::ground:
-                filename = GROUND_TEXTURE;
-                break;
-            case Field::CellType::obstacle:
-                filename = OBSTACLE_TEXTURE;
-                break;
-            case Field::CellType::pointOfInterest:
-                filename = POI_TEXTURE;
-                break;
-            }
-            if (fld->checkPlatformOnField(it) != nullptr) filename = ROBOT_TEXTURE;
+            std::string filename = coordinatesToFileName(it);
             //std::cout << filename << std::endl;
             text->loadFromFile("resources/" + filename);
 
@@ -60,32 +48,49 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
         return sprites;
 }
 
-std::pair<Field::Cell, sf::Sprite> Drawer::mouseClick(sf::Event event)
+std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
 {
     std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
-    std::pair<Field::Cell, sf::Sprite> min_sp = {Field::Cell(), sf::Sprite()};
-    for (int i = 0; i < field->getWidth(); i++)
-    {
-        for (int j = 0; j < field->getHeight(); j++)
-        {
-            //std::cout << i << " " << j << std::endl;
-            if (inBoundaries(click, {i , j}))
-            {
-                min_sp.first = field->getCellByCoordinates({i, j});
-                min_sp.second = *map[min_sp.first];
-                return min_sp;
-            }
-        }
-    }
-    /*int min_distance = 1000000;
-    for (std::pair<Field::Cell, sf::Sprite>& sp : map)
-    {
-        int distance = std::sqrt((click.first-sp.second.getPosition().x)* (click.first - sp.second.getPosition().x)+ (click.second - sp.second.getPosition().y)* (click.second - sp.second.getPosition().y));
-        if (distance < min_distance)
-        {
-            min_distance = distance;
-            min_sp = sp;
-        }
-    }*/
+    std::pair<std::pair<int, int>, sf::Sprite> min_sp = { std::pair<int, int>(), sf::Sprite() };
+    min_sp.first.first = (click.second / sprite.first);
+    min_sp.first.second = (click.first / sprite.second);
+    min_sp.second = *map[field->getCellByCoordinates(min_sp.first)];
     return min_sp;
+}
+
+std::pair<sf::Sprite, sf::Text> Drawer::drawCell(Field::Cell& cell, sf::Text& preSet)
+{
+    std::string out= std::format("({}, {}) : {}", std::to_string(cell.getX()), std::to_string(cell.getY()), Field::CellTypeToString(cell.getType()));
+    sf::Text description = preSet;
+    description.setString(out);
+    description.setPosition(sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2));
+
+    std::cout << out << std::endl;
+    sf::Texture* port_text = new sf::Texture();
+    sf::Sprite portrait = sf::Sprite();
+    port_text->loadFromFile("resources/" + coordinatesToFileName(cell.getCoordinates()));
+    portrait.setTexture(*port_text);
+    portrait.scale(sf::Vector2f(0.4, 0.4));
+    portrait.setPosition(sf::Vector2f(sprite.first * field->getHeight() + 5, 0));
+
+    return std::pair<sf::Sprite, sf::Text>(portrait, description);
+}
+
+std::pair<sf::Sprite, sf::Text> Drawer::drawRobot(Robots::Platform& plt, sf::Text& preSet)
+{
+    std::string out= std::format("({}, {}) : {}", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName());
+    
+    sf::Text description = preSet;
+    description.setString(out);
+    description.setPosition(sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2));
+
+    std::cout << out << std::endl;
+    sf::Texture* port_text = new sf::Texture();
+    sf::Sprite portrait = sf::Sprite();
+    port_text->loadFromFile("resources/" + coordinatesToFileName(plt.getCoordinates()));
+    portrait.setTexture(*port_text);
+    portrait.scale(sf::Vector2f(0.4, 0.4));
+    portrait.setPosition(sf::Vector2f(sprite.first * field->getHeight() + 5, 0));
+
+    return std::pair<sf::Sprite, sf::Text>(portrait, description);
 }

@@ -27,26 +27,40 @@ private:
     static std::string OBSTACLE_TEXTURE;
     static std::string ROBOT_TEXTURE;
     static std::string POI_TEXTURE;
+    static int LOG_INDENTATION;
 public:
     std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
-    //std::vector<std::pair<Field::Cell, sf::Sprite>> map;
     Field::Field* field;
     std::pair<int, int> sprite;
 
     std::vector<sf::Sprite> viewField(Field::Field* fld);
-    std::pair<Field::Cell, sf::Sprite> mouseClick(sf::Event event);
+    std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);
+    std::string coordinatesToFileName(std::pair<int, int> coordinates)
+    {
+        std::string filename;
+        switch (field->getCellByCoordinates(coordinates).getType())
+        {
+        case Field::CellType::ground:
+            filename = GROUND_TEXTURE;
+            break;
+        case Field::CellType::obstacle:
+            filename = OBSTACLE_TEXTURE;
+            break;
+        case Field::CellType::pointOfInterest:
+            filename = POI_TEXTURE;
+            break;
+        }
+        if (field->checkPlatformOnField(coordinates) != nullptr) filename = ROBOT_TEXTURE;
+        return filename;
+    }
+
+    std::pair<sf::Sprite, sf::Text> drawCell(Field::Cell& cell, sf::Text& preSet);
+    std::pair<sf::Sprite, sf::Text> drawRobot(Robots::Platform& plt, sf::Text& preSet);
 
     bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
     {
         return (click.second > cell1.first * sprite.first && click.second<(cell1.first + 1)* sprite.first&& click.first> cell1.second * sprite.second && click.first < (cell1.second + 1)* sprite.second);
     }
 
-    /*sf::Sprite& getSpriteByCoordinates(std::pair<int, int> coordinates)
-    {
-        for (std::pair<Field::Cell, sf::Sprite>& sp : map)
-        {
-            if (sp.first.getCoordinates() == coordinates) return sp.second;
-        }
-        return map[0].second;
-    }*/
+    int getLogIndentation() { return LOG_INDENTATION; }
 };

@@ -26,6 +26,8 @@ namespace Robots
 
 		int getSlots() { return slots; } 
 		std::pair<int, int>& getCoordinates() { return coordinates; }
+		int getX() { return coordinates.first; }
+		int getY() { return coordinates.second; }
 		double getEnergyLevel() { return energyLevel; }//flash
 		int getCost() { return cost; }
 		std::string getName() { return name; }
