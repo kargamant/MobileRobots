@@ -49,6 +49,7 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
+                    //std::cout << event.mouseButton.x << " " <<event.mouseButton.y<< std::endl;
                     std::pair<Field::Cell, sf::Sprite> closest_cell= dr.mouseClick(event);
                     std::cout << "{" << closest_cell.first.getX() <<", " << closest_cell.first.getY() << "} " << "[" << Field::CellTypeToChar(closest_cell.first.getType()) << "]" << std::endl;
                 }

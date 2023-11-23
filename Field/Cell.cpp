@@ -16,4 +16,19 @@ namespace Field
 			return '\0';
 		}
 	}
+
+	int CellTypeToInt(CellType type)
+	{
+		switch (type)
+		{
+		case CellType::ground:
+			return 1;
+		case CellType::obstacle:
+			return 2;
+		case CellType::pointOfInterest:
+			return 3;
+		default:
+			return -1;
+		}
+	}
 }

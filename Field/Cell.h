@@ -11,6 +11,7 @@ namespace Field
 	};
 
 	char CellTypeToChar(CellType type);
+	int CellTypeToInt(CellType type);
 
 	class Cell
 	{
@@ -22,10 +23,10 @@ namespace Field
 		Cell(int x, int y, CellType type=CellType::ground) : coordinates(std::pair<int, int>(x, y)), type(type) {}
 		//Cell(Cell& cell) { coordinates = cell.coordinates; type = cell.type; }
 
-		std::pair<int, int> getCoordinates() { return coordinates; }
-		int getX() { return coordinates.first; }
-		int getY() { return coordinates.second; }
-		CellType getType() { return type; }
+		std::pair<int, int> getCoordinates() const { return coordinates; }
+		int getX() const { return coordinates.first; }
+		int getY() const { return coordinates.second; }
+		CellType getType() const { return type; }
 
 		Cell& setCoordinates(std::pair<int, int> ncoord) { coordinates = ncoord; return *this; }
 		Cell& setX(int nx) { coordinates.first = nx; return *this; }

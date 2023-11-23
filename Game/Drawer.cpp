@@ -9,7 +9,7 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
         std::pair<int, int> it = tlCorner;
         std::pair<int, int> position = { 0, 0 };
         field = fld;
-        while (it != brCorner)
+        while (it.first<= brCorner.first)
         {
             sf::Texture* text = new sf::Texture();
             std::string filename;
@@ -32,13 +32,17 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
             sf::Sprite sp;
             sp.setTexture(*text);
             sp.setScale(sf::Vector2f(0.2, 0.2));
+
             sprite.first = sp.getTexture()->getSize().x * sp.getScale().x;
             sprite.second = sp.getTexture()->getSize().y * sp.getScale().y;
+            //std::cout << sprite.first << " " << sprite.second << std::endl;
+
             sp.setPosition(sf::Vector2f(position.first, position.second));
 
             sprites.push_back(sp);
-            map.push_back(std::pair<Field::Cell&, sf::Sprite>(fld->getCellByCoordinates(it), sp));
-           
+            //map.push_back(std::pair<Field::Cell&, sf::Sprite>(fld->getCellByCoordinates(it), sp));
+            map.insert({ fld->getCellByCoordinates(it), &sp });
+
             if (it.second != brCorner.second)
             {
                 it.second++;
@@ -60,14 +64,15 @@ std::pair<Field::Cell, sf::Sprite> Drawer::mouseClick(sf::Event event)
 {
     std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
     std::pair<Field::Cell, sf::Sprite> min_sp = {Field::Cell(), sf::Sprite()};
-    for (int i = 0; i < field->getSize().first; i++)
+    for (int i = 0; i < field->getWidth(); i++)
     {
-        for (int j = 0; j < field->getSize().second; j++)
+        for (int j = 0; j < field->getHeight(); j++)
         {
-            if (inBoundaries(click, { i, j }))
+            //std::cout << i << " " << j << std::endl;
+            if (inBoundaries(click, {i , j}))
             {
-                min_sp.first = field->getCellByCoordinates({j,i});
-                min_sp.second = getSpriteByCoordinates({ j, i });
+                min_sp.first = field->getCellByCoordinates({i, j});
+                min_sp.second = *map[min_sp.first];
                 return min_sp;
             }
         }
