@@ -5,18 +5,17 @@
 #include "Field/Obstacle.h"
 #include "Field/PointOfInterest.h"
 #include <unordered_map>
-using namespace Field;
 
 namespace Robots
 {
 	class ArtificialIntelligence
 	{
 	private:
-		std::unordered_map<Obstacle> obstacles; //discovered obstacles
-		std::unordered_map<PointOfInterest> poi; //discovered points of interest
+		std::unordered_map<std::pair<int, int>, Field::Cell*> obstacles; //discovered obstacles
+		std::unordered_map<std::pair<int, int>, Field::Cell*> poi; //discovered points of interest
 	public:
-		ArtificialIntelligence();
+		ArtificialIntelligence() :obstacles(), poi() {}
 
-		PointOfInterest* find(Field* field);
+		//std::vector<Cell*> find(Field* field);
 	};
 }

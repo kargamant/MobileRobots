@@ -1,3 +1,4 @@
+#include "../Interfaces/Platform.h"
 #include "Module.h"
 #include "../Field/Cell.h"
 #include "../Field/Field.h"

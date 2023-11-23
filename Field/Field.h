@@ -40,9 +40,9 @@ namespace Field
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
-		void checkPlatformOnField(std::pair<int, int> coordinates);
 	public:
 		static int MAX_RANDOM_SIZE;
+		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
 		//void changeMaxRandomSize(int nsize) { MAX_RANDOM_SIZE = nsize; }
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size

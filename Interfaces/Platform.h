@@ -1,5 +1,5 @@
-#include "../Modules/Module.h"
 #include "../Field/Cell.h"
+#include "../Modules/Module.h"
 #include <string>
 #include <vector>
 #include <fstream>
@@ -42,4 +42,5 @@ namespace Robots
 		void turnOn(int ind);
 		void turnOff(int ind);
 	};
+
 }

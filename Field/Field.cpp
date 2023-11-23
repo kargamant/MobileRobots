@@ -120,7 +120,7 @@ namespace Field
 
 	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)
 	{
-		checkPlatformOnField(coordinates);
+		if (checkPlatformOnField(coordinates) == nullptr) throw std::invalid_argument("Error. No platform with such coordinates on field.");
 		Robots::Platform* plt = platforms[coordinates];
 		//TODO: add checking for obstacle and tracking points of interest
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
@@ -223,9 +223,10 @@ namespace Field
 		}
 	}*/
 
-	void Field::checkPlatformOnField(std::pair<int, int> coordinates)
+	Robots::Platform* Field::checkPlatformOnField(std::pair<int, int> coordinates)
 	{
-		if (platforms.find(coordinates) == platforms.end()) throw std::invalid_argument("Error. No platform with this coordinates on the field.");
+		if (platforms.find(coordinates) == platforms.end()) return nullptr;
+		return  platforms[coordinates];
 	}
 
 	double Field::distance(std::pair<int, int> cell1, std::pair<int, int> cell2)
