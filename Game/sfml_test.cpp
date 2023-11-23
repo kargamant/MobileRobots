@@ -11,7 +11,7 @@ std::string Drawer::ROBOT_TEXTURE = "robot_default.jpg";
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1000, 1000), "MobileRobots");
+    
     
     Field::Field* fld = new Field::Field();
     //fld->consoleOutField();
@@ -20,6 +20,7 @@ int main()
     fld->placePlatform(rc);
     Drawer dr;
     std::vector<sf::Sprite> sprites = dr.viewField(fld);
+    sf::RenderWindow window(sf::VideoMode(512*0.2*fld->getHeight(), 512*0.2*fld->getWidth()), "MobileRobots");
     /*sf::Texture robo_text;
     robo_text.loadFromFile("resources/robot_default.jpg");
 
@@ -49,7 +50,7 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     std::pair<Field::Cell, sf::Sprite> closest_cell= dr.mouseClick(event);
-                    std::cout <<"[" << Field::CellTypeToChar(closest_cell.first.getType()) << "]" << std::endl;
+                    std::cout << "{" << closest_cell.first.getX() <<", " << closest_cell.first.getY() << "} " << "[" << Field::CellTypeToChar(closest_cell.first.getType()) << "]" << std::endl;
                 }
             }
         }
