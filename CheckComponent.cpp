@@ -2,7 +2,6 @@
 #include "Modules/Module.h"
 #include "Modules/Sensor.h"
 
-
 int foo()
 {
 	Robots::Module mod = Robots::Module();

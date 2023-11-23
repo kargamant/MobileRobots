@@ -10,7 +10,7 @@ namespace Robots
 		std::vector<Module> connected;
 		void checkInd(int ind);
 	public:
-		EnergyGenerator(double energySupply, int modules, std::vector<Module> connected, Platform* mom, double energy, bool state, Priority priority, int cost) : energySupply(energySupply), modules(modules), connected(std::vector<Module>(modules)), Module(mom, energySupply, state, priority, cost) {} //automatically set priority to low
+		EnergyGenerator(double energySupply, int modules, std::vector<Module> connected, double energy, bool state, Priority priority, int cost) : energySupply(energySupply), modules(modules), connected(std::vector<Module>(modules)), Module(energySupply, state, priority, cost) {} //automatically set priority to low
 		//EnergyGenerator(double energySupply, int modules, std::vector<Module> connected, Module& mod);
 
 		double getEnergySup() { return energySupply; }

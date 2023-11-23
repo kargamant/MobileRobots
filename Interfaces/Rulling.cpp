@@ -18,9 +18,9 @@ namespace Robots
 
 		Platform reporter = subordinates[ind];
 
-		int ind=checkSensor(reporter);
-		if(ind==-1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
-		return dynamic_cast<Sensor*>(reporter.getRobo().begin()+ind).scan(fld);
+		int sensor=checkSensor(&reporter);
+		if(sensor==-1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
+		return dynamic_cast<Sensor&>(reporter.getRobo()[sensor]).scan(fld, coordinates);
 	}
 
 	void Rulling::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
@@ -55,7 +55,7 @@ namespace Robots
 		int flag = false;
 		try
 		{
-			dynamic_cast<ManageModule>(robo[ind]);
+			dynamic_cast<ManageModule&>(robo[ind]);
 		}
 		catch (std::bad_cast)
 		{
@@ -65,13 +65,13 @@ namespace Robots
 		if (!flag) throw std::invalid_argument("Error. Cant delete manage module from rulling platform.");
 	}
 
-	Module* Rulling::getManageModule()
+	/*Module* Rulling::getManageModule()
 	{
 		for (Module& mod : getRobo())
 		{
 
 		}
-	}
+	}*/
 
 	/*void Rulling::subdue(Platform& plt)
 	{

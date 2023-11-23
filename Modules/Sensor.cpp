@@ -28,12 +28,13 @@ namespace Robots
 		case ViewAngles::tau:
 			return 2 * PI;
 		}
+		return 0;
 	}
 
-	std::vector<Field::Cell> Sensor::scan(Field::Field* fld)
+	std::vector<Field::Cell> Sensor::scan(Field::Field* fld, std::pair<int, int> mom_coordinates)
 	{
 		std::vector<Field::Cell> result;
-		std::pair<int, int> coordinates = getMom()->getCoordinates();
+		std::pair<int, int> coordinates = mom_coordinates;
 		std::pair<int, int> tlCorner = { std::max(coordinates.first - radius, 0), std::max(coordinates.second - radius, 0) };
 		std::pair<int, int> brCorner = { std::min(coordinates.first + radius, fld->getWidth()), std::min(coordinates.second + radius, fld->getHeight())};
 		std::pair<int, int> it = tlCorner;

@@ -24,7 +24,7 @@ namespace Robots
 		ViewAngles angle;
 	public:
 		static double PI;
-		Sensor(int radius, std::pair<int, int> direction, ViewAngles angle, Platform* mom, double energy, bool state, Priority priority, int cost) :radius(radius), direction(direction), angle(angle), Module(mom, energy, state, priority, cost) {} //automatically sets priority to medium
+		Sensor(int radius, std::pair<int, int> direction, ViewAngles angle, double energy, bool state, Priority priority, int cost) :radius(radius), direction(direction), angle(angle), Module(energy, state, priority, cost) {} //automatically sets priority to medium
 
 		int getRad() { return radius; }
 		std::pair<int, int> getDirection() { return direction; }
@@ -36,6 +36,6 @@ namespace Robots
 
 		double toRadians();
 
-		std::vector<Field::Cell> scan(Field::Field* fld);
+		std::vector<Field::Cell> scan(Field::Field* fld, std::pair<int, int> mom_coordinates);
 	};
 }

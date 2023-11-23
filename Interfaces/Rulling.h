@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "../Field/Field.h"
+#pragma once
 
 namespace Robots
 {
@@ -18,7 +19,7 @@ namespace Robots
 		int getSub() { return subord; }
 		std::vector<Platform> getSubOrd() { return subordinates; }
 		int getRadius() { return radius; }
-		Module* getManageModule();
+		//Module* getManageModule();
 
 		//void subdue(Platform& plt);
 		//void release(int ind);

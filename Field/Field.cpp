@@ -3,6 +3,9 @@
 #include <time.h>
 #include "../Platforms/RobotCommander.h"
 #include "../CheckComponent.h"
+#include "../Modules/Sensor.h"
+#include <math.h>
+#include "../Interfaces/Moving.h"
 
 namespace Field
 {
@@ -126,7 +129,7 @@ namespace Field
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
 		if (isComponentCastable<Robots::Platform*, Robots::RobotCommander*>(plt))
 		{
-			for (Robots::Platform& it : dynamic_cast<Robots::RobotCommander*>(plt)->getSubOrd())
+			for (Robots::Platform it : dynamic_cast<Robots::RobotCommander*>(plt)->getSubOrd())
 			{
 				try
 				{

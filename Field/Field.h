@@ -3,9 +3,7 @@
 #pragma once
 #include <utility>
 #include <vector>
-#include "../Modules/Sensor.h"
 #include "../Interfaces/Platform.h"
-#include "../Interfaces/Moving.h"
 #include <iostream>
 
 namespace Field

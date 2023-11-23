@@ -1,5 +1,4 @@
 #pragma once
-#include "../Interfaces/Platform.h"
 
 namespace Robots
 {
@@ -13,7 +12,7 @@ namespace Robots
 	class Module
 	{
 	private:
-		Platform* motherboard;
+		//Platform* motherboard;
 		double energyLevel;
 		bool state; //on/off
 		Priority priority;
@@ -21,13 +20,15 @@ namespace Robots
 	protected:
 		Module& setState(bool nstate) { state = nstate; return *this; }
 	public:
-		Module(Platform* mom=nullptr, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):motherboard(mom), energyLevel(energy), state(state), priority(priority), cost(cost) {}
+		//Platform* mom=nullptr,
+		//motherboard(mom), 
+		Module(double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):energyLevel(energy), state(state), priority(priority), cost(cost) {}
 
 		double getEnergy() { return energyLevel; }
 		bool getState() { return state; }
 		Priority getPriority() { return priority; }
 		int getCost() { return cost; }
-		Platform* getMom() { return motherboard; }
+		//Platform* getMom() { return motherboard; }
 
 		virtual Module& turnOn() { state = true; return *this; }
 		virtual Module& turnOff() { state = false; return *this; }

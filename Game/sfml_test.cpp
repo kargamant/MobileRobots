@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "../Field/Field.h"
 #include "Drawer.h"
+#include "../Platforms/RobotCommander.h"
 
 int Field::Field::MAX_RANDOM_SIZE = 10;
 std::string Drawer::GROUND_TEXTURE = "ground.jpg";
@@ -12,8 +13,13 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(1000, 1000), "MobileRobots");
     
-    Field::Field* fld();
-    std::vector<sf::Sprite> sprites = Drawer::viewField(fld);
+    Field::Field* fld = new Field::Field();
+    //fld->consoleOutField();
+    Robots::RobotCommander* rc = new Robots::RobotCommander();
+    rc->setCoordinates(2, 3);
+    fld->placePlatform(rc);
+    Drawer dr;
+    std::vector<sf::Sprite> sprites = dr.viewField(fld);
     /*sf::Texture robo_text;
     robo_text.loadFromFile("resources/robot_default.jpg");
 
@@ -38,9 +44,18 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    std::pair<Field::Cell, sf::Sprite> closest_cell= dr.mouseClick(event);
+                    std::cout <<"[" << Field::CellTypeToChar(closest_cell.first.getType()) << "]" << std::endl;
+                }
+            }
         }
 
         window.clear();
+        //window.draw(sprites[0]);
         for (sf::Sprite& robo : sprites)
         {
             window.draw(robo);
@@ -48,6 +63,11 @@ int main()
         window.display();
     }
 
+    for (sf::Sprite& robo : sprites)
+    {
+        delete robo.getTexture();
+    }
+    delete fld;
     return 0;
 }
 
