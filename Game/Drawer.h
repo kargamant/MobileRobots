@@ -64,3 +64,34 @@ public:
 
     int getLogIndentation() { return LOG_INDENTATION; }
 };
+
+/*
+class View
+{
+//parameters
+private:
+    std::string TEXTURE_NAME;
+    std::string FONT_NAME;
+    int CHARACTER_SIZE;
+    sf::Color FILL_COLOR;
+    sf::Vector2f SCALE;
+    sf::Vector2f POSITION;
+public:
+    sf::Sprite portrait;
+    sf::Text description;
+    View(std::string texture_name, std::string font_name, int character_size, sf::Color fill_color, sf::Vector2f scale, sf::Vector2f position) :TEXTURE_NAME(texture_name), FONT_NAME(font_name), CHARACTER_SIZE(character_size), FILL_COLOR(fill_color), SCALE(scale), POSITION(position)
+    {
+        sf::Texture* texture = new sf::Texture();
+        texture->loadFromFile("resources/"+TEXTURE_NAME);
+        portrait.setTexture(*texture);
+        portrait.scale(SCALE);
+        portrait.setPosition(POSITION);
+
+        sf::Font font;
+        font.loadFromFile("resources/"+font_name);
+        description.setFont(font);
+        description.setCharacterSize(character_size);
+        description.setFillColor(FILL_COLOR);
+    }
+
+};*/

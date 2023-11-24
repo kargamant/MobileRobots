@@ -54,6 +54,13 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     std::pair<std::pair<int, int>, sf::Sprite> min_sp = { std::pair<int, int>(), sf::Sprite() };
     min_sp.first.first = (click.second / sprite.first);
     min_sp.first.second = (click.first / sprite.second);
+    if (min_sp.first.first > field->getWidth() || min_sp.first.second > field->getHeight())
+    {
+        std::cout << "oops. wrong click." << std::endl;
+        min_sp.first = { -1, -1 };
+        return min_sp;
+    }
+    //std::cout << field->getCellByCoordinates(min_sp.first << std::endl;
     min_sp.second = *map[field->getCellByCoordinates(min_sp.first)];
     return min_sp;
 }
@@ -61,6 +68,9 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
 std::pair<sf::Sprite, sf::Text> Drawer::drawCell(Field::Cell& cell, sf::Text& preSet)
 {
     std::string out= std::format("({}, {}) : {}", std::to_string(cell.getX()), std::to_string(cell.getY()), Field::CellTypeToString(cell.getType()));
+    
+    //View view = View(coordinatesToFileName(cell.getCoordinates()), std::string font_name, int character_size, sf::Color fill_color, sf::Vector2f scale, sf::Vector2f position);
+    
     sf::Text description = preSet;
     description.setString(out);
     description.setPosition(sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2));
