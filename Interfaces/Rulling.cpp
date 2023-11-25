@@ -2,7 +2,7 @@
 #include "../Modules/Module.h"
 #include "../Modules/Sensor.h"
 #include "../Modules/ManageModule.h"
-#include "../CheckComponent.h"
+#include "../utils/CheckComponent.h"
 
 namespace Robots
 {

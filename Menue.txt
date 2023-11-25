@@ -1,6 +1,0 @@
---------------------------
-1. Create field
-2. Move platform
-3. get Report from platform
-4. resize field
-5. 

@@ -30,13 +30,14 @@ namespace Field
 	class Field
 	{
 	private:
-		static int MAX_RANDOM_SIZE;
 		std::pair<int, int> size;
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> platforms;
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
 	public:
+		static int MAX_RANDOM_SIZE;
+
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size
 		Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt);

@@ -1,0 +1,1 @@
+add_library(Platforms CommandCentre.cpp KamikazeRobot.cpp MobilePlatform.cpp QuantumPlatform.cpp RobotCommander.cpp RobotDestroyer.cpp)

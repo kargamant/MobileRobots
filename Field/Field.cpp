@@ -2,13 +2,14 @@
 #include "../Interfaces/Rulling.h"
 #include <time.h>
 #include "../Platforms/RobotCommander.h"
-#include "../CheckComponent.h"
+#include "../utils/CheckComponent.h"
 #include "../Modules/Sensor.h"
 #include <math.h>
 #include "../Interfaces/Moving.h"
 
 namespace Field
 {
+	int Field::MAX_RANDOM_SIZE = 10;
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height)
 	{
 		//maybe do it more smart

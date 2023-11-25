@@ -1,6 +1,14 @@
 #include "Drawer.h"
 #include <math.h>
 #include <format>
+#include <filesystem>
+
+//Settings
+std::string Drawer::GROUND_TEXTURE = "ground.jpg";
+std::string Drawer::OBSTACLE_TEXTURE = "obstacle.png";
+std::string Drawer::POI_TEXTURE = "poi.jpg";
+std::string Drawer::ROBOT_TEXTURE = "robot_default.jpg";
+int Drawer::LOG_INDENTATION = 300;
 
 std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
 {
@@ -10,6 +18,7 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
         std::pair<int, int> it = tlCorner;
         std::pair<int, int> position = { 0, 0 };
         field = fld;
+        //std::cout << std::filesystem::current_path() << std::endl;
         while (it.first<= brCorner.first)
         {
             sf::Texture* text = new sf::Texture();

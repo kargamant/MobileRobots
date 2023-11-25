@@ -1,15 +1,8 @@
 #include <SFML/Graphics.hpp>
-#include "../Field/Field.h"
-#include "Drawer.h"
-#include "../Platforms/RobotCommander.h"
+#include "Field/Field.h"
+#include "Game/Drawer.h"
+#include "Platforms/RobotCommander.h"
 
-//Settings
-int Field::Field::MAX_RANDOM_SIZE = 10;
-std::string Drawer::GROUND_TEXTURE = "ground.jpg";
-std::string Drawer::OBSTACLE_TEXTURE = "obstacle.png";
-std::string Drawer::POI_TEXTURE = "poi.jpg";
-std::string Drawer::ROBOT_TEXTURE = "robot_default.jpg";
-int Drawer::LOG_INDENTATION = 300;
 
 int main()
 {

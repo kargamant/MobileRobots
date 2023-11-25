@@ -1,0 +1,1 @@
+add_library(Modules EnergyGenerator.cpp Gun.cpp ManageModule.cpp Module.cpp Sensor.cpp)

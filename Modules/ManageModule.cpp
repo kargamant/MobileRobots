@@ -1,6 +1,6 @@
 #include "../Platforms/CommandCentre.h"
 #include "Sensor.h"
-#include "../CheckComponent.h"
+#include "../utils/CheckComponent.h"
 
 namespace Robots
 {

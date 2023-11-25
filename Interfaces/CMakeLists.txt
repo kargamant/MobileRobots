@@ -1,0 +1,1 @@
+add_library(Interfaces Platform.cpp Rulling.cpp Moving.cpp Destroying.h)
