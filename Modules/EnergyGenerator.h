@@ -1,4 +1,5 @@
 #include "Module.h"
+#include <vector>
 
 namespace Robots
 {
@@ -11,7 +12,6 @@ namespace Robots
 		void checkInd(int ind);
 	public:
 		EnergyGenerator(double energySupply, int modules, std::vector<Module> connected, double energy, bool state, Priority priority, int cost) : energySupply(energySupply), modules(modules), connected(std::vector<Module>(modules)), Module(energySupply, state, priority, cost) {} //automatically set priority to low
-		//EnergyGenerator(double energySupply, int modules, std::vector<Module> connected, Module& mod);
 
 		double getEnergySup() { return energySupply; }
 		int getModules() { return modules; }

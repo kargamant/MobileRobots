@@ -4,7 +4,7 @@
 
 namespace Robots
 {
-	class RobotDestroyer : public Moving, public Destroying
+	class RobotDestroyer : public Moving, public Destroying, public Platform
 	{
 	public:
 		RobotDestroyer(max_radius = 0, int velocity = 0, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0));

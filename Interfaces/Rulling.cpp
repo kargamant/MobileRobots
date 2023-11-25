@@ -6,12 +6,12 @@
 
 namespace Robots
 {
-	void Rulling::checkReachable(Field::Field* fld, int ind)
+	/*void Rulling::checkReachable(Field::Field* fld, int ind)
 	{
-		if (fld->distance(subordinates[ind].getCoordinates(), coordinates) > radius) throw std::invalid_argument("Error. Robot is not reachable from rulling robot.");
-	}
+		if (distance(subordinates[ind].getCoordinates(), coordinates) > radius) throw std::invalid_argument("Error. Robot is not reachable from rulling robot.");
+	}*/
 
-	std::vector<Field::Cell> Rulling::getReport(Field::Field* fld, int ind)
+	/*std::vector<Field::Cell> Rulling::getReport(Field::Field* fld, int ind)
 	{
 		checkInd(ind);
 		checkReachable(fld, ind);
@@ -29,14 +29,9 @@ namespace Robots
 		checkReachable(fld, ind);
 
 		fld->movePlatform(subordinates[ind].getCoordinates(), vector);
-	}
-	
-	void Rulling::checkInd(int ind)
-	{
-		if (ind >= subord) throw std::invalid_argument("Error. Index is greater than number of subordinates.");
-	}
+	}*/
 
-	void Rulling::placeModule(int ind, Module& mod)
+	/*void Rulling::placeModule(int ind, Module& mod)
 	{
 		checkInd(ind);
 		if (robo.size() != slots)
@@ -63,37 +58,7 @@ namespace Robots
 			robo.erase(robo.begin() + ind);
 		}
 		if (!flag) throw std::invalid_argument("Error. Cant delete manage module from rulling platform.");
-	}
-
-	/*Module* Rulling::getManageModule()
-	{
-		for (Module& mod : getRobo())
-		{
-
-		}
 	}*/
 
-	/*void Rulling::subdue(Platform& plt)
-	{
-		if (Field::distance(coordinates, plt.getCoordinates()) <= radius && subordinates.size() < slots) subordinates.push_back(plt);
-		else if (subordinates.size() < slots) throw std::invalid_argument("Error. Platform is full.");
-		else throw std::invalid_argument("Error. Cant subdue, platform is unreachable.");
-	}
-
-	void Rulling::release(int ind)
-	{
-		checkInd(ind);
-		subordinates.erase(subordinates.begin() + ind);
-	}*/
-
-	int checkSensor(Platform* plt)
-	{
-		int k = 0;
-		for (Module& mod : plt->getRobo())
-		{
-			if (!isComponentCastable<Module&, Sensor&>(mod)) k++;
-			else return k;
-		}
-		return -1;
-	}
+	
 }

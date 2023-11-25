@@ -23,8 +23,6 @@ namespace Robots
 		i = std::rand() % i;
 		int k = std::rand() % prefixes.length();
 
-		//for (std::string& s : base_nicknames) std::cout << s << std::endl;
-		//std::cout << base_nicknames[i]<<std::endl;
 		return (base_nicknames[i]+ prefixes[k] + std::to_string((std::rand() % 10) * 1000));
 	}
 
@@ -57,6 +55,28 @@ namespace Robots
 			if (robo.size() != slots)
 			{
 				robo.insert(robo.begin() + ind, mod);
+			}
+			else
+			{
+				throw std::invalid_argument("Error. Platform is full.");
+			}
+		}
+		if (!flag) throw std::invalid_argument("Error. Cant place manage module on non rulling platform.");
+	}
+
+	void Platform::placeModule(Module& mod)
+	{
+		int flag = false;
+		try
+		{
+			dynamic_cast<ManageModule*>(&mod);
+		}
+		catch (std::bad_cast)
+		{
+			flag = true;
+			if (robo.size() != slots)
+			{
+				robo.push_back(mod);
 			}
 			else
 			{

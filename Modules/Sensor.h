@@ -15,6 +15,7 @@ namespace Robots
 
 	int scalar(std::pair<int, int> cell1, std::pair<int, int> cell2);
 	double absVec(std::pair<int, int> vec);
+	double toRadians(ViewAngles angle);
 
 	class Sensor :public Module
 	{
@@ -33,8 +34,6 @@ namespace Robots
 		Sensor& setRadius(int nrad) { radius = nrad; return *this; }
 		Sensor& setDirection(int x, int y) { direction.first = x; direction.second = y; return *this; }
 		Sensor& setAngle(ViewAngles nangle) { angle = nangle; return *this; }
-
-		double toRadians();
 
 		std::vector<Field::Cell> scan(Field::Field* fld, std::pair<int, int> mom_coordinates);
 	};

@@ -15,18 +15,18 @@ namespace Robots
 		return std::sqrt(vec.first * vec.first + vec.second * vec.second);
 	}
 
-	double Sensor::toRadians()
+	double toRadians(ViewAngles angle)
 	{
 		switch (angle)
 		{
 		case ViewAngles::quater:
-			return PI / 4;
+			return Sensor::PI / 4;
 		case ViewAngles::half:
-			return PI / 2;
+			return Sensor::PI / 2;
 		case ViewAngles::pie:
-			return PI;
+			return Sensor::PI;
 		case ViewAngles::tau:
-			return 2 * PI;
+			return 2 * Sensor::PI;
 		}
 		return 0;
 	}
@@ -38,13 +38,13 @@ namespace Robots
 		std::pair<int, int> tlCorner = { std::max(coordinates.first - radius, 0), std::max(coordinates.second - radius, 0) };
 		std::pair<int, int> brCorner = { std::min(coordinates.first + radius, fld->getWidth()), std::min(coordinates.second + radius, fld->getHeight())};
 		std::pair<int, int> it = tlCorner;
-		double angle_rad = toRadians();
+		double angle_rad = toRadians(angle);
 		
 		while (it != brCorner)
 		{
 			if (it == coordinates)
 			{
-				it.first++;
+				it.second++;
 				continue;
 			}
 			if (angle==ViewAngles::tau)
@@ -63,11 +63,11 @@ namespace Robots
 			
 			
 
-			if (it.first != brCorner.first) it.first++;
+			if (it.second != brCorner.second) it.second++;
 			else
 			{
-				it.first = tlCorner.first;
-				it.second++;
+				it.second = tlCorner.second;
+				it.first++;
 			}
 		}
 		return result;

@@ -1,21 +1,21 @@
 #include "RobotCommander.h"
+#include "MobilePlatform.h"
 
 namespace Robots
 {
-	/*void RobotCommander::move(std::pair<int, int> vector)
+	void RobotCommander::move(Field::Field* fld, std::pair<int, int> vector)
 	{
-		for (Platform& plt : getSubOrd())
+		for (Platform& plt : getCpu().getSubOrd())
 		{
 			try
 			{
-				dynamic_cast<Moving*>(&plt)->move(vector);
+				dynamic_cast<MobilePlatform&>(plt).move(fld, vector);
 			}
 			catch (std::bad_cast)
 			{
 				continue;
 			}
 		}
-		coordinates.first += vector.first;
-		coordinates.second += vector.second;
-	}*/
+		fld->movePlatform(coordinates, vector);
+	}
 }

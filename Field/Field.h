@@ -24,24 +24,19 @@ namespace Field
 		}
 	};
 
-	//void checkMoving(Robots::Platform* plt);
-	//void checkRulling(Robots::Platform* plt);
-	//bool isCommander(Robots::Platform* plt);
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	class Field
 	{
 	private:
+		static int MAX_RANDOM_SIZE;
 		std::pair<int, int> size;
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> platforms;
 		std::vector<std::vector<Cell>> map;
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);
 	public:
-		static int MAX_RANDOM_SIZE;
-		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
-		//void changeMaxRandomSize(int nsize) { MAX_RANDOM_SIZE = nsize; }
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size
 		Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt);
@@ -51,8 +46,6 @@ namespace Field
 		std::pair<int, int> getSize() { return size; }
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
-		//Robots::Platform* getPlatformByCoordinates(int x, int y) { return platforms[{x, y}]; }
-		//Robots::Platform* getPlatformByCoordinates(std::pair<int, int> coord) { checkPlatformOnField(coord);  return platforms[coord]; }
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> getPlatforms() { return platforms; }
 		
 		void resize(int nwidth, int nheight);
@@ -68,6 +61,6 @@ namespace Field
 
 
 		void consoleOutField(std::ostream& stream=std::cout);
-		double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
+		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
 	};
 }

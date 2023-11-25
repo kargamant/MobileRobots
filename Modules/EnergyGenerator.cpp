@@ -1,4 +1,5 @@
 #include "EnergyGenerator.h"
+#include <stdexcept>
 
 namespace Robots
 {
@@ -43,7 +44,7 @@ namespace Robots
 		return *this;
 	}
 
-	//basically kills robot
+	//basically kills module
 	Module& EnergyGenerator::turnOff()
 	{
 		setState(false);
