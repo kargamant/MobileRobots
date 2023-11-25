@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "../Field/Field.h"
+#pragma once
 
 namespace Robots
 {

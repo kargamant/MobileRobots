@@ -125,6 +125,44 @@ namespace Field
 		placePlatform(plt);
 	}
 
+	void Field::destroyCell(std::pair<int, int> coordinates)
+	{
+		checkCoordinates(coordinates);
+		Cell& target = getCellByCoordinates(coordinates);
+		if (target.getType() == CellType::pointOfInterest) throw std::invalid_argument("Error. You cant destroy points of interest.");
+		else if (checkPlatformOnField(target.getCoordinates()) != nullptr)
+		{
+			erasePlatform(target.getCoordinates());
+		}
+		target.setType(CellType::ground);
+	}
+
+	void Field::destroyArea(int radius, std::pair<int, int> centre)
+	{
+		std::pair<int, int> tlCorner = std::pair<int, int>(std::max(0, centre.first - radius), std::max(0, centre.second - radius));
+		std::pair<int, int> brCorner = std::pair<int, int>(std::min(centre.first + radius, size.first), std::min(centre.second + radius, size.second));
+		std::pair<int, int> it = tlCorner;
+		while (it != brCorner)
+		{
+			try
+			{
+				destroyCell(it);
+			}
+			catch (std::invalid_argument)
+			{
+				goto step;
+			}
+		step:
+			if (it.second != brCorner.second) it.second++;
+			else
+			{
+				it.second = tlCorner.second;
+				it.first++;
+			}
+		}
+
+	}
+
 	void Field::consoleOutField(std::ostream& stream)
 	{
 		for (int i = 0; i < size.first; i++)

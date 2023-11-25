@@ -9,12 +9,12 @@ namespace Robots
 	{
 	private:
 		int manageInd;
+		CommandCentre& setManageInd(int nmind) { manageInd = nmind; return *this; }
 	public:
 		CommandCentre(int radius = 0, int sub = 0, double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = std::pair<int, int>(0, 0));
 
 		int getManageInd() const { return manageInd; }
 		ManageModule& getCpu() { return dynamic_cast<ManageModule&>(getRobo()[manageInd]); }
-		CommandCentre& setManageInd(int nmind) { manageInd = nmind; return *this; }
 
 		std::vector<Field::Cell> getReport(Field::Field* fld, int ind) override;
 		void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector) override;

@@ -1,4 +1,6 @@
 #include "../Interfaces/Platform.h"
+#include "../Field/Field.h"
+#include <vector>
 
 namespace Robots
 {
@@ -7,19 +9,20 @@ namespace Robots
 	private:
 		int linkageRadius;
 		int linked;
-		QuantumPlatform* platforms;
+		std::vector<QuantumPlatform> platforms;
 	public:
-		QuantumPlatform(int linkageRadius, std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates);
+		QuantumPlatform(int linkageRadius = 1, std::string name = "c3po", double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = { 0, 0 }) : linkageRadius(linkageRadius), Platform(name, energy, slots, cost, coordinates) {}
 
 		int getLinkRad() { return linkageRadius; }
 		int getLinked() { return linked; }
-		QuantumPlatform* getLinkRad() { return platforms; }
+		std::vector<QuantumPlatform> getLinkPlatforms() { return platforms; }
 
 		QuantumPlatform& setLinkRad(int nrad) { linkageRadius = nrad; return *this; }
 
 		void link(QuantumPlatform& platform);
-		void teleport(int ind); //teleport to ind platform
+		void teleport(Field::Field* fld, int ind); //teleport to ind platform
 		void deleteModule(int ind) override;//delete from every linked platform
-		void placeModule(int ind) override;//place on every linked platform
+		//void placeModule(int ind, Module& mod) override;//place on every linked platform
+		void placeModule(Module& mod) override;
 	};
 }

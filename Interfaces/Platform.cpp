@@ -26,14 +26,14 @@ namespace Robots
 		return (base_nicknames[i]+ prefixes[k] + std::to_string((std::rand() % 10) * 1000));
 	}
 
-	Platform::Platform(double energy, int slots, int cost, std::pair<int, int> coordinates): energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>(slots))
+	Platform::Platform(double energy, int slots, int cost, std::pair<int, int> coordinates): energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>())
 	{
 		std::fstream file;
 		file.open("../"+NICKNAME_FILENAME, std::ios::in);
 		name = randomRoboName(file);
 		file.close();
 	}
-	Platform::Platform(std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates) :energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>(slots)), name(name) {}
+	Platform::Platform(std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates) :energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>()), name(name) {}
 
 	void Platform::deleteModule(int ind)
 	{
