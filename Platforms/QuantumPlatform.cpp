@@ -28,11 +28,11 @@ namespace Robots
 
 	void QuantumPlatform::placeModule(Module& mod)
 	{
-		robo.push_back(mod);
+		robo.push_back(&mod);
 		//remake using refference
 		for (QuantumPlatform& qp : platforms)
 		{
-			qp.robo.push_back(mod);
+			qp.robo.push_back(&mod);
 		}
 	}
 }

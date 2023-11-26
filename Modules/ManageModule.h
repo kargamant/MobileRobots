@@ -1,6 +1,7 @@
 #include "Module.h"
 #include "../Interfaces/Rulling.h"
 #include "../Field/Cell.h"
+#pragma once
 
 namespace Robots
 {
@@ -14,7 +15,7 @@ namespace Robots
 		std::vector<Platform> subordinates;
 		void checkInd(int ind);
 	public:
-		ManageModule(Platform* mom, int radius, int subord,  double energy, bool state, Priority priority, int cost) :motherboard(mom), radius(radius), subord(subord), subordinates(std::vector<Platform>(subord)), Module(energy, state, priority, cost) {} //automatically set priority high on module
+		ManageModule(Platform* mom, int radius, int subord, double energy, bool state, Priority priority, int cost) :motherboard(mom), radius(radius), subord(subord), subordinates(std::vector<Platform>(subord)), Module(energy, state, priority, cost) { isRulling = true; } //automatically set priority high on module
 		//ManageModule(int radius, int subord, Platform* subordinates, Module& mod);
 
 		int getSub() { return subord; }

@@ -6,8 +6,10 @@ namespace Robots
 {
 	CommandCentre::CommandCentre(int radius, int sub, double energy, int slots, int cost, std::pair<int, int> coordinates) :Rulling(radius), Platform(energy, slots, cost, coordinates)
 	{
-		ManageModule centreCpu = ManageModule(this, radius, sub, energy, true, Priority::high, cost);
-		placeModule(centreCpu);
+		ManageModule* centreCpu = new ManageModule(this, radius, sub, energy, true, Priority::high, cost);
+		//std::cout << "db1" << std::endl;
+		placeModule(*centreCpu);
+		//std::cout << "db2" << std::endl;
 		manageInd = 0;
 	}
 
@@ -20,7 +22,7 @@ namespace Robots
 
 		int sensor = getCpu().checkSensor(&reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
-		return dynamic_cast<Sensor&>(reporter.getRobo()[sensor]).scan(fld, coordinates);
+		return dynamic_cast<Sensor*>(reporter.getRobo()[sensor])->scan(fld, coordinates);
 	}
 
 	void CommandCentre::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
@@ -36,7 +38,7 @@ namespace Robots
 		int flag = false;
 		try
 		{
-			dynamic_cast<ManageModule&>(robo[ind]);
+			dynamic_cast<ManageModule*>(robo[ind]);
 		}
 		catch (std::bad_cast)
 		{
@@ -51,7 +53,7 @@ namespace Robots
 		checkInd(ind);
 		if (robo.size() != slots)
 		{
-			robo.insert(robo.begin() + ind, mod);
+			robo.insert(robo.begin() + ind, &mod);
 		}
 		else
 		{
@@ -64,7 +66,7 @@ namespace Robots
 		std::cout << robo.size() << std::endl;
 		if (robo.size() != slots)
 		{
-			robo.push_back(mod);
+			robo.push_back(&mod);
 		}
 		else
 		{

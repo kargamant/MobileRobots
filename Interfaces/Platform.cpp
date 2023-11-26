@@ -2,10 +2,11 @@
 #include <time.h>
 #include <iostream>
 #include "../Modules/ManageModule.h"
+#include "../utils/CheckComponent.h"
 
 namespace Robots
 {
-	std::string Platform::NICKNAME_FILENAME = "base_nicknames.txt";
+	std::string Platform::NICKNAME_FILENAME = "resources/base_nicknames.txt";
 
 	std::string randomRoboName(std::fstream& file)
 	{
@@ -26,14 +27,14 @@ namespace Robots
 		return (base_nicknames[i]+ prefixes[k] + std::to_string((std::rand() % 10) * 1000));
 	}
 
-	Platform::Platform(double energy, int slots, int cost, std::pair<int, int> coordinates): energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>())
+	Platform::Platform(double energy, int slots, int cost, std::pair<int, int> coordinates): energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module*>())
 	{
 		std::fstream file;
 		file.open("../"+NICKNAME_FILENAME, std::ios::in);
 		name = randomRoboName(file);
 		file.close();
 	}
-	Platform::Platform(std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates) :energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module>()), name(name) {}
+	Platform::Platform(std::string name, double energy, int slots, int cost, std::pair<int, int> coordinates) :energyLevel(energy), slots(slots), cost(cost), coordinates(coordinates), robo(std::vector<Module*>()), name(name) {}
 
 	void Platform::deleteModule(int ind)
 	{
@@ -54,7 +55,7 @@ namespace Robots
 			flag = true;
 			if (robo.size() != slots)
 			{
-				robo.insert(robo.begin() + ind, mod);
+				robo.insert(robo.begin() + ind, &mod);
 			}
 			else
 			{
@@ -66,35 +67,27 @@ namespace Robots
 
 	void Platform::placeModule(Module& mod)
 	{
-		int flag = false;
-		try
+		if(mod.getIsRulling()) throw std::invalid_argument("Error. Cant place manage module on non rulling platform.");
+		else if (robo.size() != slots)
 		{
-			dynamic_cast<ManageModule*>(&mod);
+			robo.push_back(&mod);
 		}
-		catch (std::bad_cast)
+		else
 		{
-			flag = true;
-			if (robo.size() != slots)
-			{
-				robo.push_back(mod);
-			}
-			else
-			{
-				throw std::invalid_argument("Error. Platform is full.");
-			}
+			throw std::invalid_argument("Error. Platform is full.");
 		}
-		if (!flag) throw std::invalid_argument("Error. Cant place manage module on non rulling platform.");
+		//if (!flag) throw std::invalid_argument("Error. Cant place manage module on non rulling platform.");
 	}
 
 	void Platform::turnOn(int ind)
 	{
 		checkInd(ind);
-		robo[ind].turnOn();
+		robo[ind]->turnOn();
 	}
 	void Platform::turnOff(int ind)
 	{
 		checkInd(ind);
-		robo[ind].turnOff();
+		robo[ind]->turnOff();
 	}
 
 	void Platform::checkInd(int ind)

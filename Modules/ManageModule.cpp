@@ -34,9 +34,9 @@ namespace Robots
 	int ManageModule::checkSensor(Platform* plt)
 	{
 		int k = 0;
-		for (Module& mod : plt->getRobo())
+		for (Module* mod : plt->getRobo())
 		{
-			if (!isComponentCastable<Module&, Sensor&>(mod)) k++;
+			if (!isComponentCastable<Module*, Sensor*>(mod)) k++;
 			else return k;
 		}
 		return -1;
@@ -51,7 +51,7 @@ namespace Robots
 
 		int sensor = checkSensor(&reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
-		return dynamic_cast<Sensor&>(reporter.getRobo()[sensor]).scan(fld, motherboard->getCoordinates());
+		return dynamic_cast<Sensor*>(reporter.getRobo()[sensor])->scan(fld, motherboard->getCoordinates());
 	}
 	void ManageModule::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{

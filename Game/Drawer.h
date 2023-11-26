@@ -27,6 +27,13 @@ private:
     static std::string OBSTACLE_TEXTURE;
     static std::string ROBOT_TEXTURE;
     static std::string POI_TEXTURE;
+    static std::string ENERGY_GENERATOR_TEXTURE;
+    static std::string SENSOR_TEXTURE;
+    static std::string MANAGE_MODULE_TEXTURE;
+    static std::string GUN_TEXTURE;
+    sf::Vector2f TOP_RIGHT_CORNER;
+    sf::Vector2f TOP_RIGHT_CORNER_TEXT;
+    static sf::Vector2f SPRITE_SCALE;
     static int LOG_INDENTATION;
 public:
     std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
@@ -35,6 +42,8 @@ public:
 
     std::vector<sf::Sprite> viewField(Field::Field* fld);
     std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);
+    std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
+
     std::string coordinatesToFileName(std::pair<int, int> coordinates)
     {
         std::string filename;
@@ -56,6 +65,8 @@ public:
 
     std::pair<sf::Sprite, sf::Text> drawCell(Field::Cell& cell, sf::Text& preSet);
     std::pair<sf::Sprite, sf::Text> drawRobot(Robots::Platform& plt, sf::Text& preSet);
+    std::pair<sf::Sprite, sf::Text> drawModule(Robots::Module& mod, sf::Text& preSet);
+    std::pair<sf::Sprite, sf::Text> drawModuleBar(Robots::Platform& plt, sf::Text& preSet);
 
     bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
     {
@@ -68,18 +79,20 @@ public:
 /*
 class View
 {
-//parameters
 private:
+    //parameters
     std::string TEXTURE_NAME;
     std::string FONT_NAME;
     int CHARACTER_SIZE;
     sf::Color FILL_COLOR;
     sf::Vector2f SCALE;
     sf::Vector2f POSITION;
+    sf::Vector2f TEXT_POSITION;
 public:
+
     sf::Sprite portrait;
     sf::Text description;
-    View(std::string texture_name, std::string font_name, int character_size, sf::Color fill_color, sf::Vector2f scale, sf::Vector2f position) :TEXTURE_NAME(texture_name), FONT_NAME(font_name), CHARACTER_SIZE(character_size), FILL_COLOR(fill_color), SCALE(scale), POSITION(position)
+    View(std::string texture_name, std::string font_name, int character_size, sf::Color fill_color, sf::Vector2f scale, sf::Vector2f position, sf::Vector2f text_position) :TEXTURE_NAME(texture_name), FONT_NAME(font_name), CHARACTER_SIZE(character_size), FILL_COLOR(fill_color), SCALE(scale), POSITION(position), TEXT_POSITION(text_position)
     {
         sf::Texture* texture = new sf::Texture();
         texture->loadFromFile("resources/"+TEXTURE_NAME);
@@ -92,6 +105,7 @@ public:
         description.setFont(font);
         description.setCharacterSize(character_size);
         description.setFillColor(FILL_COLOR);
+        description.setPosition(TEXT_POSITION);
     }
 
 };*/

@@ -2,6 +2,8 @@
 #include "Field/Field.h"
 #include "Game/Drawer.h"
 #include "Platforms/RobotCommander.h"
+#include "Platforms/RobotDestroyer.h"
+#include "Modules/Sensor.h"
 
 
 int main()
@@ -12,8 +14,13 @@ int main()
 
     //test platform placement
     Robots::RobotCommander* rc = new Robots::RobotCommander();
+    Robots::RobotDestroyer* rd = new Robots::RobotDestroyer();
+    rd->setCoordinates(0, 0);
+    Robots::Sensor sens = Robots::Sensor(1, { 2, 3 }, Robots::ViewAngles::tau, 2, true, Robots::Priority::high, 5000);
+    rd->placeModule(sens);
     rc->setCoordinates(2, 3);
     fld->placePlatform(rc);
+    fld->placePlatform(rd);
 
     Drawer dr;
     std::vector<sf::Sprite> sprites = dr.viewField(fld);
@@ -38,7 +45,6 @@ int main()
     {
         window.clear();
         bool isSceneChanged = false;
-        
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -49,31 +55,32 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     std::pair<std::pair<int, int>, sf::Sprite> closest_cell = dr.mouseClick(event);
-                    if (closest_cell.first.first == -1 && closest_cell.first.second== -1)
+                    if (closest_cell.first.first != -1 && closest_cell.first.second!= -1)
                     {
-                        continue;
+                        std::pair<int, int> clickObj = closest_cell.first;
+                        Robots::Platform* plt = fld->checkPlatformOnField(clickObj);
+                        std::pair<sf::Sprite, sf::Text> picture;
+                        if (plt != nullptr)
+                        {
+                            picture = dr.drawRobot(*plt, consoleOut);
+                        }
+                        else
+                        {
+                            picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
+                        }
+                        portrait = picture.first;
+                        description = picture.second;
                     }
-                    //std::cout << closest_cell.first.first << " " << closest_cell.first.second << std::endl;
-                    std::pair<int, int> clickObj = closest_cell.first;
-                    Robots::Platform* plt = fld->checkPlatformOnField(clickObj);
-                    std::pair<sf::Sprite, sf::Text> picture;
-                    if (plt != nullptr)
-                    {
-                        picture = dr.drawRobot(*plt, consoleOut);
-                    }
-                    else
-                    {
-                        picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
-                    }
-                    portrait = picture.first;
-                    description = picture.second;
-                    isSceneChanged = true;
                 }
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(*(rd->getRobo()[1]), consoleOut);
+                    portrait = module_picture.first;
+                    description = module_picture.second;
+                }
+                isSceneChanged = true;
             }
         }
-
-        
-        //window.draw(sprites[0]);
         
         if (isSceneChanged || isGameStart)
         {

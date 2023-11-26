@@ -17,7 +17,7 @@ namespace Robots
 		double energyLevel; //level of consumption
 		int slots;
 		int cost;
-		std::vector<Module> robo;
+		std::vector<Module*> robo;
 		void checkInd(int ind);
 	public:
 		Platform(double energy, int slots, int cost, std::pair<int, int> coordinates); //name will be chosen randomly
@@ -30,8 +30,8 @@ namespace Robots
 		double getEnergyLevel() { return energyLevel; }//flash
 		int getCost() { return cost; }
 		std::string getName() { return name; }
-		std::vector<Module> getRobo() { return robo; }
-		Module& operator[](int ind) { return getRobo()[ind]; }
+		std::vector<Module*> getRobo() { return robo; }
+		Module* operator[](int ind) { return getRobo()[ind]; }
 
 		Platform& setName(std::string nname) { name = nname; return *this; }
 		Platform& setEnergyLevel(double nenergy) { energyLevel = nenergy; return *this; }

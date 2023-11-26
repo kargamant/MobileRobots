@@ -2,13 +2,29 @@
 #include <math.h>
 #include <format>
 #include <filesystem>
+#include "../utils/CheckComponent.h"
+#include "../Modules/EnergyGenerator.h"
+#include "../Modules/Gun.h"
+#include "../Modules/ManageModule.h"
+#include "../Modules/Sensor.h"
+//#include "../Modules/Module.h"
 
 //Settings
 std::string Drawer::GROUND_TEXTURE = "ground.jpg";
 std::string Drawer::OBSTACLE_TEXTURE = "obstacle.png";
 std::string Drawer::POI_TEXTURE = "poi.jpg";
 std::string Drawer::ROBOT_TEXTURE = "robot_default.jpg";
+std::string Drawer::ENERGY_GENERATOR_TEXTURE = "energy_generator.jpg";
+std::string Drawer::SENSOR_TEXTURE = "sensor.png";
+std::string Drawer::MANAGE_MODULE_TEXTURE = "manage_module.png";
+std::string Drawer::GUN_TEXTURE = "gun.jpg";
+//sf::Vector2f TOP_RIGHT_CORNER = sf::Vector2f(0, 0);
+//sf::Vector2f TOP_RIGHT_CORNER_TEXT = sf::Vector2f(0, 0);
+
+sf::Vector2f Drawer::SPRITE_SCALE = sf::Vector2f(0.2, 0.2);
+
 int Drawer::LOG_INDENTATION = 300;
+
 
 std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
 {
@@ -28,7 +44,7 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
 
             sf::Sprite sp;
             sp.setTexture(*text);
-            sp.setScale(sf::Vector2f(0.2, 0.2));
+            sp.setScale(SPRITE_SCALE);
 
             sprite.first = sp.getTexture()->getSize().x * sp.getScale().x;
             sprite.second = sp.getTexture()->getSize().y * sp.getScale().y;
@@ -54,6 +70,10 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
             }
 
         }
+
+        TOP_RIGHT_CORNER = sf::Vector2f(sprite.first * field->getHeight() + 5, 0);
+        TOP_RIGHT_CORNER_TEXT = sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2);
+
         return sprites;
 }
 
@@ -72,6 +92,59 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     //std::cout << field->getCellByCoordinates(min_sp.first << std::endl;
     min_sp.second = *map[field->getCellByCoordinates(min_sp.first)];
     return min_sp;
+}
+
+/*std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
+{
+    std::pair<std::pair<int, int>, sf::Sprite> pic = mouseClick(event);
+    std::pair<int, int> click = pic.first;
+    Robots::Platform* plt = field->checkPlatformOnField(click);
+    if (plt != nullptr)
+    {
+
+    }
+    
+}*/
+
+std::pair<sf::Sprite, sf::Text> Drawer::drawModule(Robots::Module& mod, sf::Text& preSet)
+{
+    std::string texture_name, name;
+    //add extras for every module
+    if (isComponentCastable<Robots::Module&, Robots::EnergyGenerator&>(mod))
+    {
+        name = "energy generator";
+        texture_name = ENERGY_GENERATOR_TEXTURE;
+    }
+    else if (isComponentCastable<Robots::Module&, Robots::Sensor&>(mod))
+    {
+        name = "sensor";
+        texture_name = SENSOR_TEXTURE;
+    }
+    else if (isComponentCastable<Robots::Module&, Robots::ManageModule&>(mod))
+    {
+        name = "manage module";
+        texture_name = MANAGE_MODULE_TEXTURE;
+    }
+    else if (isComponentCastable<Robots::Module&, Robots::Gun&>(mod))
+    {
+        name = "gun";
+        texture_name = GUN_TEXTURE;
+    }
+
+    sf::Sprite sprite;
+    sf::Texture* texture = new sf::Texture();
+    std::cout << "resources/" + texture_name << std::endl;
+    texture->loadFromFile("resources/"+texture_name);
+    sprite.setTexture(*texture);
+    sprite.scale(SPRITE_SCALE);
+    sprite.setPosition(TOP_RIGHT_CORNER);
+
+    std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}", name, std::to_string(mod.getEnergy()), Robots::priorityToString(mod.getPriority()), mod.getState() ? "on" : "off", std::to_string(mod.getCost()));
+    sf::Text description = preSet;
+    description.setString(out);
+    description.setPosition(TOP_RIGHT_CORNER_TEXT);
+
+    return std::pair<sf::Sprite, sf::Text>(sprite, description);
 }
 
 std::pair<sf::Sprite, sf::Text> Drawer::drawCell(Field::Cell& cell, sf::Text& preSet)
