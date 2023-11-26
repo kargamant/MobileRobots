@@ -57,6 +57,7 @@ namespace Field
 
 		void placePlatform(Robots::Platform* plt);
 		void erasePlatform(std::pair<int, int> coordinates);
+		void erasePlatform(Robots::Platform* plt);
 		//void erasePLatform(std::pair<int, int> coordinates, Robots::Platform* plt);
 		void movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector);
 		void destroyCell(std::pair<int, int> coordinates);

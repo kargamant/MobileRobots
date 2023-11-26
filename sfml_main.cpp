@@ -118,6 +118,7 @@ int main()
                 else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) vector = { 1, 0 };
                 if (currentPlt != nullptr)
                 {
+                    bool isErr = false;
                     //if (!isComponentCastable<Robots::MobilePlatform*, Robots::Platform*>(plt)) description.setString("");
                     try
                     {
@@ -127,13 +128,19 @@ int main()
                     }
                     catch (std::invalid_argument error)
                     {
+                        isErr = true;
                         description.setString(error.what());
                     }
                     catch (std::bad_cast error2)
                     {
+                        isErr = true;
                         description.setString("Error. Platform is not movable.");
                     }
                     isFieldChanged = true;
+                    if (!isErr)
+                    {
+                        description = dr.drawRobot(*currentPlt, consoleOut).second;
+                    }
                 }   
             }
         }

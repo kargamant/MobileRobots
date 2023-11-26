@@ -106,6 +106,8 @@ namespace Field
 
 	void Field::placePlatform(Robots::Platform* plt)
 	{
+		//changeCellType(plt->getCoordinates(), CellType::ground);
+		std::cout << "placing: " << plt->getName() << std::endl;
 		platforms.insert({plt->getCoordinates(), plt});
 	}
 
@@ -115,17 +117,68 @@ namespace Field
 		platforms.erase(coordinates);
 	}
 
+	void Field::erasePlatform(Robots::Platform* plt)
+	{
+		for (auto it = platforms.begin(); it != platforms.end();)
+		{
+			
+			if (it->second == plt)
+			{
+				std::cout << "deletion: " << it->second->getName() << std::endl;
+				platforms.erase(it);
+				break;
+			}
+			++it;
+		}
+	}
+
 	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)
 	{
 		//std::cout << "db2" << std::endl;
 		if (checkPlatformOnField(coordinates) == nullptr) throw std::invalid_argument("Error. No platform with such coordinates on field.");
+
 		Robots::Platform* plt = platforms[coordinates];
+
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
+
+
+		std::pair<int, int> destination = { coordinates.first + vector.first, coordinates.second + vector.second };
+
+
+		if (getCellByCoordinates(destination).getType() == CellType::pointOfInterest)
+		{
+			changeCellType(destination, CellType::ground);
+		}
+		if (getCellByCoordinates(destination).getType() == CellType::obstacle)
+		{
+			throw std::invalid_argument("Error. Cant go through obstacle.");
+		}
+		else if (checkPlatformOnField(destination) != nullptr)
+		{
+			Robots::Platform* old_plt = checkPlatformOnField(destination);
+			erasePlatform(old_plt);
+			erasePlatform(plt);
+			plt->setCoordinates(destination.first, destination.second);
+			//std::cout << plt->getName() << std::endl;
+			placePlatform(plt);
+			std::cout << old_plt->getCoordinates().first << " " << old_plt->getCoordinates().second << std::endl;
+			placePlatform(old_plt);
+			//std::cout << old_plt->getName() << std::endl;
+			
+
+			//std::cout << platforms[destination]->getName() << std::endl;
+		}
 		//TODO: add checking for obstacle and tracking points of interest
-		//std::cout << "db2" << std::endl;
-		erasePlatform(coordinates);
-		plt->setCoordinates(coordinates.first + vector.first, coordinates.second + vector.second);
-		placePlatform(plt);
+		else
+		{
+			//std::cout << (platforms[{getWidth()-1, 0}]==nullptr) << std::endl;
+			
+			erasePlatform(plt);
+			plt->setCoordinates(destination.first, destination.second);
+			placePlatform(plt);
+			
+			//std::cout << (checkPlatformOnField(coordinates) == nullptr) << std::endl;
+		}
 	}
 
 	void Field::destroyCell(std::pair<int, int> coordinates)
