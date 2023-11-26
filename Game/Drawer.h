@@ -31,6 +31,7 @@ private:
     static std::string SENSOR_TEXTURE;
     static std::string MANAGE_MODULE_TEXTURE;
     static std::string GUN_TEXTURE;
+    static std::string INVENTORY_ITEM_TEXTURE;
     sf::Vector2f TOP_RIGHT_CORNER;
     sf::Vector2f TOP_RIGHT_CORNER_TEXT;
     static sf::Vector2f SPRITE_SCALE;
@@ -40,6 +41,7 @@ public:
     Field::Field* field;
     std::pair<int, int> sprite;
 
+    std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
     std::vector<sf::Sprite> viewField(Field::Field* fld);
     std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);
     std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
@@ -66,7 +68,7 @@ public:
     std::pair<sf::Sprite, sf::Text> drawCell(Field::Cell& cell, sf::Text& preSet);
     std::pair<sf::Sprite, sf::Text> drawRobot(Robots::Platform& plt, sf::Text& preSet);
     std::pair<sf::Sprite, sf::Text> drawModule(Robots::Module& mod, sf::Text& preSet);
-    std::pair<sf::Sprite, sf::Text> drawModuleBar(Robots::Platform& plt, sf::Text& preSet);
+    std::vector<std::pair<sf::Sprite, sf::Sprite>> drawModuleBar(Robots::Platform& plt);
 
     bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
     {

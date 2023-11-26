@@ -18,6 +18,7 @@ std::string Drawer::ENERGY_GENERATOR_TEXTURE = "energy_generator.jpg";
 std::string Drawer::SENSOR_TEXTURE = "sensor.png";
 std::string Drawer::MANAGE_MODULE_TEXTURE = "manage_module.png";
 std::string Drawer::GUN_TEXTURE = "gun.jpg";
+std::string Drawer::INVENTORY_ITEM_TEXTURE="inventory.jpg";
 //sf::Vector2f TOP_RIGHT_CORNER = sf::Vector2f(0, 0);
 //sf::Vector2f TOP_RIGHT_CORNER_TEXT = sf::Vector2f(0, 0);
 
@@ -94,7 +95,7 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     return min_sp;
 }
 
-/*std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
+std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
 {
     std::pair<std::pair<int, int>, sf::Sprite> pic = mouseClick(event);
     std::pair<int, int> click = pic.first;
@@ -104,12 +105,41 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
 
     }
     
-}*/
+}
 
-std::pair<sf::Sprite, sf::Text> Drawer::drawModule(Robots::Module& mod, sf::Text& preSet)
+sf::Sprite createSprite(std::string texture_name, sf::Vector2f position, sf::Vector2f scale)
 {
-    std::string texture_name, name;
-    //add extras for every module
+    sf::Sprite sp;
+    sf::Texture* txt = new sf::Texture();
+    txt->loadFromFile(texture_name);
+    sp.setTexture(*txt);
+    sp.setPosition(position);
+    sp.scale(scale);
+    return std::move(sp);
+}
+
+std::vector<std::pair<sf::Sprite, sf::Sprite>> Drawer::drawModuleBar(Robots::Platform& plt)
+{
+    std::vector<std::pair<sf::Sprite, sf::Sprite>> inventory;
+    std::pair<int, int> base_position = { plt.getCoordinates().second * sprite.first, plt.getCoordinates().first * sprite.second};
+    for (int i = 0; i < plt.getSlots(); i++)
+    {
+        sf::Sprite inv = createSprite("resources/" + INVENTORY_ITEM_TEXTURE, sf::Vector2f(base_position.first + (i+1) * sprite.first, base_position.second), SPRITE_SCALE);
+        
+
+        std::pair<std::string, std::string> naming = moduleToName(*plt[i]);
+        std::string texture_name = naming.second;
+        std::string name = naming.first;
+        sf::Sprite item = createSprite("resources/" + texture_name, sf::Vector2f(base_position.first + (i+1) * sprite.first+sprite.first/4, base_position.second + sprite.second/4), sf::Vector2f(0.1, 0.1));
+        
+        inventory.push_back(std::pair<sf::Sprite, sf::Sprite>(inv, item));
+    }
+    return inventory;
+}
+
+std::pair<std::string, std::string> Drawer::moduleToName(Robots::Module& mod)
+{
+    std::string name, texture_name;
     if (isComponentCastable<Robots::Module&, Robots::EnergyGenerator&>(mod))
     {
         name = "energy generator";
@@ -130,6 +160,17 @@ std::pair<sf::Sprite, sf::Text> Drawer::drawModule(Robots::Module& mod, sf::Text
         name = "gun";
         texture_name = GUN_TEXTURE;
     }
+
+    return std::pair<std::string, std::string>(name, texture_name);
+}
+
+std::pair<sf::Sprite, sf::Text> Drawer::drawModule(Robots::Module& mod, sf::Text& preSet)
+{
+    std::string texture_name, name;
+    //add extras for every module
+    std::pair<std::string, std::string> naming = moduleToName(mod);
+    texture_name = naming.second;
+    name = naming.first;
 
     sf::Sprite sprite;
     sf::Texture* texture = new sf::Texture();

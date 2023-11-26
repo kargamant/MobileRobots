@@ -41,6 +41,7 @@ int main()
     sf::Texture* portrait_text = new sf::Texture();
     
     bool isGameStart = true;
+    std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar;
     while (window.isOpen())
     {
         window.clear();
@@ -63,10 +64,12 @@ int main()
                         if (plt != nullptr)
                         {
                             picture = dr.drawRobot(*plt, consoleOut);
+                            module_bar = dr.drawModuleBar(*plt);
                         }
                         else
                         {
                             picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
+                            module_bar = std::vector<std::pair<sf::Sprite, sf::Sprite>>();
                         }
                         portrait = picture.first;
                         description = picture.second;
@@ -90,6 +93,11 @@ int main()
             }
             window.draw(portrait);
             window.draw(description);
+            for (std::pair<sf::Sprite, sf::Sprite> pair : module_bar)
+            {
+                window.draw(pair.first);
+                window.draw(pair.second);
+            }
         }
         window.display();
     }
