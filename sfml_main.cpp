@@ -3,8 +3,10 @@
 #include "Game/Drawer.h"
 #include "Platforms/RobotCommander.h"
 #include "Platforms/RobotDestroyer.h"
+#include "Platforms/CommandCentre.h"
 #include "Modules/Sensor.h"
-
+#include "Modules/EnergyGenerator.h"
+#include "Platforms/QuantumPlatform.h"
 
 int main()
 {
@@ -15,12 +17,26 @@ int main()
     //test platform placement
     Robots::RobotCommander* rc = new Robots::RobotCommander();
     Robots::RobotDestroyer* rd = new Robots::RobotDestroyer();
+    Robots::CommandCentre* cc = new Robots::CommandCentre(2, 2, 1, 3, 2000);
+    Robots::QuantumPlatform* qc = new Robots::QuantumPlatform();
+
+    qc->setSlots(5);
+    qc->setCoordinates(fld->getWidth() - 1, 0);
+    cc->setCoordinates(fld->getWidth()-1, fld->getHeight() - 1);
+    Robots::EnergyGenerator gen = Robots::EnergyGenerator();
+    cc->placeModule(gen);
     rd->setCoordinates(0, 0);
     Robots::Sensor sens = Robots::Sensor(1, { 2, 3 }, Robots::ViewAngles::tau, 2, true, Robots::Priority::high, 5000);
+    qc->placeModule(sens);
+    qc->placeModule(sens);
+    qc->placeModule(sens);
+    cc->placeModule(sens);
     rd->placeModule(sens);
     rc->setCoordinates(2, 3);
     fld->placePlatform(rc);
     fld->placePlatform(rd);
+    fld->placePlatform(cc);
+    fld->placePlatform(qc);
 
     Drawer dr;
     std::vector<sf::Sprite> sprites = dr.viewField(fld);
@@ -65,7 +81,7 @@ int main()
                         if (plt != nullptr)
                         {
                             picture = dr.drawRobot(*plt, consoleOut);
-                            module_bar = dr.drawModuleBar(*plt);
+                            if(plt->getRobo().size()!=0)module_bar = dr.drawModuleBar(*plt);
                             currentPlt = *plt;
                         }
                         else
@@ -79,10 +95,13 @@ int main()
                 }
                 else if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    Robots::Module& mod = dr.detectClickOnBar(event, currentPlt, module_bar);
-                    std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(mod, consoleOut);
-                    portrait = module_picture.first;
-                    description = module_picture.second;
+                    Robots::Module* mod = dr.detectClickOnBar(event, currentPlt, module_bar);
+                    if (mod != nullptr)
+                    {
+                        std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(*mod, consoleOut);
+                        portrait = module_picture.first;
+                        description = module_picture.second;
+                    }
                 }
                 isSceneChanged = true;
             }

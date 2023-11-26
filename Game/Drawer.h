@@ -41,7 +41,7 @@ public:
     Field::Field* field;
     std::pair<int, int> sprite;
 
-    Robots::Module& detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
+    Robots::Module* detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
     std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
     std::vector<sf::Sprite> viewField(Field::Field* fld);
     std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);

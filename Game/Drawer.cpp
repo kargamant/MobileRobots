@@ -95,7 +95,7 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     return min_sp;
 }
 
-Robots::Module& Drawer::detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar)
+Robots::Module* Drawer::detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar)
 {
     std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
     int k = 0;
@@ -110,8 +110,9 @@ Robots::Module& Drawer::detectClickOnBar(sf::Event event, Robots::Platform& plt,
         }
         k++;
     }
-    std::cout << k << std::endl;
-    return *plt[k];
+    if (k == module_bar.size()) return nullptr;
+    //std::cout << k << std::endl;
+    return plt[k];
 }
 
 /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
@@ -134,15 +135,24 @@ std::vector<std::pair<sf::Sprite, sf::Sprite>> Drawer::drawModuleBar(Robots::Pla
 {
     std::vector<std::pair<sf::Sprite, sf::Sprite>> inventory;
     std::pair<int, int> base_position = { plt.getCoordinates().second * sprite.first, plt.getCoordinates().first * sprite.second};
-    for (int i = 0; i < plt.getSlots(); i++)
+    for (int i = 0; i < plt.getRobo().size(); i++)
     {
-        sf::Sprite inv = createSprite("resources/" + INVENTORY_ITEM_TEXTURE, sf::Vector2f(base_position.first + (i+1) * sprite.first, base_position.second), SPRITE_SCALE);
+        int x_other_way = 1;
+        int y_other_way = 1;
+        if ((field->getHeight() - plt.getCoordinates().second) < plt.getSlots())
+        {
+            x_other_way = -1;
+            if ((field->getWidth() - plt.getCoordinates().first) < plt.getSlots()) y_other_way = -1;
+        }
+        if (x_other_way==-1 && y_other_way==-1) y_other_way = 1;
+        //std::cout << x_other_way << " " <<y_other_way<< std::endl;
+        sf::Sprite inv = createSprite("resources/" + INVENTORY_ITEM_TEXTURE, sf::Vector2f(base_position.first + x_other_way* (i+1) * sprite.first, y_other_way*base_position.second), SPRITE_SCALE);
         
 
         std::pair<std::string, std::string> naming = moduleToName(*plt[i]);
         std::string texture_name = naming.second;
         std::string name = naming.first;
-        sf::Sprite item = createSprite("resources/" + texture_name, sf::Vector2f(base_position.first + (i+1) * sprite.first+sprite.first/4, base_position.second + sprite.second/4), sf::Vector2f(0.1, 0.1));
+        sf::Sprite item = createSprite("resources/" + texture_name, sf::Vector2f(base_position.first + x_other_way*(i+1) * sprite.first+sprite.first/4, base_position.second + sprite.second/4), sf::Vector2f(0.1, 0.1));
         
         inventory.push_back(std::pair<sf::Sprite, sf::Sprite>(inv, item));
     }

@@ -9,7 +9,7 @@
 
 namespace Field
 {
-	int Field::MAX_RANDOM_SIZE = 10;
+	int Field::MAX_RANDOM_SIZE = 3;
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height)
 	{
 		//maybe do it more smart
@@ -30,7 +30,7 @@ namespace Field
 	{
 		std::srand(time(NULL));
 
-		size = std::pair<int, int>(5+ std::rand() % MAX_RANDOM_SIZE, 5+ std::rand() % MAX_RANDOM_SIZE);
+		size = std::pair<int, int>(5+std::rand() % MAX_RANDOM_SIZE, 5+std::rand() % MAX_RANDOM_SIZE);
 		map = createRandomMap(size.first, size.second);
 	}
 
