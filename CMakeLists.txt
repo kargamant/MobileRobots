@@ -2,7 +2,7 @@
 
 project("MobileRobots")
 set(CMAKE_CXX_STANDARD 20)
-add_compile_options(-fmax-errors=1)
+add_compile_options(-fmax-errors=1 -g)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lsfml-graphics -lsfml-window -lsfml-system")
 
 add_subdirectory(Field)

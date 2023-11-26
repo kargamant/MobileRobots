@@ -7,6 +7,8 @@
 #include "Modules/Sensor.h"
 #include "Modules/EnergyGenerator.h"
 #include "Platforms/QuantumPlatform.h"
+#include "utils/CheckComponent.h"
+#include "Platforms/MobilePlatform.h"
 
 int main()
 {
@@ -32,7 +34,7 @@ int main()
     qc->placeModule(sens);
     cc->placeModule(sens);
     rd->placeModule(sens);
-    rc->setCoordinates(2, 3);
+    rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
     fld->placePlatform(rd);
     fld->placePlatform(cc);
@@ -58,11 +60,12 @@ int main()
     
     bool isGameStart = true;
     std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar;
-    Robots::Platform currentPlt;
+    Robots::Platform* currentPlt = nullptr;
     while (window.isOpen())
     {
         window.clear();
         bool isSceneChanged = false;
+        bool isFieldChanged = false;
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -82,7 +85,8 @@ int main()
                         {
                             picture = dr.drawRobot(*plt, consoleOut);
                             if(plt->getRobo().size()!=0)module_bar = dr.drawModuleBar(*plt);
-                            currentPlt = *plt;
+                            currentPlt = plt;
+                            std::cout << currentPlt->getName() << std::endl;
                         }
                         else
                         {
@@ -95,7 +99,7 @@ int main()
                 }
                 else if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    Robots::Module* mod = dr.detectClickOnBar(event, currentPlt, module_bar);
+                    Robots::Module* mod = dr.detectClickOnBar(event, *currentPlt, module_bar);
                     if (mod != nullptr)
                     {
                         std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(*mod, consoleOut);
@@ -105,8 +109,42 @@ int main()
                 }
                 isSceneChanged = true;
             }
+            else if (event.type==sf::Event::KeyPressed)
+            {
+                std::pair<int, int> vector;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) vector = { 0, -1 };
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) vector = { 0, 1 };
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) vector = { -1, 0 };
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) vector = { 1, 0 };
+                if (currentPlt != nullptr)
+                {
+                    //if (!isComponentCastable<Robots::MobilePlatform*, Robots::Platform*>(plt)) description.setString("");
+                    try
+                    {
+                        module_bar = std::vector<std::pair<sf::Sprite, sf::Sprite>>();
+                        std::cout << currentPlt->getCoordinates().first <<" "<<currentPlt->getCoordinates().second << std::endl;
+                        dynamic_cast<Robots::Moving&>(*currentPlt).move(fld, vector);
+                    }
+                    catch (std::invalid_argument error)
+                    {
+                        description.setString(error.what());
+                    }
+                    catch (std::bad_cast error2)
+                    {
+                        description.setString("Error. Platform is not movable.");
+                    }
+                    isFieldChanged = true;
+                }   
+            }
         }
-        
+        if (isFieldChanged)
+        {
+            for (sf::Sprite sp : sprites)
+            {
+                delete sp.getTexture();
+            }
+            sprites = dr.viewField(fld);
+        }
         if (isSceneChanged || isGameStart)
         {
             for (sf::Sprite& robo : sprites)

@@ -117,10 +117,12 @@ namespace Field
 
 	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)
 	{
+		//std::cout << "db2" << std::endl;
 		if (checkPlatformOnField(coordinates) == nullptr) throw std::invalid_argument("Error. No platform with such coordinates on field.");
 		Robots::Platform* plt = platforms[coordinates];
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
 		//TODO: add checking for obstacle and tracking points of interest
+		//std::cout << "db2" << std::endl;
 		erasePlatform(coordinates);
 		plt->setCoordinates(coordinates.first + vector.first, coordinates.second + vector.second);
 		placePlatform(plt);
@@ -190,6 +192,7 @@ namespace Field
 
 	Robots::Platform* Field::checkPlatformOnField(std::pair<int, int> coordinates)
 	{
+		//std::cout << "db2" << std::endl;
 		if (platforms.find(coordinates) == platforms.end()) return nullptr;
 		return  platforms[coordinates];
 	}
