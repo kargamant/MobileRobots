@@ -42,6 +42,7 @@ int main()
     
     bool isGameStart = true;
     std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar;
+    Robots::Platform currentPlt;
     while (window.isOpen())
     {
         window.clear();
@@ -65,6 +66,7 @@ int main()
                         {
                             picture = dr.drawRobot(*plt, consoleOut);
                             module_bar = dr.drawModuleBar(*plt);
+                            currentPlt = *plt;
                         }
                         else
                         {
@@ -75,9 +77,10 @@ int main()
                         description = picture.second;
                     }
                 }
-                if (event.mouseButton.button == sf::Mouse::Right)
+                else if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(*(rd->getRobo()[1]), consoleOut);
+                    Robots::Module& mod = dr.detectClickOnBar(event, currentPlt, module_bar);
+                    std::pair<sf::Sprite, sf::Text> module_picture = dr.drawModule(mod, consoleOut);
                     portrait = module_picture.first;
                     description = module_picture.second;
                 }

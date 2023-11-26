@@ -41,6 +41,7 @@ public:
     Field::Field* field;
     std::pair<int, int> sprite;
 
+    Robots::Module& detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
     std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
     std::vector<sf::Sprite> viewField(Field::Field* fld);
     std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);
@@ -73,6 +74,11 @@ public:
     bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
     {
         return (click.second > cell1.first * sprite.first && click.second<(cell1.first + 1)* sprite.first&& click.first> cell1.second * sprite.second && click.first < (cell1.second + 1)* sprite.second);
+    }
+
+    bool clickOnSprite(std::pair<int, int> click, std::pair<int, int> sp)
+    {
+        return (click.first > sp.first && click.first<(sp.first + sprite.first) && click.second>sp.second && click.second < (sp.second + sprite.second));
     }
 
     int getLogIndentation() { return LOG_INDENTATION; }

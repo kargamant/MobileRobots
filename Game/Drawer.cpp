@@ -95,17 +95,29 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     return min_sp;
 }
 
-std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
+Robots::Module& Drawer::detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar)
 {
-    std::pair<std::pair<int, int>, sf::Sprite> pic = mouseClick(event);
-    std::pair<int, int> click = pic.first;
-    Robots::Platform* plt = field->checkPlatformOnField(click);
-    if (plt != nullptr)
+    std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
+    int k = 0;
+    std::cout << click.first << " " << click.second << std::endl;
+    for (std::pair<sf::Sprite, sf::Sprite> pair : module_bar)
     {
-
+        std::pair<int, int> sp = { pair.first.getPosition().x, pair.first.getPosition().y };
+        std::cout << sp.first << " " << sp.second << std::endl;
+        if (clickOnSprite(click, sp))
+        {
+            break;
+        }
+        k++;
     }
-    
+    std::cout << k << std::endl;
+    return *plt[k];
 }
+
+/*std::pair<std::pair<int, int>, sf::Sprite> Drawer::rightMouseClick(sf::Event event)
+{
+       
+}*/
 
 sf::Sprite createSprite(std::string texture_name, sf::Vector2f position, sf::Vector2f scale)
 {
