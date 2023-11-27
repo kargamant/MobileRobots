@@ -40,11 +40,16 @@ public:
     std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
     Field::Field* field;
     std::pair<int, int> sprite;
+    sf::Text concoleOut;
+    sf::Sprite portrait;
+    sf::Text description;
 
     Robots::Module* detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
     std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
     std::vector<sf::Sprite> viewField(Field::Field* fld);
-    std::pair<std::pair<int, int>, sf::Sprite> mouseClick(sf::Event event);
+    std::pair<std::pair<int, int>, sf::Sprite> mouseLeftClick(sf::Event event);
+    //std::pair<std::pair<int, int>, sf::Sprite> mouseRightClick(sf::Event event);
+    std::pair<sf::Sprite, sf::Text> getInfoFromClick(std::pair<std::pair<int, int>, sf::Sprite> click, sf::Text& concoleOut);
     std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
 
     std::string coordinatesToFileName(std::pair<int, int> coordinates)

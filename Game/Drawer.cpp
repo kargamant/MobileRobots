@@ -78,7 +78,7 @@ std::vector<sf::Sprite> Drawer::viewField(Field::Field* fld)
         return sprites;
 }
 
-std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
+std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)
 {
     std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
     std::pair<std::pair<int, int>, sf::Sprite> min_sp = { std::pair<int, int>(), sf::Sprite() };
@@ -93,6 +93,30 @@ std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseClick(sf::Event event)
     //std::cout << field->getCellByCoordinates(min_sp.first << std::endl;
     min_sp.second = *map[field->getCellByCoordinates(min_sp.first)];
     return min_sp;
+}
+
+
+std::pair<sf::Sprite, sf::Text> Drawer::getInfoFromClick(std::pair<std::pair<int, int>, sf::Sprite> click, sf::Text& consoleOut)
+{
+    if (click.first.first != -1 && click.first.second != -1)
+    {
+        std::pair<int, int> clickObj = click.first;
+        Robots::Platform* plt = field->checkPlatformOnField(clickObj);
+        std::pair<sf::Sprite, sf::Text> picture;
+        if (plt != nullptr)
+        {
+            picture = drawRobot(*plt, consoleOut);
+            if (plt->getRobo().size() != 0)module_bar = dr.drawModuleBar(*plt);
+            currentPlt = plt;
+            std::cout << currentPlt->getName() << std::endl;
+        }
+        else
+        {
+            picture = drawCell(field->getCellByCoordinates(clickObj), consoleOut);
+            module_bar = std::vector<std::pair<sf::Sprite, sf::Sprite>>();
+        }
+        return std::pair<sf::Sprite, sf::Text>(picture.first, picture.second);
+    }
 }
 
 Robots::Module* Drawer::detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar)

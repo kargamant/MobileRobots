@@ -37,6 +37,7 @@ namespace Field
 		void checkCoordinates(std::pair<int, int> coordinates);
 	public:
 		static int MAX_RANDOM_SIZE;
+		static bool GROUND_MODE_ON;
 
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size

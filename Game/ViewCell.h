@@ -1,29 +1,21 @@
-#include "Drawer.h"
+#include "View.h"
 #include "../Field/Cell.h"
 
-class ViewCell :public View
+
+namespace Game
 {
-private:
-	Field::Cell& cell;
-public:
-	void mouseClick(Drawer dr, sf::Event event)
+	class ViewCell :public View
 	{
-        std::pair<std::pair<int, int>, sf::Sprite> closest_cell = dr.mouseClick(event);
-        if (closest_cell.first.first != -1 && closest_cell.first.second != -1)
-        {
-            std::pair<int, int> clickObj = closest_cell.first;
-            Robots::Platform* plt = fld->checkPlatformOnField(clickObj);
-            std::pair<sf::Sprite, sf::Text> picture;
-            if (plt != nullptr)
-            {
-                picture = dr.drawRobot(*plt, consoleOut);
-            }
-            else
-            {
-                picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
-            }
-        }
-        //std::cout << closest_cell.first.first << " " << closest_cell.first.second << std::endl;
-        
-	}
-};
+    private:
+        static std::string GROUND_TEXTURE;
+        static std::string OBSTACLE_TEXTURE;
+        static std::string POI_TEXTURE;
+        std::string cellToFileName(Field::Cell& cell);
+	public:
+		Field::Cell* cell;
+        ViewCell(Field::Cell* cell, std::string texture_name, sf::Vector2f scale, sf::Vector2f position, std::string message, std::string font_name, int character_size, sf::Color color, sf::Vector2f txt_pos) : cell(cell), View(texture_name, scale, position, message, font_name, character_size, color, txt_pos) {}
+	    
+        void draw() override;
+    };
+
+}

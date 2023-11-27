@@ -10,6 +10,7 @@
 namespace Field
 {
 	int Field::MAX_RANDOM_SIZE = 3;
+	bool Field::GROUND_MODE_ON = false;
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height)
 	{
 		//maybe do it more smart
@@ -20,7 +21,11 @@ namespace Field
 			map.push_back(std::vector<Cell>());
 			for (int j = 0; j < height; j++)
 			{
-				map[i].push_back(Cell(i, j, CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) }));
+				if (Field::Field::GROUND_MODE_ON)
+				{
+					map[i].push_back(Cell(i, j, CellType::ground));
+				}
+				else map[i].push_back(Cell(i, j, CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) }));
 			}
 		}
 		return map;
@@ -144,6 +149,7 @@ namespace Field
 
 		std::pair<int, int> destination = { coordinates.first + vector.first, coordinates.second + vector.second };
 
+		checkCoordinates(destination);
 
 		if (getCellByCoordinates(destination).getType() == CellType::pointOfInterest)
 		{
@@ -155,18 +161,40 @@ namespace Field
 		}
 		else if (checkPlatformOnField(destination) != nullptr)
 		{
+			throw std::invalid_argument("Error. Destination cell is your robot-mate.");
+			/*
+			* Gonna do it if there will be an ability to place many platforms on one cell
+			*
+			std::cout << "Go through platforms:" << std::endl;
+			for (auto it : platforms)
+			{
+				std::cout << "{" << "(" << it.first.first << ", " << it.first.second << ")" << "; " << it.second->getName() << "}" << std::endl;
+			}
+			
+			/*for (auto it : platforms)
+			{
+				std::cout << "{" << "(" << it.first.first << ", " << it.first.second << ")" << "; " << it.second->getName() << "}" << std::endl;
+			}
+
 			Robots::Platform* old_plt = checkPlatformOnField(destination);
 			erasePlatform(old_plt);
 			erasePlatform(plt);
 			plt->setCoordinates(destination.first, destination.second);
 			//std::cout << plt->getName() << std::endl;
 			placePlatform(plt);
-			std::cout << old_plt->getCoordinates().first << " " << old_plt->getCoordinates().second << std::endl;
+			std::cout << "old_plt:" << old_plt->getCoordinates().first << " " << old_plt->getCoordinates().second << old_plt->getName() << std::endl;
 			placePlatform(old_plt);
+
+			std::cout << "Go through platforms:" << std::endl;
+			for (auto it : platforms)
+			{
+				std::cout << "{" << "(" << it.first.first << ", " << it.first.second << ")" << "; " << it.second->getName() << "}" << std::endl;
+			}
 			//std::cout << old_plt->getName() << std::endl;
 			
 
 			//std::cout << platforms[destination]->getName() << std::endl;
+			*/
 		}
 		//TODO: add checking for obstacle and tracking points of interest
 		else

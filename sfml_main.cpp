@@ -10,10 +10,12 @@
 #include "utils/CheckComponent.h"
 #include "Platforms/MobilePlatform.h"
 
+
+
 int main()
 {
     
-    
+    Field::Field::GROUND_MODE_ON = true;
     Field::Field* fld = new Field::Field();
 
     //test platform placement
@@ -76,26 +78,9 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     std::pair<std::pair<int, int>, sf::Sprite> closest_cell = dr.mouseClick(event);
-                    if (closest_cell.first.first != -1 && closest_cell.first.second!= -1)
-                    {
-                        std::pair<int, int> clickObj = closest_cell.first;
-                        Robots::Platform* plt = fld->checkPlatformOnField(clickObj);
-                        std::pair<sf::Sprite, sf::Text> picture;
-                        if (plt != nullptr)
-                        {
-                            picture = dr.drawRobot(*plt, consoleOut);
-                            if(plt->getRobo().size()!=0)module_bar = dr.drawModuleBar(*plt);
-                            currentPlt = plt;
-                            std::cout << currentPlt->getName() << std::endl;
-                        }
-                        else
-                        {
-                            picture = dr.drawCell(fld->getCellByCoordinates(clickObj), consoleOut);
-                            module_bar = std::vector<std::pair<sf::Sprite, sf::Sprite>>();
-                        }
-                        portrait = picture.first;
-                        description = picture.second;
-                    }
+                    std::pair<sf::Sprite, sf::Text> info = dr.getInfoFromClick(closest_cell, consoleOut);
+                    portrait = info.first;
+                    description = info.second;
                 }
                 else if (event.mouseButton.button == sf::Mouse::Right)
                 {
