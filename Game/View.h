@@ -1,12 +1,18 @@
 #include <SFML/Graphics.hpp>
-#include "Drawer.h"
+#include <format>
+#pragma once
 
 namespace Game
 {
 	class View
 	{
 	protected:
+		static std::string FONT_NAME;
+		static int CHARACTER_SIZE;
+		static sf::Vector2f SPRITE_SCALE;
+		static sf::Color TEXT_COLOR;
 		static std::string RESOURCES_PATH;
+		static std::string ROBOT_TEXTURE;
 	public:
 		sf::Sprite sprite;
 		sf::Texture* texture;
@@ -15,7 +21,7 @@ namespace Game
 		sf::Font font;
 		sf::Text description;
 		
-		View(std::string texture_name, sf::Vector2f position, std::string message, sf::Vector2f txt_pos, sf::Vector2f scale=Drawer::SPRITE_SCALE, std::string font_name=Drawer::FONT_NAME, int character_size=Drawer::CHARACTER_SIZE, sf::Color color=sf::Color::White);
+		View(std::string texture_name, sf::Vector2f position, std::string message, sf::Vector2f txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR);
 
 		~View()
 		{

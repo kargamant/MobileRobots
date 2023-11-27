@@ -15,9 +15,29 @@
 int main()
 {
     
-    Field::Field::GROUND_MODE_ON = true;
+    Field::Field::GROUND_MODE_ON = false;
     Field::Field* fld = new Field::Field();
 
+    Game::Drawer dr;
+    dr.viewField(fld);
+    sf::RenderWindow window(sf::VideoMode(Game::Drawer::SPRITE_SIZE.first*Game::Drawer::SPRITE_SCALE.x * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SPRITE_SIZE.second * fld->getWidth()* Game::Drawer::SPRITE_SCALE.y), "MobileRobots");
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+        window.clear();
+        for (Game::View* view : dr.views)
+        {
+            window.draw(view->sprite);
+        }
+        window.display();
+    }
+    /*
     //test platform placement
     Robots::RobotCommander* rc = new Robots::RobotCommander();
     Robots::RobotDestroyer* rd = new Robots::RobotDestroyer();
@@ -44,7 +64,8 @@ int main()
 
     Drawer dr;
     std::vector<sf::Sprite> sprites = dr.viewField(fld);
-    sf::RenderWindow window(sf::VideoMode(dr.sprite.first*fld->getHeight()+dr.getLogIndentation(), dr.sprite.second * fld->getWidth()), "MobileRobots");
+    sf::RenderWindow window;
+    window.init(sf::VideoMode(dr.sprite.first * fld->getHeight() + dr.getLogIndentation(), dr.sprite.second * fld->getWidth()), "MobileRobots");
 
     //text initializer
     sf::Font pixel_font;
@@ -60,9 +81,9 @@ int main()
     portrait.scale(sf::Vector2f(0.4, 0.4));
     sf::Texture* portrait_text = new sf::Texture();
     
-    bool isGameStart = true;
-    std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar;
-    Robots::Platform* currentPlt = nullptr;
+    //bool isGameStart = true;
+    //std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar;
+    //Robots::Platform* currentPlt = nullptr;
     while (window.isOpen())
     {
         window.clear();
@@ -160,6 +181,7 @@ int main()
     }
     delete fld;
     delete portrait_text;
+    */
     return 0;
 }
 

@@ -9,11 +9,17 @@ namespace Game
 
 	void ViewCell::draw()
 	{
-        description.setString(std::format("({}, {}) : {}", std::to_string(cell->getX()), std::to_string(cell->getY()), Field::CellTypeToString(cell->getType())));
+        description.setString(formCellDescription(*cell));
         texture->loadFromFile(RESOURCES_PATH+"/" + cellToFileName(*cell));
         sprite.setTexture(*texture);
         //sprite.setPosition(sf::Vector2f(cell->getY()*Drawer::SPRITE_SIZE.first, cell->getX()*Drawer::SPRITE_SIZE.second));
 	}
+
+    std::string ViewCell::formCellDescription(Field::Cell& cell)
+    {
+        std::string out = std::format("({}, {}) : {}", std::to_string(cell.getX()), std::to_string(cell.getY()), Field::CellTypeToString(cell.getType()));
+        return out;
+    }
 
     std::string ViewCell::cellToFileName(Field::Cell& cell)
     {
