@@ -4,16 +4,21 @@ namespace Game
 {
 	void ViewModule::draw()
 	{
-        std::pair<std::string, std::string> naming = moduleToName(mod);
-        texture_name = naming.second;
-        name = naming.first;
-
         texture->loadFromFile(RESOURCES_PATH+"/" + texture_name);
         sprite.setTexture(*texture);
 
-        std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}", name, std::to_string(mod->getEnergy()), Robots::priorityToString(mod->getPriority()), mod->getState() ? "on" : "off", std::to_string(mod->getCost()));
+        std::string out = formModuleDescription(*mod);
         description.setString(out);
 	}
+
+    std::string ViewModule::formModuleDescription(Robots::Module& mod)
+    {
+        std::pair<std::string, std::string> naming = moduleToName(mod);
+        texture_name = naming.second;
+        name = naming.first;
+        std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}", name, std::to_string(mod->getEnergy()), Robots::priorityToString(mod->getPriority()), mod->getState() ? "on" : "off", std::to_string(mod->getCost()));
+        return out;
+    }
 
     std::pair<std::string, std::string> ViewModule::moduleToName(Robots::Module& mod)
     {

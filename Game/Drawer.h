@@ -22,7 +22,7 @@ struct CellEqual
 
 class Drawer
 {
-private:
+public:
     static std::string GROUND_TEXTURE;
     static std::string OBSTACLE_TEXTURE;
     static std::string ROBOT_TEXTURE;
@@ -32,12 +32,15 @@ private:
     static std::string MANAGE_MODULE_TEXTURE;
     static std::string GUN_TEXTURE;
     static std::string INVENTORY_ITEM_TEXTURE;
+    static std::string FONT_NAME;
+    static std::pair<int, int> SPRITE_SIZE;
+    static int CHARACTER_SIZE;
     sf::Vector2f TOP_RIGHT_CORNER;
     sf::Vector2f TOP_RIGHT_CORNER_TEXT;
     static sf::Vector2f SPRITE_SCALE;
     static int LOG_INDENTATION;
-public:
-    std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
+
+    //std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
     Field::Field* field;
     std::pair<int, int> sprite;
     sf::Text concoleOut;

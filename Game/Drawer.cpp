@@ -19,6 +19,9 @@ std::string Drawer::SENSOR_TEXTURE = "sensor.png";
 std::string Drawer::MANAGE_MODULE_TEXTURE = "manage_module.png";
 std::string Drawer::GUN_TEXTURE = "gun.jpg";
 std::string Drawer::INVENTORY_ITEM_TEXTURE="inventory.jpg";
+std::string Drawer::FONT_NAME = "munro-small.ttf";
+int Drawer::CHARACTER_SIZE = 20;
+std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
 //sf::Vector2f TOP_RIGHT_CORNER = sf::Vector2f(0, 0);
 //sf::Vector2f TOP_RIGHT_CORNER_TEXT = sf::Vector2f(0, 0);
 

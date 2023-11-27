@@ -12,6 +12,7 @@ namespace Game
         description.setString(std::format("({}, {}) : {}", std::to_string(cell->getX()), std::to_string(cell->getY()), Field::CellTypeToString(cell->getType())));
         texture->loadFromFile(RESOURCES_PATH+"/" + cellToFileName(*cell));
         sprite.setTexture(*texture);
+        //sprite.setPosition(sf::Vector2f(cell->getY()*Drawer::SPRITE_SIZE.first, cell->getX()*Drawer::SPRITE_SIZE.second));
 	}
 
     std::string ViewCell::cellToFileName(Field::Cell& cell)
