@@ -6,6 +6,7 @@
 
 namespace Game
 {
+	//freddy ur ur ur
 	class ViewRobot :public View
 	{
 	private:
