@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include "View.h"
+#include "ViewModule.h"
 
 namespace Game
 {
@@ -46,6 +47,7 @@ namespace Game
 
         std::vector<View*> views;
         View* tmp=nullptr;
+        std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;
         //std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
         Field::Field* field;
         //std::pair<int, int> sprite;
@@ -57,7 +59,7 @@ namespace Game
         //std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
         void viewField(Field::Field* fld);
         View* mouseLeftClick(sf::Event event);
-        //std::pair<std::pair<int, int>, sf::Sprite> mouseRightClick(sf::Event event);
+        std::vector<std::pair<ViewModule*, ViewModule*>> mouseRightClick(sf::Event event);
         //std::pair<sf::Sprite, sf::Text> getInfoFromClick(std::pair<std::pair<int, int>, sf::Sprite> click, sf::Text& concoleOut);
         //std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
 

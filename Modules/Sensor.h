@@ -25,7 +25,7 @@ namespace Robots
 		ViewAngles angle;
 	public:
 		static double PI;
-		Sensor(int radius, std::pair<int, int> direction, ViewAngles angle, double energy, bool state, Priority priority, int cost) :radius(radius), direction(direction), angle(angle), Module(energy, state, priority, cost) {} //automatically sets priority to medium
+		Sensor(int radius = 1, std::pair<int, int> direction = {1, 1}, ViewAngles angle=ViewAngles::tau, double energy=2, bool state=true, Priority priority=Priority::high, int cost=2000) :radius(radius), direction(direction), angle(angle), Module(energy, state, priority, cost) {} //automatically sets priority to medium
 
 		int getRad() { return radius; }
 		std::pair<int, int> getDirection() { return direction; }

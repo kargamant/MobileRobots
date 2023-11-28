@@ -18,7 +18,7 @@ namespace Game
 	public:
 		View inventoryView;
 		Robots::Module* mod;
-		ViewModule(Robots::Module* mod, std::pair<int, int> position, std::string message, std::pair<int, int> txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : mod(mod), inventoryView(INVENTORY_ITEM_TEXTURE, position, message, txt_pos), View(moduleToName(*mod).second, position, message, txt_pos, scale, font_name, character_size, color) {}
+		ViewModule(Robots::Module* mod, std::pair<int, int> position, std::string message, std::pair<int, int> txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : mod(mod), inventoryView(INVENTORY_ITEM_TEXTURE, position, message, txt_pos), View(moduleToName(*mod).second, position, message, txt_pos, scale, font_name, character_size, color) { isModule = true; }
 
 		void draw() override;
 	};

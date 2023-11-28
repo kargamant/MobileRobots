@@ -106,6 +106,22 @@ namespace Game
         return view;
     }
 
+    std::vector<std::pair<ViewModule*, ViewModule*>> Drawer::mouseRightClick(sf::Event event)
+    {
+        std::pair<int, int> click = { event.mouseButton.y / SCALED_SPRITE_SIZE.second, event.mouseButton.x / SCALED_SPRITE_SIZE.first };
+        for (View* view : views)
+        {
+            if (isComponentCastable<View*, ViewRobot*>(view))
+            {
+                if (dynamic_cast<ViewRobot*>(view)->plt->getCoordinates() == click)
+                {
+                    view->draw();
+                    return dynamic_cast<ViewRobot*>(view)->modules;
+                }
+            }
+        }
+        throw std::invalid_argument("Error. This is not platform.");
+    }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)
     {
         std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };

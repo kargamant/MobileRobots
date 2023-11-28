@@ -14,6 +14,9 @@ namespace Game
 		static std::string RESOURCES_PATH;
 		static std::string ROBOT_TEXTURE;
 	public:
+		bool isRobot = false;
+		bool isCell = false;
+		bool isModule = false;
 		sf::Sprite sprite;
 		sf::Texture* texture;
 		//sf::Vector2f scale;

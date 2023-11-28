@@ -9,7 +9,9 @@
 #include "Platforms/QuantumPlatform.h"
 #include "utils/CheckComponent.h"
 #include "Platforms/MobilePlatform.h"
-
+#include "Game/ViewRobot.h"
+#include "Game/ViewCell.h"
+//#include "Modules/Gun.h"
 
 
 int main()
@@ -18,15 +20,25 @@ int main()
     Field::Field::GROUND_MODE_ON = false;
     Field::Field* fld = new Field::Field();
     Robots::RobotCommander* rc = new Robots::RobotCommander();
+    rc->setSlots(5);
+
+    Robots::Sensor sens= Robots::Sensor();
+    Robots::EnergyGenerator eg= Robots::EnergyGenerator();
+    Robots::Gun gun = Robots::Gun();
+    rc->placeModule(sens);
+    rc->placeModule(gun);
+    rc->placeModule(eg);
     rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
 
     Game::Drawer dr;
     dr.viewField(fld);
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
-
+    bool right_click = false;
+    bool left_click = false;
     while (window.isOpen())
     {
+        
         
         sf::Event event;
         while (window.pollEvent(event))
@@ -43,10 +55,18 @@ int main()
                     //window.draw(view->sprite);
                     //window.draw(view->description);
                 }
+                /*if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    std::vector<std::pair<Game::ViewModule*, Game::ViewModule*>> modules = dr.mouseRightClick(event);
+                    //std::cout << std::string(modules[0].first->description.getString()) << std::endl;
+                    dr.tmp_inv = modules;
+                    right_click = true;
+                }*/
             }
         }
         
         window.clear();
+        
         for (Game::View* view : dr.views)
         {
             window.draw(view->sprite);
@@ -55,6 +75,16 @@ int main()
         {
             window.draw(dr.tmp->sprite);
             window.draw(dr.tmp->description);
+            if (dr.tmp->isRobot)
+            {
+                    for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dynamic_cast<Game::ViewRobot*>(dr.tmp)->modules)
+                    {
+                        window.draw(pair.first->inventoryView.sprite);
+                        window.draw(pair.first->sprite);
+                        //window.draw(pair.second->sprite);
+                    }
+            }
+            
         }
         window.display();
     }
