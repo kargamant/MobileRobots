@@ -5,6 +5,7 @@
 #include "View.h"
 #include "ViewModule.h"
 #include "ViewRobot.h"
+#include <SFML/Window/Keyboard.hpp>
 
 namespace Game
 {
@@ -56,7 +57,18 @@ namespace Game
 
         void viewField(Field::Field* fld);
         View* mouseLeftClick(sf::Event event);
-        std::vector<std::pair<ViewModule*, ViewModule*>> mouseRightClick(sf::Event event);
+        View* mouseRightClick(sf::Event event);
+        void moveKeyPressed(sf::Event event);
+
+        std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
+        {
+            if (key == sf::Keyboard::Up) return { -1, 0 };
+            else if (key == sf::Keyboard::Down) return { 1, 0 };
+            else if (key == sf::Keyboard::Left) return { 0, -1 };
+            else if (key == sf::Keyboard::Right) return { 0, 1 };
+            else return { 0, 0 };
+        }
+        //std::vector<std::pair<ViewModule*, ViewModule*>> mouseRightClick(sf::Event event);
         
         std::string coordinatesToFileName(std::pair<int, int> coordinates)
         {
@@ -77,6 +89,7 @@ namespace Game
             return filename;
         }
 
+        void generateErrorView(std::string error);
         //std::pair<sf::Sprite, sf::Text> drawCell(Field::Cell& cell, sf::Text& preSet);
         //std::pair<sf::Sprite, sf::Text> drawRobot(Robots::Platform& plt, sf::Text& preSet);
         //std::pair<sf::Sprite, sf::Text> drawModule(Robots::Module& mod, sf::Text& preSet);

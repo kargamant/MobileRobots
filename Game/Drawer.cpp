@@ -10,6 +10,7 @@
 #include "ViewCell.h"
 #include "ViewRobot.h"
 #include "ViewModule.h"
+#include "../Interfaces/Moving.h"
 //#include "../Modules/Module.h"
 
 namespace Game
@@ -91,7 +92,7 @@ namespace Game
         }
         catch (std::invalid_argument error)
         {
-            view = new View(ERROR_TEXTURE, TOP_RIGHT_CORNER, error.what(), TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4), FONT_NAME, 10);
+            generateErrorView(error.what());
             return view;
         }
         if (field->checkPlatformOnField(click) != nullptr)
@@ -103,10 +104,57 @@ namespace Game
             view = new ViewCell(&field->getCellByCoordinates(click), TOP_RIGHT_CORNER, "", TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
         }
         view->draw();
+        tmp = view;
+        if (view->isRobot)
+        {
+            currentPlt = dynamic_cast<Game::ViewRobot*>(view);
+        }
         return view;
     }
 
-    
+    View* Drawer::mouseRightClick(sf::Event event)
+    {
+        if (currentPlt != nullptr)
+        {
+            for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : currentPlt->modules)
+            {
+                std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
+                if (isClicked(&pair.first->inventoryView, click))
+                {
+                    tmp = pair.second;
+                    break;
+                }
+            }
+        }
+        return tmp;
+    }
+
+    void Drawer::moveKeyPressed(sf::Event event)
+    {
+        std::pair<int, int> vector = moveKeyToVector(event.key.code);
+        if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(currentPlt->plt))
+        {
+            generateErrorView("Error. Platform is not movable.");
+        }
+        else
+        {
+            try
+            {
+                dynamic_cast<Robots::Moving*>(currentPlt->plt)->move(field, vector);
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
+    void Drawer::generateErrorView(std::string error)
+    {
+        delete tmp;
+        tmp = new View(ERROR_TEXTURE, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
+        tmp->draw();
+    }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)
     {
         std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };

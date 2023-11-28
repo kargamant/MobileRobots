@@ -37,12 +37,9 @@ int main()
     Game::Drawer dr;
     dr.viewField(fld);
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
-    bool right_click = false;
-    bool left_click = false;
     while (window.isOpen())
     {
-        
-        
+        bool isFieldChanged = false;
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -52,34 +49,30 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    Game::View* view = dr.mouseLeftClick(event);
+                    Game::View* view=dr.mouseLeftClick(event);
                     std::cout << std::string(view->description.getString()) << std::endl;
-                    dr.tmp = view;
-                    if (view->isRobot)
-                    {
-                        dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
-                    }
                 }
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    if (dr.currentPlt!=nullptr) //dr.tmp != nullptr && dr.tmp->isRobot
-                    {
-                        for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)
-                        {
-                            std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
-                            if (dr.isClicked(&pair.first->inventoryView, click))
-                            {
-                                dr.tmp = pair.second;
-                                break;
-                            }
-                        }
-                    }
+                    dr.mouseRightClick(event);
                 }
+            }
+            else if (event.type == sf::Event::KeyPressed)
+            {
+                sf::Keyboard::Key scanCode = event.key.code;
+                if (dr.moveKeyToVector(scanCode) != std::pair<int, int>(0, 0))
+                {
+                    dr.moveKeyPressed(event);
+                    dr.tmp = nullptr;
+                    dr.currentPlt = nullptr;
+                    isFieldChanged = true;
+                }
+                //if(scanCode==sf::Keyboard::Scan::Right ||)
             }
         }
         
         window.clear();
-        
+        if(isFieldChanged) dr.viewField(fld);
         for (Game::View* view : dr.views)
         {
             window.draw(view->sprite);
