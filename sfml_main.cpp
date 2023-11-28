@@ -24,7 +24,10 @@ int main()
 
     Robots::Sensor sens= Robots::Sensor();
     Robots::EnergyGenerator eg= Robots::EnergyGenerator();
+    Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::Gun gun = Robots::Gun();
+    rd.setCoordinates(1, 1);
+    fld->placePlatform(&rd);
     rc->placeModule(sens);
     rc->placeModule(gun);
     rc->placeModule(eg);
@@ -52,16 +55,26 @@ int main()
                     Game::View* view = dr.mouseLeftClick(event);
                     std::cout << std::string(view->description.getString()) << std::endl;
                     dr.tmp = view;
-                    //window.draw(view->sprite);
-                    //window.draw(view->description);
+                    if (view->isRobot)
+                    {
+                        dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
+                    }
                 }
-                /*if (event.mouseButton.button == sf::Mouse::Right)
+                if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    std::vector<std::pair<Game::ViewModule*, Game::ViewModule*>> modules = dr.mouseRightClick(event);
-                    //std::cout << std::string(modules[0].first->description.getString()) << std::endl;
-                    dr.tmp_inv = modules;
-                    right_click = true;
-                }*/
+                    if (dr.currentPlt!=nullptr) //dr.tmp != nullptr && dr.tmp->isRobot
+                    {
+                        for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)
+                        {
+                            std::pair<int, int> click = { event.mouseButton.x, event.mouseButton.y };
+                            if (dr.isClicked(&pair.first->inventoryView, click))
+                            {
+                                dr.tmp = pair.second;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
         
@@ -75,13 +88,12 @@ int main()
         {
             window.draw(dr.tmp->sprite);
             window.draw(dr.tmp->description);
-            if (dr.tmp->isRobot)
+            if (dr.currentPlt!=nullptr && (dynamic_cast<Game::ViewRobot*>(dr.tmp)==dr.currentPlt || dr.tmp->isModule))
             {
-                    for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dynamic_cast<Game::ViewRobot*>(dr.tmp)->modules)
+                    for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)
                     {
                         window.draw(pair.first->inventoryView.sprite);
                         window.draw(pair.first->sprite);
-                        //window.draw(pair.second->sprite);
                     }
             }
             

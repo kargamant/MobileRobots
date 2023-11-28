@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "View.h"
 #include "ViewModule.h"
+#include "ViewRobot.h"
 
 namespace Game
 {
@@ -46,23 +47,17 @@ namespace Game
         static int LOG_INDENTATION;
 
         std::vector<View*> views;
-        View* tmp=nullptr;
-        std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;
-        //std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
-        Field::Field* field;
-        //std::pair<int, int> sprite;
-        //sf::Text concoleOut;
-        //sf::Sprite portrait;
-        //sf::Text description;
 
-        //Robots::Module* detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
-        //std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
+        View* tmp=nullptr;
+        ViewRobot* currentPlt=nullptr;
+        //Robots::Platform* currentPlt = nullptr;
+        std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;
+        Field::Field* field;
+
         void viewField(Field::Field* fld);
         View* mouseLeftClick(sf::Event event);
         std::vector<std::pair<ViewModule*, ViewModule*>> mouseRightClick(sf::Event event);
-        //std::pair<sf::Sprite, sf::Text> getInfoFromClick(std::pair<std::pair<int, int>, sf::Sprite> click, sf::Text& concoleOut);
-        //std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
-
+        
         std::string coordinatesToFileName(std::pair<int, int> coordinates)
         {
             std::string filename;
@@ -87,14 +82,21 @@ namespace Game
         //std::pair<sf::Sprite, sf::Text> drawModule(Robots::Module& mod, sf::Text& preSet);
         //std::vector<std::pair<sf::Sprite, sf::Sprite>> drawModuleBar(Robots::Platform& plt);
 
-        bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
+        bool isClicked(View* view, std::pair<int, int> click)
+        {
+            std::pair<int, int> coordinates = { view->sprite.getPosition().x, view->sprite.getPosition().y };
+            std::pair<int, int> size = { view->sprite.getTexture()->getSize().x*view->sprite.getScale().x, view->sprite.getTexture()->getSize().y*view->sprite.getScale().y};
+            return (click.first > coordinates.first && click.first<(coordinates.first + size.first) && click.second>coordinates.second && click.second < (coordinates.second + size.second));
+        }
+
+        /*bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
         {
             return (click.second > cell1.first * SPRITE_SIZE.first && click.second<(cell1.first + 1)* SPRITE_SIZE.first&& click.first> cell1.second * SPRITE_SIZE.second && click.first < (cell1.second + 1)* SPRITE_SIZE.second);
         }
 
-        bool clickOnSprite(std::pair<int, int> click, std::pair<int, int> sp)
+        bool clickOnSprite(std::pair<int, int> click, std::pair<int, int> sp, std::pair<int, int> spriteSize)
         {
-            return (click.first > sp.first && click.first<(sp.first + SPRITE_SIZE.first) && click.second>sp.second && click.second < (sp.second + SPRITE_SIZE.second));
-        }
+            return (click.first > sp.first && click.first<(sp.first + spriteSize.first) && click.second>sp.second && click.second < (sp.second + spriteSize.second));
+        }*/
     };
 }
