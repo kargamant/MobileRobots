@@ -21,12 +21,12 @@ namespace Game
 		sf::Font font;
 		sf::Text description;
 		
-		View(std::string texture_name, sf::Vector2f position, std::string message, sf::Vector2f txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR);
+		View(std::string texture_name, std::pair<int, int> position, std::string message, std::pair<int, int> txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR);
 
-		~View()
+		/*~View()
 		{
 			delete texture;
-		}
+		}*/
 
 		virtual void draw();
 	};

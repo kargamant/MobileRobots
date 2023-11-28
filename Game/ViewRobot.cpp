@@ -17,9 +17,10 @@ namespace Game
 
 	void ViewRobot::drawModuleBar()
 	{
-		std::pair<int, int> base_position = { plt->getCoordinates().second * Drawer::SPRITE_SIZE.first, plt->getCoordinates().first * Drawer::SPRITE_SIZE.second };
+		std::pair<int, int> base_position = { plt->getCoordinates().second * Drawer::SCALED_SPRITE_SIZE.first, plt->getCoordinates().first * Drawer::SCALED_SPRITE_SIZE.second };
 		for (int i=0; i<plt->getRobo().size(); i++)
 		{
+			
 			Robots::Module* mod = plt->getRobo()[i];
 
 			int x_other_way = 1;
@@ -33,13 +34,12 @@ namespace Game
 
 
 
-			ViewModule vm = ViewModule(mod, sf::Vector2f(base_position.first + x_other_way * (i + 1) * Drawer::SPRITE_SIZE.first + Drawer::SPRITE_SIZE.first / 4, base_position.second + Drawer::SPRITE_SIZE.second / 4), "", sf::Vector2f(0, 0), sf::Vector2f(0.1, 0.1));
+			ViewModule vm = ViewModule(mod, { base_position.first + x_other_way * (i + 1) * Drawer::SCALED_SPRITE_SIZE.first + Drawer::SCALED_SPRITE_SIZE.first / 4, base_position.second + Drawer::SCALED_SPRITE_SIZE.second / 4 }, "", {0, 0}, sf::Vector2f(0.1, 0.1));
 			vm.draw();
-			vm.inventoryView.sprite.setPosition(sf::Vector2f(base_position.first + x_other_way * (i + 1) * Drawer::SPRITE_SIZE.first, y_other_way * base_position.second));
+			vm.inventoryView.sprite.setPosition(sf::Vector2f(base_position.first + x_other_way * (i + 1) * Drawer::SCALED_SPRITE_SIZE.first, y_other_way * base_position.second));
 			ViewModule vm_big = vm;
 			vm_big.sprite.setPosition(sf::Vector2f(Drawer::TOP_RIGHT_CORNER.first, Drawer::TOP_RIGHT_CORNER.second));
 			vm_big.sprite.setScale(Drawer::SPRITE_SCALE);
-
 			modules.push_back({vm, vm_big});
 		}
 	}

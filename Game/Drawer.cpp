@@ -25,8 +25,10 @@ namespace Game
     std::string Drawer::GUN_TEXTURE = "gun.jpg";
     std::string Drawer::INVENTORY_ITEM_TEXTURE = "inventory.jpg";
     std::string Drawer::FONT_NAME = "munro-small.ttf";
+    std::string Drawer::ERROR_TEXTURE = "freddy_fazbear.jpeg";
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
+    std::pair<int, int> Drawer::SCALED_SPRITE_SIZE = { 102, 102 };
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER = { 0, 0 };
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER_TEXT = { 0, 0 };
 
@@ -49,20 +51,16 @@ namespace Game
             View* view;
             if (fld->checkPlatformOnField(it) != nullptr)
             {
-                view = new ViewRobot(fld->checkPlatformOnField(it), fld, sf::Vector2f(position.first, position.second), "", sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2));
+                view = new ViewRobot(fld->checkPlatformOnField(it), fld, position, "", { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 });
                 view->draw();
             }
             else
             {
-                view = new ViewCell(&fld->getCellByCoordinates(it), sf::Vector2f(position.first, position.second), "", sf::Vector2f(sprite.first * field->getHeight() + 5, sprite.second * 2));
+                view = new ViewCell(&fld->getCellByCoordinates(it), position, "", { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 });
                 view->draw();
             }
             
             views.push_back(view);
-
-            //sprite.first = sp.getTexture()->getSize().x * sp.getScale().x;
-            //sprite.second = sp.getTexture()->getSize().y * sp.getScale().y;
-            //std::cout << sprite.first << " " << sprite.second << std::endl;
 
             if (it.second != brCorner.second)
             {
@@ -79,8 +77,33 @@ namespace Game
 
         }
 
-        TOP_RIGHT_CORNER = { SPRITE_SIZE.first * field->getHeight() + 5, 0 };
-        TOP_RIGHT_CORNER_TEXT = { SPRITE_SIZE.first * field->getHeight() + 5, SPRITE_SIZE.second * 2 };
+        TOP_RIGHT_CORNER = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, 0 };
+        TOP_RIGHT_CORNER_TEXT = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 };
+    }
+
+    View* Drawer::mouseLeftClick(sf::Event event)
+    {
+        View* view;
+        std::pair<int, int> click = {event.mouseButton.y/SCALED_SPRITE_SIZE.second, event.mouseButton.x / SCALED_SPRITE_SIZE.first };
+        try
+        {
+            field->checkCoordinates(click);
+        }
+        catch (std::invalid_argument error)
+        {
+            view = new View(ERROR_TEXTURE, TOP_RIGHT_CORNER, error.what(), TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4), FONT_NAME, 10);
+            return view;
+        }
+        if (field->checkPlatformOnField(click) != nullptr)
+        {
+            view = new ViewRobot(field->checkPlatformOnField(click), field, TOP_RIGHT_CORNER, "", TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
+        }
+        else
+        {
+            view = new ViewCell(&field->getCellByCoordinates(click), TOP_RIGHT_CORNER, "", TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
+        }
+        view->draw();
+        return view;
     }
 
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)
@@ -188,7 +211,7 @@ namespace Game
         return inventory;
     }*/
 
-    std::pair<std::string, std::string> Drawer::moduleToName(Robots::Module& mod)
+    /*std::pair<std::string, std::string> Drawer::moduleToName(Robots::Module& mod)
     {
         std::string name, texture_name;
         if (isComponentCastable<Robots::Module&, Robots::EnergyGenerator&>(mod))
@@ -213,7 +236,7 @@ namespace Game
         }
 
         return std::pair<std::string, std::string>(name, texture_name);
-    }
+    }*/
     /*
     std::pair<sf::Sprite, sf::Text> Drawer::drawModule(Robots::Module& mod, sf::Text& preSet)
     {

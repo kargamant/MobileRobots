@@ -33,8 +33,7 @@ namespace Field
 		std::pair<int, int> size;
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> platforms;
 		std::vector<std::vector<Cell>> map;
-		void checkCoordinates(int x, int y);
-		void checkCoordinates(std::pair<int, int> coordinates);
+		
 	public:
 		static int MAX_RANDOM_SIZE;
 		static bool GROUND_MODE_ON;
@@ -68,5 +67,7 @@ namespace Field
 
 		void consoleOutField(std::ostream& stream=std::cout);
 		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
+		void checkCoordinates(int x, int y);
+		void checkCoordinates(std::pair<int, int> coordinates);
 	};
 }

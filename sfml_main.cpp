@@ -17,23 +17,44 @@ int main()
     
     Field::Field::GROUND_MODE_ON = false;
     Field::Field* fld = new Field::Field();
+    Robots::RobotCommander* rc = new Robots::RobotCommander();
+    rc->setCoordinates(0, 0);
+    fld->placePlatform(rc);
 
     Game::Drawer dr;
     dr.viewField(fld);
-    sf::RenderWindow window(sf::VideoMode(Game::Drawer::SPRITE_SIZE.first*Game::Drawer::SPRITE_SCALE.x * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SPRITE_SIZE.second * fld->getWidth()* Game::Drawer::SPRITE_SCALE.y), "MobileRobots");
+    sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
 
     while (window.isOpen())
     {
+        
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    Game::View* view = dr.mouseLeftClick(event);
+                    std::cout << std::string(view->description.getString()) << std::endl;
+                    dr.tmp = view;
+                    //window.draw(view->sprite);
+                    //window.draw(view->description);
+                }
+            }
         }
+        
         window.clear();
         for (Game::View* view : dr.views)
         {
             window.draw(view->sprite);
+        }
+        if (dr.tmp != nullptr)
+        {
+            window.draw(dr.tmp->sprite);
+            window.draw(dr.tmp->description);
         }
         window.display();
     }

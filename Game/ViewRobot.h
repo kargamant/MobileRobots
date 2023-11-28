@@ -15,7 +15,7 @@ namespace Game
 	public:
 		Robots::Platform* plt;
 		std::vector<std::pair<ViewModule&, ViewModule&>> modules;
-		ViewRobot(Robots::Platform* plt, Field::Field* field, sf::Vector2f position, std::string message, sf::Vector2f txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : plt(plt), field(field), View(ROBOT_TEXTURE, position, message, txt_pos, scale, font_name, character_size, color) {}
+		ViewRobot(Robots::Platform* plt, Field::Field* field, std::pair<int, int> position, std::string message, std::pair<int, int> txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : plt(plt), field(field), View(ROBOT_TEXTURE, position, message, txt_pos, scale, font_name, character_size, color) {}
 
 		void draw() override;
 		void drawModuleBar();

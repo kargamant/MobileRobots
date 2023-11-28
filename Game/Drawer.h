@@ -34,8 +34,10 @@ namespace Game
         static std::string MANAGE_MODULE_TEXTURE;
         static std::string GUN_TEXTURE;
         static std::string INVENTORY_ITEM_TEXTURE;
+        static std::string ERROR_TEXTURE;
         static std::string FONT_NAME;
         static std::pair<int, int> SPRITE_SIZE;
+        static std::pair<int, int> SCALED_SPRITE_SIZE;
         static int CHARACTER_SIZE;
         static std::pair<int, int> TOP_RIGHT_CORNER;
         static std::pair<int, int> TOP_RIGHT_CORNER_TEXT;
@@ -43,17 +45,18 @@ namespace Game
         static int LOG_INDENTATION;
 
         std::vector<View*> views;
+        View* tmp=nullptr;
         //std::unordered_map<Field::Cell, sf::Sprite*, CellHash, CellEqual> map;
         Field::Field* field;
-        std::pair<int, int> sprite;
-        sf::Text concoleOut;
-        sf::Sprite portrait;
-        sf::Text description;
+        //std::pair<int, int> sprite;
+        //sf::Text concoleOut;
+        //sf::Sprite portrait;
+        //sf::Text description;
 
         //Robots::Module* detectClickOnBar(sf::Event event, Robots::Platform& plt, std::vector<std::pair<sf::Sprite, sf::Sprite>> module_bar);
-        std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
+        //std::pair<std::string, std::string> moduleToName(Robots::Module& mod);
         void viewField(Field::Field* fld);
-        //std::pair<std::pair<int, int>, sf::Sprite> mouseLeftClick(sf::Event event);
+        View* mouseLeftClick(sf::Event event);
         //std::pair<std::pair<int, int>, sf::Sprite> mouseRightClick(sf::Event event);
         //std::pair<sf::Sprite, sf::Text> getInfoFromClick(std::pair<std::pair<int, int>, sf::Sprite> click, sf::Text& concoleOut);
         //std::pair<std::pair<int, int>, sf::Sprite> rightMouseClick(sf::Event event);
@@ -84,12 +87,12 @@ namespace Game
 
         bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
         {
-            return (click.second > cell1.first * sprite.first && click.second<(cell1.first + 1)* sprite.first&& click.first> cell1.second * sprite.second && click.first < (cell1.second + 1)* sprite.second);
+            return (click.second > cell1.first * SPRITE_SIZE.first && click.second<(cell1.first + 1)* SPRITE_SIZE.first&& click.first> cell1.second * SPRITE_SIZE.second && click.first < (cell1.second + 1)* SPRITE_SIZE.second);
         }
 
         bool clickOnSprite(std::pair<int, int> click, std::pair<int, int> sp)
         {
-            return (click.first > sp.first && click.first<(sp.first + sprite.first) && click.second>sp.second && click.second < (sp.second + sprite.second));
+            return (click.first > sp.first && click.first<(sp.first + SPRITE_SIZE.first) && click.second>sp.second && click.second < (sp.second + SPRITE_SIZE.second));
         }
     };
 }

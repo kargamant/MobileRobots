@@ -14,7 +14,7 @@ namespace Game
         std::string formCellDescription(Field::Cell& cell);
 	public:
 		Field::Cell* cell;
-        ViewCell(Field::Cell* cell, sf::Vector2f position, std::string message, sf::Vector2f txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : cell(cell), View(cellToFileName(*cell), position, message, txt_pos, scale, font_name, character_size, color) {}
+        ViewCell(Field::Cell* cell, std::pair<int, int> position, std::string message, std::pair<int, int> txt_pos, sf::Vector2f scale = SPRITE_SCALE, std::string font_name = FONT_NAME, int character_size = CHARACTER_SIZE, sf::Color color = TEXT_COLOR) : cell(cell), View(cellToFileName(*cell), position, message, txt_pos, scale, font_name, character_size, color) {}
 	    
         void draw() override;
     };
