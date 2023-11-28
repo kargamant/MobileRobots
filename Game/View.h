@@ -31,6 +31,9 @@ namespace Game
 			delete texture;
 		}*/
 
+		//void scale(std::pair<double, double> scale);
+		//void setSize();
+
 		virtual void draw();
 	};
 }

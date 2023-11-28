@@ -44,11 +44,13 @@ namespace Game
         static int CHARACTER_SIZE;
         static std::pair<int, int> TOP_RIGHT_CORNER;
         static std::pair<int, int> TOP_RIGHT_CORNER_TEXT;
+        static std::pair<int, int> BOTTOM_RIGHT_CORNER;
         static sf::Vector2f SPRITE_SCALE;
         static int LOG_INDENTATION;
 
         std::vector<View*> views;
 
+        sf::RenderWindow* window;
         View* tmp=nullptr;
         ViewRobot* currentPlt=nullptr;
         //Robots::Platform* currentPlt = nullptr;
@@ -59,6 +61,7 @@ namespace Game
         View* mouseLeftClick(sf::Event event);
         View* mouseRightClick(sf::Event event);
         void moveKeyPressed(sf::Event event);
+        void destroyKeyPressed(View* target);
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
         {
@@ -90,10 +93,6 @@ namespace Game
         }
 
         void generateErrorView(std::string error);
-        //std::pair<sf::Sprite, sf::Text> drawCell(Field::Cell& cell, sf::Text& preSet);
-        //std::pair<sf::Sprite, sf::Text> drawRobot(Robots::Platform& plt, sf::Text& preSet);
-        //std::pair<sf::Sprite, sf::Text> drawModule(Robots::Module& mod, sf::Text& preSet);
-        //std::vector<std::pair<sf::Sprite, sf::Sprite>> drawModuleBar(Robots::Platform& plt);
 
         bool isClicked(View* view, std::pair<int, int> click)
         {
@@ -101,15 +100,5 @@ namespace Game
             std::pair<int, int> size = { view->sprite.getTexture()->getSize().x*view->sprite.getScale().x, view->sprite.getTexture()->getSize().y*view->sprite.getScale().y};
             return (click.first > coordinates.first && click.first<(coordinates.first + size.first) && click.second>coordinates.second && click.second < (coordinates.second + size.second));
         }
-
-        /*bool inBoundaries(std::pair<int, int> click, std::pair<int, int> cell1)
-        {
-            return (click.second > cell1.first * SPRITE_SIZE.first && click.second<(cell1.first + 1)* SPRITE_SIZE.first&& click.first> cell1.second * SPRITE_SIZE.second && click.first < (cell1.second + 1)* SPRITE_SIZE.second);
-        }
-
-        bool clickOnSprite(std::pair<int, int> click, std::pair<int, int> sp, std::pair<int, int> spriteSize)
-        {
-            return (click.first > sp.first && click.first<(sp.first + spriteSize.first) && click.second>sp.second && click.second < (sp.second + spriteSize.second));
-        }*/
     };
 }

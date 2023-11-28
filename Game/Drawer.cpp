@@ -11,6 +11,7 @@
 #include "ViewRobot.h"
 #include "ViewModule.h"
 #include "../Interfaces/Moving.h"
+#include "../Platforms/RobotDestroyer.h"
 //#include "../Modules/Module.h"
 
 namespace Game
@@ -32,6 +33,7 @@ namespace Game
     std::pair<int, int> Drawer::SCALED_SPRITE_SIZE = { 102, 102 };
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER = { 0, 0 };
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER_TEXT = { 0, 0 };
+    std::pair<int, int> Drawer::BOTTOM_RIGHT_CORNER={0, 0};
 
     sf::Vector2f Drawer::SPRITE_SCALE = sf::Vector2f(0.2, 0.2);
 
@@ -46,7 +48,6 @@ namespace Game
         std::pair<int, int> it = tlCorner;
         std::pair<int, int> position = { 0, 0 };
         field = fld;
-        //std::cout << std::filesystem::current_path() << std::endl;
         while (it.first <= brCorner.first)
         {
             View* view;
@@ -80,6 +81,7 @@ namespace Game
 
         TOP_RIGHT_CORNER = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, 0 };
         TOP_RIGHT_CORNER_TEXT = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 };
+        BOTTOM_RIGHT_CORNER = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.first * field->getWidth() - 100 };
     }
 
     View* Drawer::mouseLeftClick(sf::Event event)
@@ -103,12 +105,7 @@ namespace Game
         {
             view = new ViewCell(&field->getCellByCoordinates(click), TOP_RIGHT_CORNER, "", TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
         }
-        view->draw();
-        tmp = view;
-        if (view->isRobot)
-        {
-            currentPlt = dynamic_cast<Game::ViewRobot*>(view);
-        }
+        
         return view;
     }
 
@@ -149,9 +146,38 @@ namespace Game
         }
     }
 
+    void Drawer::destroyKeyPressed(View* target)
+    {
+        //std::cout << "is null: "<<(currentPlt == nullptr) << std::endl;
+        if (!isComponentCastable<Robots::Platform*, Robots::Destroying*>(currentPlt->plt))
+        {
+            generateErrorView("Error. Platform is not destroying.");
+        }
+        else
+        {
+            std::pair<int, int> coordinates;
+            if (target->isCell)
+            {
+                coordinates = dynamic_cast<ViewCell*>(target)->cell->getCoordinates();
+            }
+            else
+            {
+                coordinates = dynamic_cast<ViewRobot*>(target)->plt->getCoordinates();
+            }
+            try
+            {
+                dynamic_cast<Robots::Destroying*>(currentPlt->plt)->destroy(field, coordinates);
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
     void Drawer::generateErrorView(std::string error)
     {
-        delete tmp;
+        //delete tmp;
         tmp = new View(ERROR_TEXTURE, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
         tmp->draw();
     }

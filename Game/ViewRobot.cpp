@@ -12,7 +12,7 @@ namespace Game
 
 	std::string ViewRobot::formRobotDescription(Robots::Platform& plt)
 	{
-		return std::format("({}, {}) : {}", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName());
+		return std::format("({}, {}) : {}\nCost: {}\nEnergy Consumption: {}\n{}/{} slots are busy", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName(), plt.getCost(), plt.getEnergyLevel(), plt.getRobo().size(), plt.getSlots());
 	}
 
 	void ViewRobot::drawModuleBar()

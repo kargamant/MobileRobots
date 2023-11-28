@@ -37,6 +37,8 @@ int main()
     Game::Drawer dr;
     dr.viewField(fld);
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
+    dr.window = &window;
+    bool isPicking = false;
     while (window.isOpen())
     {
         bool isFieldChanged = false;
@@ -49,8 +51,26 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
+                    //std::cout << dr.currentPlt->plt->getName() << std::endl;
                     Game::View* view=dr.mouseLeftClick(event);
                     std::cout << std::string(view->description.getString()) << std::endl;
+                    if (isPicking)
+                    {
+                        dr.destroyKeyPressed(view);
+                        isFieldChanged = true;
+                        isPicking = false;
+                        dr.generateErrorView("Target was successfully destroyed.");
+                    }
+                    else
+                    {
+                        view->draw();
+                        dr.tmp = view;
+                        if (view->isRobot)
+                        {
+                            //currentPlt = new ViewRobot(*dynamic_cast<Game::ViewRobot*>(view));
+                            dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
+                        }
+                    }
                 }
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
@@ -60,17 +80,40 @@ int main()
             else if (event.type == sf::Event::KeyPressed)
             {
                 sf::Keyboard::Key scanCode = event.key.code;
-                if (dr.moveKeyToVector(scanCode) != std::pair<int, int>(0, 0))
+                if (dr.tmp!=nullptr && dr.currentPlt!=nullptr && dr.moveKeyToVector(scanCode) != std::pair<int, int>(0, 0))
                 {
                     dr.moveKeyPressed(event);
-                    dr.tmp = nullptr;
+                    //dr.tmp = nullptr;
                     dr.currentPlt = nullptr;
                     isFieldChanged = true;
                 }
+                if (scanCode == sf::Keyboard::Key::D)
+                {
+                    if (dr.currentPlt != nullptr)
+                    {
+                        if (!isPicking)
+                        {
+                            
+                            dr.generateErrorView("Okay. Pick a cell to destroy");
+                            isPicking = true;
+                        }
+                        
+                    }
+                }
+                /*if (scanCode == sf::Keyboard::Key::F)
+                {
+                    fld->resize(fld->getWidth()+1, fld->getHeight()+1);
+                    Game::Drawer::SPRITE_SCALE.x -= 0.05;
+                    Game::Drawer::SPRITE_SCALE.y -= 0.05;
+                    Game::Drawer::SCALED_SPRITE_SIZE.first = Game::Drawer::SPRITE_SCALE.x * Game::Drawer::SPRITE_SIZE.first;
+                    Game::Drawer::SCALED_SPRITE_SIZE.second = Game::Drawer::SPRITE_SCALE.y * Game::Drawer::SPRITE_SIZE.second;
+                    window.clear();
+                    //window.setSize(sf::Vector2u(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()));
+                    isFieldChanged = true;
+                }*/
                 //if(scanCode==sf::Keyboard::Scan::Right ||)
             }
         }
-        
         window.clear();
         if(isFieldChanged) dr.viewField(fld);
         for (Game::View* view : dr.views)
@@ -92,6 +135,7 @@ int main()
             
         }
         window.display();
+        //if (isPicking) goto destroying;
     }
     /*
     //test platform placement
