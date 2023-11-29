@@ -18,18 +18,18 @@ namespace Robots
 		checkInd(ind);
 		getCpu().checkReachable(ind);
 
-		Platform reporter = getCpu().getSubOrd()[ind];
+		Platform* reporter = getCpu().getSubOrd()[ind];
 
-		int sensor = getCpu().checkSensor(&reporter);
+		int sensor = getCpu().checkSensor(reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
-		return dynamic_cast<Sensor*>(reporter.getRobo()[sensor])->scan(fld, coordinates);
+		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, coordinates);
 	}
 
 	void CommandCentre::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{
 		checkInd(ind);
 		
-		fld->movePlatform(getCpu().getSubOrd()[ind].getCoordinates(), vector);
+		fld->movePlatform(getCpu().getSubOrd()[ind]->getCoordinates(), vector);
 	}
 
 	void CommandCentre::deleteModule(int ind)

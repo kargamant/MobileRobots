@@ -71,6 +71,7 @@ namespace Game
         View* mouseRightClick(sf::Event event);
         void moveKeyPressed(sf::Event event);
         void destroyKeyPressed(View* target);
+        void subdueKeyPressed(View* target);
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
         {

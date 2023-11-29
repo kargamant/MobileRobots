@@ -12,6 +12,7 @@
 #include "ViewModule.h"
 #include "../Interfaces/Moving.h"
 #include "../Platforms/RobotDestroyer.h"
+#include "../Platforms/CommandCentre.h"
 //#include "../Modules/Module.h"
 
 namespace Game
@@ -180,6 +181,31 @@ namespace Game
         if (!isErr)
         {
             generateErrorView("Target was successfully destroyed.", EXPLODE_TEXTURE);
+        }
+    }
+
+    void Drawer::subdueKeyPressed(View* target)
+    {
+        if (target->isCell)
+        {
+            generateErrorView("Error. You cant subdue cell.");
+        }
+        else
+        {
+            bool isErr = false;
+            try
+            {
+                dynamic_cast<Robots::CommandCentre*>(currentPlt->plt)->getCpu().subdue(*dynamic_cast<ViewRobot*>(target)->plt);
+            }
+            catch (std::invalid_argument error)
+            {
+                isErr = true;
+                generateErrorView(error.what());
+            }
+            if (!isErr)
+            {
+                generateErrorView("You succesfully subdued\n"+dynamic_cast<ViewRobot*>(target)->plt->getName());
+            }
         }
     }
 

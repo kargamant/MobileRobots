@@ -9,7 +9,7 @@ namespace Robots
 		CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		ManageModule& urmom_cpu = urmom->getCpu();
 
-		if (Field::distance(urmom->getCoordinates(), plt.getCoordinates()) <= radius && urmom_cpu.getSubOrd().size() < urmom_cpu.getSub()) urmom_cpu.getSubOrd().push_back(plt);
+		if (Field::inArea(urmom->getCoordinates(), plt.getCoordinates(), radius) && urmom_cpu.getSubOrd().size() < urmom_cpu.getSub()) urmom_cpu.getSubOrd().push_back(&plt);
 		else if (urmom_cpu.getSubOrd().size() == urmom_cpu.getSub()) throw std::invalid_argument("Error. Platform is full.");
 		else throw std::invalid_argument("Error. Cant subdue, platform is unreachable.");
 	}
@@ -23,7 +23,7 @@ namespace Robots
 
 	void ManageModule::checkReachable(int ind)
 	{
-		if (Field::distance(getMom()->getCoordinates(), getSubOrd()[ind].getCoordinates()) > radius) throw std::invalid_argument("Error. Platform is unreachable.");
+		if (Field::inArea(getMom()->getCoordinates(), getSubOrd()[ind]->getCoordinates(), radius)) throw std::invalid_argument("Error. Platform is unreachable.");
 	}
 
 	void ManageModule::checkInd(int ind)
@@ -47,17 +47,17 @@ namespace Robots
 		checkInd(ind);
 		checkReachable(ind);
 
-		Platform reporter = subordinates[ind];
+		Platform* reporter = subordinates[ind];
 
-		int sensor = checkSensor(&reporter);
+		int sensor = checkSensor(reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
-		return dynamic_cast<Sensor*>(reporter.getRobo()[sensor])->scan(fld, motherboard->getCoordinates());
+		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, motherboard->getCoordinates());
 	}
 	void ManageModule::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{
 		checkInd(ind);
 		checkReachable(ind);
 		
-		fld->movePlatform(subordinates[ind].getCoordinates(), vector);
+		fld->movePlatform(subordinates[ind]->getCoordinates(), vector);
 	}
 }

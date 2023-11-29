@@ -20,7 +20,18 @@ namespace Game
 
 	std::string ViewRobot::formRobotDescription(Robots::Platform& plt)
 	{
-		return std::format("({}, {}) : {}\nCost: {}\nEnergy Consumption: {}\n{}/{} slots are busy", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName(), plt.getCost(), plt.getEnergyLevel(), plt.getRobo().size(), plt.getSlots());
+		std::string out=std::format("({}, {}) : {}\nClass: {}\nCost: {}\nEnergy Consumption: {}\n{}/{} slots are busy\n", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName(), formTextureName(plt).substr(0, formTextureName(plt).length()-4), plt.getCost(), plt.getEnergyLevel(), plt.getRobo().size(), plt.getSlots());
+		if (isComponentCastable<Robots::Platform&, Robots::Rulling&>(plt))
+		{
+			out += "\nsubordinates:\n";
+			int i = 0;
+			for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre&>(plt).getCpu().getSubOrd())
+			{
+				i++;
+				out += std::format("{}. ({}, {}) | {}\n", std::to_string(i), std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second), sub->getName());
+			}
+		}
+		return out;
 	}
 
 	std::string ViewRobot::formTextureName(Robots::Platform& plt)

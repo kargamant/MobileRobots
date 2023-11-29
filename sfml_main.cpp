@@ -23,11 +23,16 @@ int main()
     Robots::RobotCommander* rc = new Robots::RobotCommander();
     rc->setSlots(5);
 
+    std::srand(time(NULL));
+
     Robots::Sensor sens= Robots::Sensor();
     Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
+    Robots::MobilePlatform mp = Robots::MobilePlatform();
 
+    mp.setCoordinates(1, 3);
+    fld->placePlatform(&mp);
     kr.setCoordinates(2, 2);
     kr.setMaxRadius(3);
     fld->placePlatform(&kr);
@@ -40,12 +45,14 @@ int main()
     rc->placeModule(eg);
     rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
+    //rc->getCpu().subdue(rd);
+    //std::cout << "subordinate: " << rc->getCpu().getSubOrd()[0].getName() << std::endl;
 
     Game::Drawer dr;
     dr.viewField(fld);
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
     dr.window = &window;
-    bool isPicking = false;
+    std::pair<bool, std::string> isPicking = { false, "" };
     while (window.isOpen())
     {
         bool isFieldChanged = false;
@@ -61,13 +68,20 @@ int main()
                     //std::cout << dr.currentPlt->plt->getName() << std::endl;
                     Game::View* view=dr.mouseLeftClick(event);
                     //std::cout << std::string(view->description.getString()) << std::endl;
-                    if (isPicking)
+                    if (isPicking.first)
                     {
-                        dr.destroyKeyPressed(view);
+                        switch ((char)isPicking.second[0])
+                        {
+                        case 'D':
+                            dr.destroyKeyPressed(view);
+                            break;
+                        case 'S':
+                            dr.subdueKeyPressed(view);
+                            break;
+                        }
+                        
                         isFieldChanged = true;
-                        isPicking = false;
-                        
-                        
+                        isPicking.first = false;
                     }
                     else
                     {
@@ -100,27 +114,33 @@ int main()
                         {
                             dr.generateErrorView("Error. Platform is not destroying.");
                         }
-                        else if (!isPicking)
+                        else if (!isPicking.first)
                         {
                             
                             dr.generateErrorView("Okay. Pick a cell to destroy");
-                            isPicking = true;
+                            isPicking.first = true;
+                            isPicking.second = "D";
                         }
                         
                     }
                 }
-                /*if (scanCode == sf::Keyboard::Key::F)
+                if (scanCode == sf::Keyboard::Key::S)
                 {
-                    fld->resize(fld->getWidth()+1, fld->getHeight()+1);
-                    Game::Drawer::SPRITE_SCALE.x -= 0.05;
-                    Game::Drawer::SPRITE_SCALE.y -= 0.05;
-                    Game::Drawer::SCALED_SPRITE_SIZE.first = Game::Drawer::SPRITE_SCALE.x * Game::Drawer::SPRITE_SIZE.first;
-                    Game::Drawer::SCALED_SPRITE_SIZE.second = Game::Drawer::SPRITE_SCALE.y * Game::Drawer::SPRITE_SIZE.second;
-                    window.clear();
-                    //window.setSize(sf::Vector2u(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()));
-                    isFieldChanged = true;
-                }*/
-                //if(scanCode==sf::Keyboard::Scan::Right ||)
+                    if (dr.currentPlt != nullptr)
+                    {
+                        if (!isComponentCastable<Robots::Platform&, Robots::Rulling&>(*dr.currentPlt->plt))
+                        {
+                            dr.generateErrorView("Error. Platform is not rulling.");
+                        }
+                        else if(!isPicking.first)
+                        {
+                            dr.generateErrorView("Okay. Pick a robot to subdue");
+                            isPicking.first = true;
+                            isPicking.second = "S";
+                        }
+                    }
+                }
+                
             }
         }
         window.clear();

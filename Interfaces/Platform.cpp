@@ -20,7 +20,6 @@ namespace Robots
 			base_nicknames.push_back(to_read);
 			i++;
 		}
-		std::srand(time(NULL));
 		i = std::rand() % i;
 		int k = std::rand() % prefixes.length();
 
