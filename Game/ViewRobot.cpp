@@ -1,6 +1,14 @@
 #include "ViewRobot.h"
 #include "ViewModule.h"
 #include "Drawer.h"
+#include "../utils/CheckComponent.h"
+#include "../Platforms/CommandCentre.h"
+#include "../Platforms/RobotDestroyer.h"
+#include "../Platforms/RobotCommander.h"
+#include "../Platforms/MobilePlatform.h"
+#include "../Platforms/QuantumPlatform.h"
+#include "../Platforms/KamikazeRobot.h"
+
 
 namespace Game
 {
@@ -13,6 +21,17 @@ namespace Game
 	std::string ViewRobot::formRobotDescription(Robots::Platform& plt)
 	{
 		return std::format("({}, {}) : {}\nCost: {}\nEnergy Consumption: {}\n{}/{} slots are busy", std::to_string(plt.getX()), std::to_string(plt.getY()), plt.getName(), plt.getCost(), plt.getEnergyLevel(), plt.getRobo().size(), plt.getSlots());
+	}
+
+	std::string ViewRobot::formTextureName(Robots::Platform& plt)
+	{
+		if (isComponentCastable<Robots::Platform&, Robots::KamikazeRobot&>(plt)) return Drawer::KAMIKAZE_ROBOT_TEXTURE;
+		else if (isComponentCastable<Robots::Platform&, Robots::RobotDestroyer&>(plt)) return Drawer::ROBOT_DESTROYER_TEXTURE;
+		else if (isComponentCastable<Robots::Platform&, Robots::RobotCommander&>(plt)) return Drawer::ROBOT_COMMANDER_TEXTURE;
+		else if (isComponentCastable<Robots::Platform&, Robots::MobilePlatform&>(plt)) return Drawer::MOBILE_PLATFORM_TEXTURE;
+		else if (isComponentCastable<Robots::Platform&, Robots::QuantumPlatform&>(plt)) return Drawer::QUANTUM_PLATFORM_TEXTURE;
+		else if (isComponentCastable<Robots::Platform&, Robots::CommandCentre&>(plt)) return Drawer::COMMAND_CENTRE_TEXTURE;
+		else return "";
 	}
 
 	void ViewRobot::drawModuleBar()

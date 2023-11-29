@@ -39,6 +39,14 @@ namespace Game
         static std::string INVENTORY_ITEM_TEXTURE;
         static std::string ERROR_TEXTURE;
         static std::string FONT_NAME;
+
+        static std::string ROBOT_COMMANDER_TEXTURE;
+        static std::string ROBOT_DESTROYER_TEXTURE;
+        static std::string KAMIKAZE_ROBOT_TEXTURE;
+        static std::string MOBILE_PLATFORM_TEXTURE;
+        static std::string QUANTUM_PLATFORM_TEXTURE;
+        static std::string COMMAND_CENTRE_TEXTURE;
+
         static std::pair<int, int> SPRITE_SIZE;
         static std::pair<int, int> SCALED_SPRITE_SIZE;
         static int CHARACTER_SIZE;

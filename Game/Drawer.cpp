@@ -29,6 +29,13 @@ namespace Game
     std::string Drawer::FONT_NAME = "munro-small.ttf";
     std::string Drawer::ERROR_TEXTURE = "freddy_fazbear.jpeg";
     std::string Drawer::EXPLODE_TEXTURE="explode.jpg";
+    std::string Drawer::ROBOT_COMMANDER_TEXTURE="robot_commander.jpeg";
+    std::string Drawer::ROBOT_DESTROYER_TEXTURE="robot_destroyer.jpg";
+    std::string Drawer::KAMIKAZE_ROBOT_TEXTURE="kamikaze_robot.jpg";
+    std::string Drawer::MOBILE_PLATFORM_TEXTURE="mobile_platform.jpg";
+    std::string Drawer::QUANTUM_PLATFORM_TEXTURE="quantum_platform.jpg";
+    std::string Drawer::COMMAND_CENTRE_TEXTURE="command_centre.jpg";
+
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
     std::pair<int, int> Drawer::SCALED_SPRITE_SIZE = { 102, 102 };

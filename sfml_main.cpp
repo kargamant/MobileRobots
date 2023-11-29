@@ -27,6 +27,7 @@ int main()
     Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
+
     kr.setCoordinates(2, 2);
     kr.setMaxRadius(3);
     fld->placePlatform(&kr);
