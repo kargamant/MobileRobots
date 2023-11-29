@@ -143,6 +143,10 @@ namespace Game
         {
             generateErrorView("Error. Platform is not movable.");
         }
+        else if (currentPlt->master != nullptr && !Field::inArea(currentPlt->master->plt->getCoordinates(), currentPlt->plt->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(currentPlt->master->plt)->getCpu().getRad()))
+        {
+            generateErrorView("Error. You're too far from master robot.");
+        }
         else
         {
             try
@@ -204,7 +208,34 @@ namespace Game
             }
             if (!isErr)
             {
+                dynamic_cast<ViewRobot*>(target)->master = currentPlt;
                 generateErrorView("You succesfully subdued\n"+dynamic_cast<ViewRobot*>(target)->plt->getName());
+            }
+        }
+    }
+
+    void Drawer::releaseKeyPressed(View* target)
+    {
+        if (target->isCell)
+        {
+            generateErrorView("Error. You cant release cell.");
+        }
+        else
+        {
+            bool isErr = false;
+            try
+            {
+                dynamic_cast<Robots::CommandCentre*>(currentPlt->plt)->getCpu().release(dynamic_cast<ViewRobot*>(target)->plt);
+            }
+            catch (std::invalid_argument error)
+            {
+                isErr = true;
+                generateErrorView(error.what());
+            }
+            if (!isErr)
+            {
+                dynamic_cast<ViewRobot*>(target)->master = nullptr;
+                generateErrorView("You succesfully released\n" + dynamic_cast<ViewRobot*>(target)->plt->getName());
             }
         }
     }

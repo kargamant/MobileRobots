@@ -26,6 +26,7 @@ namespace Robots
 
 		void subdue(Platform& plt);
 		void release(int ind);
+		void release(Platform* subordinate);
 		std::vector<Field::Cell> getReport(Field::Field* fld, int ind) override;
 		void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector) override;
 

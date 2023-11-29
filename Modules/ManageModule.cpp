@@ -16,9 +16,27 @@ namespace Robots
 
 	void ManageModule::release(int ind)
 	{
-		CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
+		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		checkInd(ind);
-		urmom->getCpu().getSubOrd().erase(urmom->getCpu().getSubOrd().begin() + ind);
+		subordinates.erase(subordinates.begin() + ind);
+	}
+
+	void ManageModule::release(Platform* subordinate)
+	{
+		int ind = 0;
+		for (Platform* plt : subordinates)
+		{
+			if (plt == subordinate)
+			{
+				release(ind);
+				break;
+			}
+			ind++;
+		}
+		throw std::invalid_argument("Error. This is not a subordinate.");
+		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
+		//checkInd(ind);
+		//urmom->getCpu().getSubOrd().erase(urmom->getCpu().getSubOrd().begin() + ind);
 	}
 
 	void ManageModule::checkReachable(int ind)

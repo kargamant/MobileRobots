@@ -31,6 +31,7 @@ int main()
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
     Robots::MobilePlatform mp = Robots::MobilePlatform();
 
+    rc->getCpu().setRadius(2);
     mp.setCoordinates(1, 3);
     fld->placePlatform(&mp);
     kr.setCoordinates(2, 2);
@@ -77,6 +78,10 @@ int main()
                             break;
                         case 'S':
                             dr.subdueKeyPressed(view);
+                            //std::cout << "master: "<<(dynamic_cast<Game::ViewRobot*>(view)->master == nullptr) << std::endl;
+                            break;
+                        case 'R':
+                            dr.releaseKeyPressed(view);
                             break;
                         }
                         
@@ -101,6 +106,7 @@ int main()
                 sf::Keyboard::Key scanCode = event.key.code;
                 if (dr.tmp!=nullptr && dr.currentPlt!=nullptr && dr.moveKeyToVector(scanCode) != std::pair<int, int>(0, 0))
                 {
+                    //std::cout << "master move: " << (dr.currentPlt->master == nullptr) << std::endl;
                     dr.moveKeyPressed(event);
                     //dr.tmp = nullptr;
                     dr.currentPlt = nullptr;
@@ -140,7 +146,22 @@ int main()
                         }
                     }
                 }
-                
+                if (scanCode == sf::Keyboard::Key::R)
+                {
+                    if (dr.currentPlt != nullptr)
+                    {
+                        if (!isComponentCastable<Robots::Platform&, Robots::Rulling&>(*dr.currentPlt->plt))
+                        {
+                            dr.generateErrorView("Error. Platform is not rulling.");
+                        }
+                        else if (!isPicking.first)
+                        {
+                            dr.generateErrorView("Okay. Pick a robot to release");
+                            isPicking.first = true;
+                            isPicking.second = "R";
+                        }
+                    }
+                }
             }
         }
         window.clear();
