@@ -46,6 +46,7 @@ namespace Game
         static std::pair<int, int> TOP_RIGHT_CORNER_TEXT;
         static std::pair<int, int> BOTTOM_RIGHT_CORNER;
         static sf::Vector2f SPRITE_SCALE;
+        static std::string EXPLODE_TEXTURE;
         static int LOG_INDENTATION;
 
         std::vector<View*> views;
@@ -92,7 +93,7 @@ namespace Game
             return filename;
         }
 
-        void generateErrorView(std::string error);
+        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE);
 
         bool isClicked(View* view, std::pair<int, int> click)
         {

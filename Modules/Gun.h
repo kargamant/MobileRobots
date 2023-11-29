@@ -9,13 +9,13 @@ namespace Robots
 	{
 	private:
 		Platform* motherboard;
-		int radius;
+		//int radius;
 	public:
-		Gun(Platform* motherboard=nullptr, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0, int max_rad = 1) : motherboard(motherboard), Module(energy, state, priority, cost), Destroying(max_rad), radius(max_rad) {}
+		Gun(Platform* motherboard=nullptr, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0, int max_rad = 1) : motherboard(motherboard), Module(energy, state, priority, cost), Destroying(max_rad) {}
 
 		void destroy(Field::Field* fld, std::pair<int, int> coordinates) override;
 	
 		Platform* getMom() { return motherboard; }
-		int getRange() { return radius; }
+		//int getRange() { return radius; }
 	};
 }

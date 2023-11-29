@@ -6,7 +6,7 @@ namespace Robots
 {
 	class Destroying
 	{
-	private:
+	protected:
 		int max_radius;
 	public:
 		Destroying(int max_rad = 1) : max_radius(max_rad) {}

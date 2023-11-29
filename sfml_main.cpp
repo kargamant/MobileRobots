@@ -11,6 +11,7 @@
 #include "Platforms/MobilePlatform.h"
 #include "Game/ViewRobot.h"
 #include "Game/ViewCell.h"
+#include "Platforms/KamikazeRobot.h"
 //#include "Modules/Gun.h"
 
 
@@ -25,7 +26,12 @@ int main()
     Robots::Sensor sens= Robots::Sensor();
     Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
+    Robots::KamikazeRobot kr = Robots::KamikazeRobot();
+    kr.setCoordinates(2, 2);
+    kr.setMaxRadius(3);
+    fld->placePlatform(&kr);
     Robots::Gun gun = Robots::Gun();
+    rd.getGun().setMaxRadius(3);
     rd.setCoordinates(1, 1);
     fld->placePlatform(&rd);
     rc->placeModule(sens);
@@ -53,21 +59,19 @@ int main()
                 {
                     //std::cout << dr.currentPlt->plt->getName() << std::endl;
                     Game::View* view=dr.mouseLeftClick(event);
-                    std::cout << std::string(view->description.getString()) << std::endl;
+                    //std::cout << std::string(view->description.getString()) << std::endl;
                     if (isPicking)
                     {
                         dr.destroyKeyPressed(view);
                         isFieldChanged = true;
                         isPicking = false;
-                        dr.generateErrorView("Target was successfully destroyed.");
+                        
+                        
                     }
                     else
                     {
-                        view->draw();
-                        dr.tmp = view;
                         if (view->isRobot)
                         {
-                            //currentPlt = new ViewRobot(*dynamic_cast<Game::ViewRobot*>(view));
                             dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
                         }
                     }
@@ -91,7 +95,11 @@ int main()
                 {
                     if (dr.currentPlt != nullptr)
                     {
-                        if (!isPicking)
+                        if (!isComponentCastable<Robots::Platform&, Robots::Destroying&>(*dr.currentPlt->plt))
+                        {
+                            dr.generateErrorView("Error. Platform is not destroying.");
+                        }
+                        else if (!isPicking)
                         {
                             
                             dr.generateErrorView("Okay. Pick a cell to destroy");
@@ -120,6 +128,7 @@ int main()
         {
             window.draw(view->sprite);
         }
+        
         if (dr.tmp != nullptr)
         {
             window.draw(dr.tmp->sprite);

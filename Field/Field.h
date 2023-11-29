@@ -25,6 +25,7 @@ namespace Field
 	};
 
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
+	bool inArea(std::pair<int, int> centre, std::pair<int, int> cell, int radius);
 
 	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	class Field

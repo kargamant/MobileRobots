@@ -28,6 +28,7 @@ namespace Game
     std::string Drawer::INVENTORY_ITEM_TEXTURE = "inventory.jpg";
     std::string Drawer::FONT_NAME = "munro-small.ttf";
     std::string Drawer::ERROR_TEXTURE = "freddy_fazbear.jpeg";
+    std::string Drawer::EXPLODE_TEXTURE="explode.jpg";
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
     std::pair<int, int> Drawer::SCALED_SPRITE_SIZE = { 102, 102 };
@@ -105,7 +106,8 @@ namespace Game
         {
             view = new ViewCell(&field->getCellByCoordinates(click), TOP_RIGHT_CORNER, "", TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
         }
-        
+        view->draw();
+        tmp = view;
         return view;
     }
 
@@ -129,7 +131,7 @@ namespace Game
     void Drawer::moveKeyPressed(sf::Event event)
     {
         std::pair<int, int> vector = moveKeyToVector(event.key.code);
-        if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(currentPlt->plt))
+        if (!isComponentCastable<Robots::Platform&, Robots::Moving&>(*currentPlt->plt))
         {
             generateErrorView("Error. Platform is not movable.");
         }
@@ -149,36 +151,35 @@ namespace Game
     void Drawer::destroyKeyPressed(View* target)
     {
         //std::cout << "is null: "<<(currentPlt == nullptr) << std::endl;
-        if (!isComponentCastable<Robots::Platform*, Robots::Destroying*>(currentPlt->plt))
+        bool isErr = false;
+        std::pair<int, int> coordinates;
+        if (target->isCell)
         {
-            generateErrorView("Error. Platform is not destroying.");
+           coordinates = dynamic_cast<ViewCell*>(target)->cell->getCoordinates();
         }
         else
         {
-            std::pair<int, int> coordinates;
-            if (target->isCell)
-            {
-                coordinates = dynamic_cast<ViewCell*>(target)->cell->getCoordinates();
-            }
-            else
-            {
-                coordinates = dynamic_cast<ViewRobot*>(target)->plt->getCoordinates();
-            }
-            try
-            {
-                dynamic_cast<Robots::Destroying*>(currentPlt->plt)->destroy(field, coordinates);
-            }
-            catch (std::invalid_argument error)
-            {
-                generateErrorView(error.what());
-            }
+           coordinates = dynamic_cast<ViewRobot*>(target)->plt->getCoordinates();
+        }
+        try
+        {
+           dynamic_cast<Robots::Destroying*>(currentPlt->plt)->destroy(field, coordinates);
+        }
+        catch (std::invalid_argument error)
+        {
+            generateErrorView(error.what());
+            isErr = true;
+        }
+        if (!isErr)
+        {
+            generateErrorView("Target was successfully destroyed.", EXPLODE_TEXTURE);
         }
     }
 
-    void Drawer::generateErrorView(std::string error)
+    void Drawer::generateErrorView(std::string error, std::string texture_name)
     {
         //delete tmp;
-        tmp = new View(ERROR_TEXTURE, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
+        tmp = new View(texture_name, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
         tmp->draw();
     }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)

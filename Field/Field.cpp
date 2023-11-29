@@ -111,7 +111,7 @@ namespace Field
 
 	void Field::placePlatform(Robots::Platform* plt)
 	{
-		//changeCellType(plt->getCoordinates(), CellType::ground);
+		changeCellType(plt->getCoordinates(), CellType::ground);
 		std::cout << "placing: " << plt->getName() << std::endl;
 		platforms.insert({plt->getCoordinates(), plt});
 	}
@@ -213,7 +213,7 @@ namespace Field
 	{
 		checkCoordinates(coordinates);
 		Cell& target = getCellByCoordinates(coordinates);
-		if (target.getType() == CellType::pointOfInterest) throw std::invalid_argument("Error. You cant destroy points of interest.");
+		if (target.getType() == CellType::pointOfInterest) throw std::invalid_argument("Error. Cant destroy points of interest.");
 		else if (checkPlatformOnField(target.getCoordinates()) != nullptr)
 		{
 			erasePlatform(target.getCoordinates());
@@ -281,5 +281,10 @@ namespace Field
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2)
 	{
 		return std::sqrt((cell1.first - cell2.first) * (cell1.first - cell2.first) + (cell1.second - cell2.second) * (cell1.second - cell2.second));
+	}
+
+	bool inArea(std::pair<int, int> centre, std::pair<int, int> cell, int radius)
+	{
+		return (std::abs(cell.first - centre.first) <= radius && std::abs(cell.second - centre.second) <= radius);
 	}
 }
