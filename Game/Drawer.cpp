@@ -143,10 +143,10 @@ namespace Game
         {
             generateErrorView("Error. Platform is not movable.");
         }
-        else if (currentPlt->master != nullptr && !Field::inArea(currentPlt->master->plt->getCoordinates(), currentPlt->plt->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(currentPlt->master->plt)->getCpu().getRad()))
+        /*else if (currentPlt->master != nullptr && !Field::inArea(currentPlt->master->plt->getCoordinates(), currentPlt->plt->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(currentPlt->master->plt)->getCpu().getRad()))
         {
             generateErrorView("Error. You're too far from master robot.");
-        }
+        }*/
         else
         {
             try
@@ -208,7 +208,6 @@ namespace Game
             }
             if (!isErr)
             {
-                dynamic_cast<ViewRobot*>(target)->master = currentPlt;
                 generateErrorView("You succesfully subdued\n"+dynamic_cast<ViewRobot*>(target)->plt->getName());
             }
         }
@@ -234,7 +233,6 @@ namespace Game
             }
             if (!isErr)
             {
-                dynamic_cast<ViewRobot*>(target)->master = nullptr;
                 generateErrorView("You succesfully released\n" + dynamic_cast<ViewRobot*>(target)->plt->getName());
             }
         }
@@ -243,7 +241,7 @@ namespace Game
     void Drawer::generateErrorView(std::string error, std::string texture_name)
     {
         //delete tmp;
-        tmp = new View(texture_name, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4));
+        tmp = new View(texture_name, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4), FONT_NAME, 13);
         tmp->draw();
     }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)

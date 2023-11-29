@@ -112,7 +112,6 @@ namespace Field
 	void Field::placePlatform(Robots::Platform* plt)
 	{
 		changeCellType(plt->getCoordinates(), CellType::ground);
-		std::cout << "placing: " << plt->getName() << std::endl;
 		platforms.insert({plt->getCoordinates(), plt});
 	}
 
@@ -129,7 +128,6 @@ namespace Field
 			
 			if (it->second == plt)
 			{
-				std::cout << "deletion: " << it->second->getName() << std::endl;
 				platforms.erase(it);
 				break;
 			}
@@ -146,7 +144,10 @@ namespace Field
 
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
 
-
+		if (plt->getMaster() != nullptr && !inArea(plt->getMaster()->getCoordinates(), coordinates, dynamic_cast<Robots::CommandCentre*>(plt->getMaster())->getCpu().getRad()))
+		{
+			throw std::invalid_argument("Error. You cant go far from master robot.");
+		}
 		std::pair<int, int> destination = { coordinates.first + vector.first, coordinates.second + vector.second };
 
 		checkCoordinates(destination);

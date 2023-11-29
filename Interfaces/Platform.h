@@ -13,6 +13,7 @@ namespace Robots
 	protected:
 		static std::string NICKNAME_FILENAME;
 		std::string name;
+		Platform* master = nullptr;
 		std::pair<int, int> coordinates;
 		double energyLevel; //level of consumption
 		int slots;
@@ -32,12 +33,14 @@ namespace Robots
 		std::string getName() { return name; }
 		std::vector<Module*> getRobo() { return robo; }
 		Module* operator[](int ind) { return getRobo()[ind]; }
+		Platform* getMaster() { return master; }
 
 		Platform& setName(std::string nname) { name = nname; return *this; }
 		Platform& setEnergyLevel(double nenergy) { energyLevel = nenergy; return *this; }
 		Platform& setSlots(int nslots) { slots = nslots; return *this; }
 		Platform& setCost(int ncost) { cost = ncost; return *this; }
 		Platform& setCoordinates(int x, int y) { coordinates.first = x; coordinates.second = y; return *this; }
+		Platform& setMaster(Platform* nmaster) { master = nmaster; return *this; }
 
 		virtual void deleteModule(int ind);
 		virtual void placeModule(int ind, Module& mod);

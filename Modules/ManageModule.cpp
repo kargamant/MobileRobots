@@ -9,7 +9,12 @@ namespace Robots
 		CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		ManageModule& urmom_cpu = urmom->getCpu();
 
-		if (Field::inArea(urmom->getCoordinates(), plt.getCoordinates(), radius) && urmom_cpu.getSubOrd().size() < urmom_cpu.getSub()) urmom_cpu.getSubOrd().push_back(&plt);
+		if (Field::inArea(urmom->getCoordinates(), plt.getCoordinates(), radius) && urmom_cpu.getSubOrd().size() < urmom_cpu.getSub())
+		{
+			checkDuplicate(&plt);
+			urmom_cpu.getSubOrd().push_back(&plt);
+			plt.setMaster(getMom());
+		}
 		else if (urmom_cpu.getSubOrd().size() == urmom_cpu.getSub()) throw std::invalid_argument("Error. Platform is full.");
 		else throw std::invalid_argument("Error. Cant subdue, platform is unreachable.");
 	}
@@ -18,6 +23,7 @@ namespace Robots
 	{
 		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		checkInd(ind);
+		subordinates[ind]->setMaster(nullptr);
 		subordinates.erase(subordinates.begin() + ind);
 	}
 
@@ -29,11 +35,12 @@ namespace Robots
 			if (plt == subordinate)
 			{
 				release(ind);
+				subordinates[ind]->setMaster(nullptr);
 				break;
 			}
 			ind++;
 		}
-		throw std::invalid_argument("Error. This is not a subordinate.");
+		if(ind==subordinates.capacity() || subordinates.size()==0) throw std::invalid_argument("Error. This is not a subordinate.");
 		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		//checkInd(ind);
 		//urmom->getCpu().getSubOrd().erase(urmom->getCpu().getSubOrd().begin() + ind);
@@ -58,6 +65,17 @@ namespace Robots
 			else return k;
 		}
 		return -1;
+	}
+
+	void ManageModule::checkDuplicate(Platform* plt)
+	{
+		for (Platform* sub : subordinates)
+		{
+			if (sub == plt)
+			{
+				throw std::invalid_argument("Error. You've already subdued this robot.");
+			}
+		}
 	}
 
 	std::vector<Field::Cell> ManageModule::getReport(Field::Field* fld, int ind)

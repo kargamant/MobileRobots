@@ -92,6 +92,7 @@ int main()
                     {
                         if (view->isRobot)
                         {
+                            //std::cout << "master: " << (dynamic_cast<Game::ViewRobot*>(view)->master == nullptr) << std::endl;
                             dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
                         }
                     }
