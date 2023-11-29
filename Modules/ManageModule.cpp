@@ -65,7 +65,7 @@ namespace Robots
 		int k = 0;
 		for (Module* mod : plt->getRobo())
 		{
-			if (!isComponentCastable<Module*, Sensor*>(mod)) k++;
+			if (!mod->isSensor) k++;
 			else return k;
 		}
 		return -1;
@@ -116,6 +116,7 @@ namespace Robots
 
 		int sensor = checkSensor(reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
+		//std::cout << "sensor: " << sensor << std::endl;
 		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, reporter->getCoordinates());
 	}
 

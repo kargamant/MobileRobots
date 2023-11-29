@@ -308,6 +308,19 @@ namespace Game
         }
     }
 
+    void Drawer::moduleDeleteKeyPressed()
+    {
+        try
+        {
+            currentPlt->plt->deleteModule(dynamic_cast<ViewModule*>(tmp)->mod);
+            tmp = nullptr;
+        }
+        catch (std::invalid_argument error)
+        {
+            generateErrorView(error.what());
+        }
+    }
+
     ViewModule* Drawer::moduleMenue()
     {
         Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();

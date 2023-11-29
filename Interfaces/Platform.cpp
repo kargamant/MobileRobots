@@ -41,6 +41,23 @@ namespace Robots
 		robo.erase(robo.begin()+ind);
 	}
 
+	void Platform::deleteModule(Module* mod)
+	{
+		bool isDeleted = false;
+		int ind = 0;
+		for (Module* md : robo)
+		{
+			if (md == mod)
+			{
+				isDeleted = true;
+				robo.erase(robo.begin()+ind);
+				break;
+			}
+			ind++;
+		}
+		if (!isDeleted) throw std::invalid_argument("Error. No such module on platform.");
+	}
+
 	void Platform::placeModule(int ind, Module& mod)
 	{
 		checkInd(ind);

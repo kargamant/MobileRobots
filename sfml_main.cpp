@@ -126,7 +126,14 @@ int main()
                 }
                 if (scanCode == sf::Keyboard::Key::D)
                 {
-                    dr.processKey<Robots::Destroying>("destroying", "destroy", "D", isPicking);
+                    if (dr.tmp != nullptr)
+                    {
+                        if (dr.tmp->isModule)
+                        {
+                            dr.moduleDeleteKeyPressed();
+                        }
+                        else dr.processKey<Robots::Destroying>("destroying", "destroy", "D", isPicking);
+                    }
                 }
                 if (scanCode == sf::Keyboard::Key::S)
                 {

@@ -94,6 +94,7 @@ namespace Game
         void releaseKeyPressed(View* target);
         void reportKeyPressed(View* target);
         void modulePlacementKeyPressed();
+        void moduleDeleteKeyPressed();
 
         ViewModule* moduleMenue();
 

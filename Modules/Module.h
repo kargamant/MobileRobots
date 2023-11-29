@@ -20,9 +20,12 @@ namespace Robots
 		Priority priority;
 		int cost;
 	protected:
-		bool isRulling = false;
 		Module& setState(bool nstate) { state = nstate; return *this; }
 	public:
+		bool isRulling = false;
+		bool isGun = false;
+		bool isSensor = false;
+		bool isEnergyGenerator = false;
 		Module(double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0):energyLevel(energy), state(state), priority(priority), cost(cost) {}
 
 		double getEnergy() { return energyLevel; }

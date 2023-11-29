@@ -43,6 +43,7 @@ namespace Robots
 		Platform& setMaster(Platform* nmaster) { master = nmaster; return *this; }
 
 		virtual void deleteModule(int ind);
+		virtual void deleteModule(Module* mod);
 		virtual void placeModule(int ind, Module& mod);
 		virtual void placeModule(Module& mod);
 		void turnOn(int ind);

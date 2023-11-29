@@ -16,6 +16,8 @@ namespace Robots
 		int getGunInd() { return gunInd; }
 		Gun& getGun() { return dynamic_cast<Gun&>(*robo[gunInd]); }
 
+		void deleteModule(int ind) override;
+		void deleteModule(Module* mod) override;
 		void destroy(Field::Field* fld, std::pair<int, int> coordinates) override;
 	};
 }

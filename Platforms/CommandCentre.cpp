@@ -1,6 +1,7 @@
 #include "CommandCentre.h"
 #include "../Interfaces/Rulling.h"
 #include "../Modules/Sensor.h"
+#include "../utils/CheckComponent.h"
 
 namespace Robots
 {
@@ -51,6 +52,25 @@ namespace Robots
 			robo.erase(robo.begin() + ind);
 		}
 		if (!flag) throw std::invalid_argument("Error. Cant delete manage module from rulling platform.");
+	}
+
+	void CommandCentre::deleteModule(Module* mod)
+	{
+		//if (isComponentCastable<Module*, ManageModule*>(mod)) throw std::invalid_argument("Error. Cant delete cpu from rulling robot.");
+		bool isDeleted = false;
+		int ind = 0;
+		for (Module* md : robo)
+		{
+			if (md == mod)
+			{
+				if(ind==manageInd) throw std::invalid_argument("Error. Cant delete cpu from rulling robot.");
+				isDeleted = true;
+				robo.erase(robo.begin() + ind);
+				break;
+			}
+			ind++;
+		}
+		if (!isDeleted) throw std::invalid_argument("Error. No such module on platform.");
 	}
 
 	void CommandCentre::placeModule(int ind, Module& mod)

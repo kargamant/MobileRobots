@@ -21,6 +21,7 @@ namespace Robots
 		std::vector<Field::Cell> getReport(Field::Field* fld, Platform* reporter);
 		void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector) override;
 		void deleteModule(int ind) override;
+		void deleteModule(Module* mod) override;
 		void placeModule(int ind, Module& mod) override;
 		void placeModule(Module& mod) override;
 	};
