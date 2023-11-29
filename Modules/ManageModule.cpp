@@ -30,17 +30,19 @@ namespace Robots
 	void ManageModule::release(Platform* subordinate)
 	{
 		int ind = 0;
+		bool isReleased = false;
 		for (Platform* plt : subordinates)
 		{
 			if (plt == subordinate)
 			{
+				isReleased = true;
 				release(ind);
 				subordinates[ind]->setMaster(nullptr);
 				break;
 			}
 			ind++;
 		}
-		if(ind==subordinates.capacity() || subordinates.size()==0) throw std::invalid_argument("Error. This is not a subordinate.");
+		if(!isReleased) throw std::invalid_argument("Error. This is not a subordinate.");
 		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		//checkInd(ind);
 		//urmom->getCpu().getSubOrd().erase(urmom->getCpu().getSubOrd().begin() + ind);
@@ -48,7 +50,12 @@ namespace Robots
 
 	void ManageModule::checkReachable(int ind)
 	{
-		if (Field::inArea(getMom()->getCoordinates(), getSubOrd()[ind]->getCoordinates(), radius)) throw std::invalid_argument("Error. Platform is unreachable.");
+		if (!Field::inArea(getMom()->getCoordinates(), getSubOrd()[ind]->getCoordinates(), radius)) throw std::invalid_argument("Error. Platform is unreachable.");
+	}
+
+	void ManageModule::checkReachable(Platform* plt)
+	{
+		if (!Field::inArea(getMom()->getCoordinates(), plt->getCoordinates(), radius)) throw std::invalid_argument("Error. Platform is unreachable.");
 	}
 
 	void ManageModule::checkInd(int ind)
@@ -78,6 +85,21 @@ namespace Robots
 		}
 	}
 
+	void ManageModule::checkSubOrd(Platform* plt)
+	{
+		int ind = 0;
+		for (Platform* sub : subordinates)
+		{
+			if (plt == sub)
+			{
+				break;
+			}
+			ind++;
+		}
+		if (ind == subordinates.capacity() || subordinates.size() == 0) throw std::invalid_argument("Error. This is not a subordinate.");
+
+	}
+
 	std::vector<Field::Cell> ManageModule::getReport(Field::Field* fld, int ind)
 	{
 		checkInd(ind);
@@ -89,6 +111,17 @@ namespace Robots
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
 		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, motherboard->getCoordinates());
 	}
+
+	std::vector<Field::Cell> ManageModule::getReport(Field::Field* fld, Platform* reporter)
+	{
+		checkReachable(reporter);
+		checkSubOrd(reporter);
+
+		int sensor = checkSensor(reporter);
+		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
+		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, reporter->getCoordinates());
+	}
+
 	void ManageModule::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{
 		checkInd(ind);

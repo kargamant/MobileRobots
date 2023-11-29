@@ -6,6 +6,7 @@
 #include "ViewModule.h"
 #include "ViewRobot.h"
 #include <SFML/Window/Keyboard.hpp>
+#include "../utils/CheckComponent.h"
 
 namespace Game
 {
@@ -59,7 +60,7 @@ namespace Game
 
         std::vector<View*> views;
 
-        sf::RenderWindow* window;
+        sf::RenderWindow window;
         View* tmp=nullptr;
         ViewRobot* currentPlt=nullptr;
         //Robots::Platform* currentPlt = nullptr;
@@ -67,12 +68,31 @@ namespace Game
         Field::Field* field;
 
         void viewField(Field::Field* fld);
+        template<class K>
+        void processKey(std::string castName, std::string operation, std::string keyChar, std::pair<bool, std::string>& isPicking)
+        {
+            if (currentPlt != nullptr)
+            {
+                if (!isComponentCastable<Robots::Platform&, K&>(*currentPlt->plt))
+                {
+                    generateErrorView("Error. Platform is not " + castName + ".");
+                }
+                else if (!isPicking.first)
+                {
+                    generateErrorView("Okay. Pick a robot to " + operation);
+                    isPicking.first = true;
+                    isPicking.second = keyChar;
+                }
+            }
+        }
+        
         View* mouseLeftClick(sf::Event event);
         View* mouseRightClick(sf::Event event);
         void moveKeyPressed(sf::Event event);
         void destroyKeyPressed(View* target);
         void subdueKeyPressed(View* target);
         void releaseKeyPressed(View* target);
+        void reportKeyPressed(View* target);
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
         {

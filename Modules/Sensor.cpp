@@ -39,8 +39,8 @@ namespace Robots
 		std::pair<int, int> brCorner = { std::min(coordinates.first + radius, fld->getWidth()), std::min(coordinates.second + radius, fld->getHeight())};
 		std::pair<int, int> it = tlCorner;
 		double angle_rad = toRadians(angle);
-		
-		while (it != brCorner)
+		bool isBrChecked = false;
+		while (!isBrChecked)
 		{
 			if (it == coordinates)
 			{
@@ -62,7 +62,11 @@ namespace Robots
 			
 			
 			
-
+			if (it == brCorner)
+			{
+				isBrChecked = true;
+				continue;
+			}
 			if (it.second != brCorner.second) it.second++;
 			else
 			{

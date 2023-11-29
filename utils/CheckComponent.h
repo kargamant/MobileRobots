@@ -1,4 +1,5 @@
 #include <typeinfo>
+#pragma once
 
 template<class T, class Cast>
 bool isComponentCastable(T component)

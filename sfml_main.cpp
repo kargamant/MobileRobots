@@ -25,12 +25,13 @@ int main()
 
     std::srand(time(NULL));
 
-    Robots::Sensor sens= Robots::Sensor();
+    Robots::Sensor sens = Robots::Sensor();
     Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
     Robots::MobilePlatform mp = Robots::MobilePlatform();
 
+    mp.placeModule(sens);
     rc->getCpu().setRadius(2);
     mp.setCoordinates(1, 3);
     fld->placePlatform(&mp);
@@ -52,7 +53,7 @@ int main()
     Game::Drawer dr;
     dr.viewField(fld);
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
-    dr.window = &window;
+    //dr.window = &window;
     std::pair<bool, std::string> isPicking = { false, "" };
     while (window.isOpen())
     {
@@ -82,6 +83,9 @@ int main()
                             break;
                         case 'R':
                             dr.releaseKeyPressed(view);
+                            break;
+                        case 'G':
+                            dr.reportKeyPressed(view);
                             break;
                         }
                         
@@ -115,53 +119,19 @@ int main()
                 }
                 if (scanCode == sf::Keyboard::Key::D)
                 {
-                    if (dr.currentPlt != nullptr)
-                    {
-                        if (!isComponentCastable<Robots::Platform&, Robots::Destroying&>(*dr.currentPlt->plt))
-                        {
-                            dr.generateErrorView("Error. Platform is not destroying.");
-                        }
-                        else if (!isPicking.first)
-                        {
-                            
-                            dr.generateErrorView("Okay. Pick a cell to destroy");
-                            isPicking.first = true;
-                            isPicking.second = "D";
-                        }
-                        
-                    }
+                    dr.processKey<Robots::Destroying>("destroying", "destroy", "D", isPicking);
                 }
                 if (scanCode == sf::Keyboard::Key::S)
                 {
-                    if (dr.currentPlt != nullptr)
-                    {
-                        if (!isComponentCastable<Robots::Platform&, Robots::Rulling&>(*dr.currentPlt->plt))
-                        {
-                            dr.generateErrorView("Error. Platform is not rulling.");
-                        }
-                        else if(!isPicking.first)
-                        {
-                            dr.generateErrorView("Okay. Pick a robot to subdue");
-                            isPicking.first = true;
-                            isPicking.second = "S";
-                        }
-                    }
+                    dr.processKey<Robots::Rulling>("rulling", "subdue", "S", isPicking);
                 }
                 if (scanCode == sf::Keyboard::Key::R)
                 {
-                    if (dr.currentPlt != nullptr)
-                    {
-                        if (!isComponentCastable<Robots::Platform&, Robots::Rulling&>(*dr.currentPlt->plt))
-                        {
-                            dr.generateErrorView("Error. Platform is not rulling.");
-                        }
-                        else if (!isPicking.first)
-                        {
-                            dr.generateErrorView("Okay. Pick a robot to release");
-                            isPicking.first = true;
-                            isPicking.second = "R";
-                        }
-                    }
+                    dr.processKey<Robots::Rulling>("rulling", "release", "R", isPicking);
+                }
+                if (scanCode == sf::Keyboard::Key::G)
+                {
+                    dr.processKey<Robots::Rulling>("rulling", "report", "G", isPicking);
                 }
             }
         }

@@ -238,6 +238,59 @@ namespace Game
         }
     }
 
+    void Drawer::reportKeyPressed(View* target)
+    {
+        if (target->isCell)
+        {
+            generateErrorView("Error. You cant get report from cell.");
+        }
+        else
+        {
+            try
+            {
+                std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(currentPlt->plt)->getReport(field, dynamic_cast<ViewRobot*>(target)->plt);
+                Drawer dr;
+                std::vector<View*> reportViews;
+                std::pair<int, int> it = { 0, 0 };
+                int k = 0;
+                for (Field::Cell& cell : report)
+                {
+                    ViewCell* vc = new ViewCell(&cell, it, "", TOP_RIGHT_CORNER_TEXT);
+                    vc->draw();
+                    reportViews.push_back(vc);
+                    it.first += SCALED_SPRITE_SIZE.first;
+                    //k++;
+                    //if(k==2*dynamic_cast<Robots::CommandCentre*>(currentPlt)
+                }
+                window.create(sf::VideoMode(SCALED_SPRITE_SIZE.first * reportViews.size() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second), "report from " + dynamic_cast<ViewRobot*>(target)->plt->getName());
+                for (View* v : reportViews)
+                {
+                    //std::cout << "ViewCell from report: " << dynamic_cast<ViewCell*>(v)->cell->getCoordinates().first << "; " << dynamic_cast<ViewCell*>(v)->cell->getCoordinates().second << "| " << Field::CellTypeToString(dynamic_cast<ViewCell*>(v)->cell->getType()) << std::endl;
+                    window.draw(v->sprite);
+                }
+                window.display();
+                while (window.isOpen())
+                {
+                    sf::Event event;
+                    while (window.pollEvent(event))
+                    {
+                        if (event.type == sf::Event::Closed)
+                            window.close();
+                    }
+                }
+                for (View* v : reportViews)
+                {
+                    delete v;
+                }
+                //dr.viewField
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
     void Drawer::generateErrorView(std::string error, std::string texture_name)
     {
         //delete tmp;

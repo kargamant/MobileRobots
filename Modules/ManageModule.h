@@ -15,6 +15,7 @@ namespace Robots
 		std::vector<Platform*> subordinates;
 		void checkInd(int ind);
 		void checkDuplicate(Platform* plt);
+		void checkSubOrd(Platform* plt);
 	public:
 		ManageModule(Platform* mom, int radius, int subord, double energy, bool state, Priority priority, int cost) :motherboard(mom), radius(radius), subord(subord), Module(energy, state, priority, cost) { isRulling = true; } //automatically set priority high on module
 		//ManageModule(int radius, int subord, Platform* subordinates, Module& mod);
@@ -29,9 +30,11 @@ namespace Robots
 		void release(int ind);
 		void release(Platform* subordinate);
 		std::vector<Field::Cell> getReport(Field::Field* fld, int ind) override;
+		std::vector<Field::Cell> getReport(Field::Field* fld, Platform* reporter);
 		void moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector) override;
 
 		void checkReachable(int ind);
+		void checkReachable(Platform* plt);
 		int checkSensor(Platform* plt);
 	};
 }

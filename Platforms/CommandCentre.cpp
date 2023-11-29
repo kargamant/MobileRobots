@@ -25,6 +25,11 @@ namespace Robots
 		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, coordinates);
 	}
 
+	std::vector<Field::Cell> CommandCentre::getReport(Field::Field* fld, Platform* reporter)
+	{
+		return getCpu().getReport(fld, reporter);
+	}
+
 	void CommandCentre::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{
 		checkInd(ind);
