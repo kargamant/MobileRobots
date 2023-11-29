@@ -31,6 +31,22 @@ namespace Robots
 		return 0;
 	}
 
+	std::string angleToString(ViewAngles angle)
+	{
+		switch (angle)
+		{
+		case ViewAngles::quater:
+			return "pi/4";
+		case ViewAngles::half:
+			return "pi/2";
+		case ViewAngles::pie:
+			return "pi";
+		case ViewAngles::tau:
+			return "2pi";
+		}
+		return 0;
+	}
+
 	std::vector<Field::Cell> Sensor::scan(Field::Field* fld, std::pair<int, int> mom_coordinates)
 	{
 		std::vector<Field::Cell> result;

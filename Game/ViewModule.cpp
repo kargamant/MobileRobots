@@ -25,7 +25,29 @@ namespace Game
         std::pair<std::string, std::string> naming = moduleToName(mod);
         std::string texture_name = naming.second;
         std::string name = naming.first;
-        std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}", name, std::to_string(mod.getEnergy()), Robots::priorityToString(mod.getPriority()), mod.getState() ? "on" : "off", std::to_string(mod.getCost()));
+        std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}\n", name, std::to_string(mod.getEnergy()), Robots::priorityToString(mod.getPriority()), mod.getState() ? "on" : "off", std::to_string(mod.getCost()));
+        if (mod.isRulling)
+        {
+            out += std::format("sub {}/{}\n", dynamic_cast<Robots::ManageModule&>(mod).getSubOrd().size(), dynamic_cast<Robots::ManageModule&>(mod).getSub());
+            out += "\nsubordinates:\n";
+            int i = 0;
+            for (Robots::Platform* sub : dynamic_cast<Robots::ManageModule&>(mod).getSubOrd())
+            {
+                i++;
+                out += std::format("{}. ({}, {}) | {}\n", std::to_string(i), std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second), sub->getName());
+            }
+        }
+        else if (mod.isSensor)
+        {
+            out += "radius: " + std::to_string(dynamic_cast<Robots::Sensor&>(mod).getRad()) + "\n";
+            out += std::format("direction: ({}, {})\n", std::to_string(dynamic_cast<Robots::Sensor&>(mod).getDirection().first), std::to_string(dynamic_cast<Robots::Sensor&>(mod).getDirection().second));
+            out += std::format("angle: {}\n", Robots::angleToString(dynamic_cast<Robots::Sensor&>(mod).getAngle()));
+        }
+        else if (mod.isEnergyGenerator)
+        {
+            out += "energySupply: " + std::to_string(dynamic_cast<Robots::EnergyGenerator&>(mod).getEnergySup()) + "\n";
+
+        }
         return out;
     }
 

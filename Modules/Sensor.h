@@ -16,6 +16,7 @@ namespace Robots
 	int scalar(std::pair<int, int> cell1, std::pair<int, int> cell2);
 	double absVec(std::pair<int, int> vec);
 	double toRadians(ViewAngles angle);
+	std::string angleToString(ViewAngles angle);
 
 	class Sensor :public Module
 	{
