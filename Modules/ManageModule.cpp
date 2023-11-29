@@ -43,9 +43,6 @@ namespace Robots
 			ind++;
 		}
 		if(!isReleased) throw std::invalid_argument("Error. This is not a subordinate.");
-		//CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
-		//checkInd(ind);
-		//urmom->getCpu().getSubOrd().erase(urmom->getCpu().getSubOrd().begin() + ind);
 	}
 
 	void ManageModule::checkReachable(int ind)

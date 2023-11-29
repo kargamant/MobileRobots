@@ -30,7 +30,9 @@ int main()
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
     Robots::MobilePlatform mp = Robots::MobilePlatform();
+    Robots::QuantumPlatform qp = Robots::QuantumPlatform();
 
+    qp.setCoordinates(4, 3);
     mp.placeModule(sens);
     rc->getCpu().setRadius(2);
     mp.setCoordinates(1, 3);
@@ -47,6 +49,7 @@ int main()
     rc->placeModule(eg);
     rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
+    fld->placePlatform(&qp);
     //rc->getCpu().subdue(rd);
     //std::cout << "subordinate: " << rc->getCpu().getSubOrd()[0].getName() << std::endl;
 
@@ -94,11 +97,15 @@ int main()
                     }
                     else
                     {
-                        if (view->isRobot)
+                        if (view != nullptr)
                         {
-                            //std::cout << "master: " << (dynamic_cast<Game::ViewRobot*>(view)->master == nullptr) << std::endl;
-                            dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
+                            if (view->isRobot)
+                            {
+                                //std::cout << "master: " << (dynamic_cast<Game::ViewRobot*>(view)->master == nullptr) << std::endl;
+                                dr.currentPlt = dynamic_cast<Game::ViewRobot*>(view);
+                            }
                         }
+                        
                     }
                 }
                 if (event.mouseButton.button == sf::Mouse::Right)
@@ -132,6 +139,10 @@ int main()
                 if (scanCode == sf::Keyboard::Key::G)
                 {
                     dr.processKey<Robots::Rulling>("rulling", "report", "G", isPicking);
+                }
+                if (scanCode == sf::Keyboard::Key::M)
+                {
+                    dr.modulePlacementKeyPressed();
                 }
             }
         }

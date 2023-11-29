@@ -93,6 +93,9 @@ namespace Game
         void subdueKeyPressed(View* target);
         void releaseKeyPressed(View* target);
         void reportKeyPressed(View* target);
+        void modulePlacementKeyPressed();
+
+        ViewModule* moduleMenue();
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
         {

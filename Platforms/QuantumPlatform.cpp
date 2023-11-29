@@ -18,6 +18,7 @@ namespace Robots
 
 	void QuantumPlatform::deleteModule(int ind)
 	{
+		if (robo.size() == 0) throw std::invalid_argument("Error. Platform is empty.");
 		robo.erase(robo.begin() + ind);
 		//remake using refference
 		for (QuantumPlatform& qp : platforms)
@@ -28,6 +29,7 @@ namespace Robots
 
 	void QuantumPlatform::placeModule(Module& mod)
 	{
+		if (robo.size() == slots) throw std::invalid_argument("Error. Platform is full.");
 		robo.push_back(&mod);
 		//remake using refference
 		for (QuantumPlatform& qp : platforms)

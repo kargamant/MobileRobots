@@ -51,7 +51,7 @@ namespace Game
 
     void Drawer::viewField(Field::Field* fld)
     {
-        std::vector<sf::Sprite> sprites;
+        //std::vector<sf::Sprite> sprites;
         std::pair<int, int> tlCorner = { 0, 0 };
         std::pair<int, int> brCorner = { fld->getWidth() - 1, fld->getHeight() - 1 };
         std::pair<int, int> it = tlCorner;
@@ -95,7 +95,7 @@ namespace Game
 
     View* Drawer::mouseLeftClick(sf::Event event)
     {
-        View* view;
+        View* view=nullptr;
         std::pair<int, int> click = {event.mouseButton.y/SCALED_SPRITE_SIZE.second, event.mouseButton.x / SCALED_SPRITE_SIZE.first };
         try
         {
@@ -289,6 +289,98 @@ namespace Game
                 generateErrorView(error.what());
             }
         }
+    }
+
+    void Drawer::modulePlacementKeyPressed()
+    {
+        ViewModule* chosen = moduleMenue();
+        if (chosen != nullptr)
+        {
+            try
+            {
+                currentPlt->plt->placeModule(*chosen->mod);
+                currentPlt->draw();
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
+    ViewModule* Drawer::moduleMenue()
+    {
+        Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();
+        Robots::Gun* g = new Robots::Gun(currentPlt->plt);
+        Robots::ManageModule* mm = new Robots::ManageModule(currentPlt->plt, 1, 3, 5, true, Robots::Priority::high, 1000);
+        Robots::Sensor* s =new Robots::Sensor();
+
+        std::vector<Robots::Module*> modules;
+        modules.push_back(eg);
+        modules.push_back(g);
+        modules.push_back(mm);
+        modules.push_back(s);
+        std::vector<View*> store;
+        std::pair<int, int> position = { 0, 0 };
+        for (Robots::Module* mod : modules)
+        {
+            ViewModule* vm = new ViewModule(mod, position, "", TOP_RIGHT_CORNER_TEXT);
+            vm->draw();
+            store.push_back(vm);
+            position.first += SCALED_SPRITE_SIZE.first;
+        }
+        window.create(sf::VideoMode(SCALED_SPRITE_SIZE.first * store.size() + LOG_INDENTATION, SCALED_SPRITE_SIZE.second*3), "Module store");
+        ViewModule* chosen=nullptr;
+        bool isChoiceMade = false;
+        int indChoice = 0;
+        while (window.isOpen())
+        {
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+                if (event.type == sf::Event::MouseButtonPressed)
+                {
+                    std::pair<int, int> click = { event.mouseButton.x / SCALED_SPRITE_SIZE.first, event.mouseButton.y / SCALED_SPRITE_SIZE.second,  };
+                    //std::cout << "click" << click.first<<std::endl;
+                    if (click.first < 4)
+                    {
+                        if (chosen != nullptr) delete chosen;
+                        chosen = new ViewModule(modules[click.first], std::pair<int, int>(SCALED_SPRITE_SIZE.first * store.size() + 5, 0), "", std::pair<int, int>(SCALED_SPRITE_SIZE.first * store.size() + 5, SCALED_SPRITE_SIZE.second));
+                        chosen->draw();
+                        indChoice = click.first;
+                        isChoiceMade = true;
+                    }
+                    
+                }
+            }
+
+            window.clear();
+            for (View* v : store)
+            {
+                window.draw(v->sprite);
+            }
+            if (chosen != nullptr)
+            {
+                window.draw(chosen->sprite);
+                window.draw(chosen->description);
+            }
+            window.display();
+            
+        }
+        if (isChoiceMade)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (i != indChoice)
+                {
+                    delete store[i];
+                    delete modules[i];
+                }
+            }
+        }
+        return chosen;
     }
 
     void Drawer::generateErrorView(std::string error, std::string texture_name)

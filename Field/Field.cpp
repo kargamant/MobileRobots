@@ -217,6 +217,14 @@ namespace Field
 		if (target.getType() == CellType::pointOfInterest) throw std::invalid_argument("Error. Cant destroy points of interest.");
 		else if (checkPlatformOnField(target.getCoordinates()) != nullptr)
 		{
+			Robots::Platform* plt = checkPlatformOnField(target.getCoordinates());
+			if (isComponentCastable<Robots::Platform&, Robots::Rulling&>(*plt))
+			{
+				for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
+				{
+					sub->setMaster(nullptr);
+				}
+			}
 			erasePlatform(target.getCoordinates());
 		}
 		target.setType(CellType::ground);
