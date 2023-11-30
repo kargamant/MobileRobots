@@ -13,8 +13,8 @@ namespace Game
 		Robots::ArtificialIntelligence ai;
 	public:
 		Application(Field::Field& fld, Robots::ArtificialIntelligence& ai) : field(fld), ai(ai) {}
-		Application() : field(Field::Field()), ai(ArtificialIntelligence()) {} //in this case Field will be totally random
-		Application(int width, int height) : field(width, height), ai(ArtificialIntelligence()) {}
+		Application() : field(Field::Field()), ai(Robots::ArtificialIntelligence()) {} //in this case Field will be totally random
+		Application(int width, int height) : field(width, height), ai(Robots::ArtificialIntelligence()) {}
 		//Application(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Platform> plt): 
 
 		void loadFieldFromFile(std::string filename, std::fstream& stream);

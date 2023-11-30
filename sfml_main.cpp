@@ -13,14 +13,18 @@
 #include "Game/ViewCell.h"
 #include "Platforms/KamikazeRobot.h"
 #include <SFML/Audio.hpp>
+#include "Application.h"
 //#include "Modules/Gun.h"
 
 
-int main()
+void Game::Application::sandBox()
 {
     
     Field::Field::GROUND_MODE_ON = false;
-    Field::Field* fld = new Field::Field();
+    
+    //Field::Field* fld = new Field::Field(8, 8);
+    Field::Field* fld = &field;
+    //Robots::ArtificialIntelligence ai = ai;
     Robots::RobotCommander* rc = new Robots::RobotCommander();
     rc->setSlots(5);
 
@@ -57,12 +61,18 @@ int main()
 
     Game::Drawer dr;
     dr.viewField(fld);
+    dr.Ai = new ViewAi(&ai, "AI.jpg", Drawer::BOTTOM_RIGHT_CORNER, "", Drawer::BOTTOM_RIGHT_CORNER_TEXT);
+    //dr.Ai=new View("resources/Ai.jpg", Drawer::BOTTOM_RIGHT_CORNER, "")
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
     //dr.window = &window;
     std::pair<bool, std::string> isPicking = { false, "" };
     bool moduleConnection = false;
+    View win = View(Drawer::ENDING_TEXTURE, { 0, 0 }, "", { 0, 0 }, sf::Vector2f(1, 1));
+    win.draw();
+    
     while (window.isOpen())
     {
+        
         bool isFieldChanged = false;
         sf::Event event;
         while (window.pollEvent(event))
@@ -139,6 +149,7 @@ int main()
                 sf::Keyboard::Key scanCode = event.key.code;
                 if (dr.tmp!=nullptr && dr.currentPlt!=nullptr && dr.moveKeyToVector(scanCode) != std::pair<int, int>(0, 0))
                 {
+                    std::cout << "total_poi: " << fld->total_poi << std::endl;
                     //std::cout << "master move: " << (dr.currentPlt->master == nullptr) << std::endl;
                     dr.moveKeyPressed(event);
                     //dr.tmp = nullptr;
@@ -189,12 +200,25 @@ int main()
             }
         }
         window.clear();
-        if(isFieldChanged) dr.viewField(fld);
+        if (isFieldChanged)
+        {
+            for (Game::View* v : dr.views)
+            {
+                delete v;
+                v = nullptr;
+            }
+            dr.views = std::vector<Game::View*>();
+            dr.viewField(fld);
+        }
+        //if (dr.field->total_poi == 0) window.draw(win.sprite);
+        
         for (Game::View* view : dr.views)
         {
             window.draw(view->sprite);
         }
-        
+        dr.Ai->draw();
+        window.draw(dr.Ai->sprite);
+        window.draw(dr.Ai->description);
         if (dr.tmp != nullptr)
         {
             window.draw(dr.tmp->sprite);
@@ -210,6 +234,7 @@ int main()
             }
             
         }
+        if(dr.field->total_poi==0) window.draw(win.sprite);
         window.display();
         //if (isPicking) goto destroying;
     }
@@ -358,7 +383,6 @@ int main()
     delete fld;
     delete portrait_text;
     */
-    return 0;
 }
 
 

@@ -38,6 +38,7 @@ namespace Game
     std::string Drawer::QUANTUM_PLATFORM_TEXTURE="quantum_platform.jpg";
     std::string Drawer::COMMAND_CENTRE_TEXTURE="command_centre.jpg";
     std::string Drawer::ERROR_SOUND="fnafe_short.ogg";
+    std::string Drawer::ENDING_TEXTURE = "You_won.png";
 
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
@@ -45,6 +46,7 @@ namespace Game
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER = { 0, 0 };
     std::pair<int, int> Drawer::TOP_RIGHT_CORNER_TEXT = { 0, 0 };
     std::pair<int, int> Drawer::BOTTOM_RIGHT_CORNER={0, 0};
+    std::pair<int, int> Drawer::BOTTOM_RIGHT_CORNER_TEXT={0, 0};
 
     sf::Vector2f Drawer::SPRITE_SCALE = sf::Vector2f(0.2, 0.2);
 
@@ -93,6 +95,8 @@ namespace Game
         TOP_RIGHT_CORNER = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, 0 };
         TOP_RIGHT_CORNER_TEXT = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 };
         BOTTOM_RIGHT_CORNER = { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.first * field->getWidth() - 100 };
+        BOTTOM_RIGHT_CORNER_TEXT = { SCALED_SPRITE_SIZE.first * field->getHeight() + 110, SCALED_SPRITE_SIZE.first * field->getWidth() - 100 };
+
     }
 
     View* Drawer::mouseLeftClick(sf::Event event)
@@ -153,7 +157,13 @@ namespace Game
         {
             try
             {
+                int old_poi = field->total_poi;
                 dynamic_cast<Robots::Moving*>(currentPlt->plt)->move(field, vector);
+                if (field->total_poi < old_poi)
+                {
+                    Ai->ai->addPoint();
+                    Ai->draw();
+                }
             }
             catch (std::invalid_argument error)
             {
@@ -452,6 +462,16 @@ namespace Game
             window.display();
             
         }
+        try
+        {
+            Ai->ai->setMoney(Ai->ai->getMoney() - modules[indChoice]->getCost());
+            Ai->draw();
+        }
+        catch (std::invalid_argument error)
+        {
+            generateErrorView(error.what());
+        }
+        
         if (isChoiceMade)
         {
             for (int i = 0; i < 4; i++)
@@ -480,10 +500,11 @@ namespace Game
         tmp = new View(texture_name, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4), FONT_NAME, 13);
         if (play)
         {
+            tmp->sound = new sf::Sound();
             tmp->buffer = new sf::SoundBuffer();
             tmp->buffer->loadFromFile("resources/" + sound_name);
             tmp->draw();
-            tmp->sound.play();
+            tmp->sound->play();
         }
     }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)

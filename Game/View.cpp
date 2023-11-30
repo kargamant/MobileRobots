@@ -29,7 +29,7 @@ namespace Game
 	{
 		if (buffer != nullptr)
 		{
-			sound.setBuffer(*buffer);
+			sound->setBuffer(*buffer);
 			//sound.play();
 		}
 		sprite.setTexture(*texture);

@@ -6,6 +6,7 @@
 #include "ViewModule.h"
 #include "ViewRobot.h"
 #include <SFML/Window/Keyboard.hpp>
+#include "ViewAi.h"
 #include "../utils/CheckComponent.h"
 
 namespace Game
@@ -56,14 +57,17 @@ namespace Game
         static std::pair<int, int> TOP_RIGHT_CORNER;
         static std::pair<int, int> TOP_RIGHT_CORNER_TEXT;
         static std::pair<int, int> BOTTOM_RIGHT_CORNER;
+        static std::pair<int, int> BOTTOM_RIGHT_CORNER_TEXT;
         static sf::Vector2f SPRITE_SCALE;
         static std::string EXPLODE_TEXTURE;
         static int LOG_INDENTATION;
+        static std::string ENDING_TEXTURE;
 
         std::vector<View*> views;
 
         sf::RenderWindow window;
         View* tmp=nullptr;
+        ViewAi* Ai = nullptr;
         ViewRobot* currentPlt=nullptr;
         ViewModule* currentModule = nullptr;
         std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;

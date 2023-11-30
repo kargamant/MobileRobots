@@ -20,7 +20,7 @@ namespace Game
 		bool isModule = false;
 		sf::Sprite sprite;
 		sf::Texture* texture;
-		sf::Sound sound;
+		sf::Sound* sound=nullptr;
 		sf::SoundBuffer* buffer=nullptr;
 		//sf::Vector2f scale;
 		//sf::Vector2f position;

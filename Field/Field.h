@@ -27,7 +27,7 @@ namespace Field
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 	bool inArea(std::pair<int, int> centre, std::pair<int, int> cell, int radius);
 
-	std::vector<std::vector<Cell>> createRandomMap(int width, int height);
+	
 	class Field
 	{
 	private:
@@ -35,7 +35,9 @@ namespace Field
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> platforms;
 		std::vector<std::vector<Cell>> map;
 		
+		std::vector<std::vector<Cell>> createRandomMap(int width, int height);
 	public:
+		int total_poi=0;
 		static int MAX_RANDOM_SIZE;
 		static bool GROUND_MODE_ON;
 

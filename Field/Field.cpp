@@ -12,7 +12,7 @@ namespace Field
 {
 	int Field::MAX_RANDOM_SIZE = 3;
 	bool Field::GROUND_MODE_ON = false;
-	std::vector<std::vector<Cell>> createRandomMap(int width, int height)
+	std::vector<std::vector<Cell>> Field::createRandomMap(int width, int height)
 	{
 		//maybe do it more smart
 		std::srand(time(NULL));
@@ -26,7 +26,12 @@ namespace Field
 				{
 					map[i].push_back(Cell(i, j, CellType::ground));
 				}
-				else map[i].push_back(Cell(i, j, CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) }));
+				else
+				{
+					CellType randType = CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) };
+					map[i].push_back(Cell(i, j, randType));
+					if (randType == CellType::pointOfInterest) total_poi++;
+				}
 			}
 		}
 		return map;
@@ -112,6 +117,7 @@ namespace Field
 
 	void Field::placePlatform(Robots::Platform* plt)
 	{
+		if (getCellByCoordinates(plt->getCoordinates()).getType() == CellType::pointOfInterest) total_poi--;
 		changeCellType(plt->getCoordinates(), CellType::ground);
 		platforms.insert({plt->getCoordinates(), plt});
 	}
@@ -156,6 +162,7 @@ namespace Field
 		if (getCellByCoordinates(destination).getType() == CellType::pointOfInterest)
 		{
 			changeCellType(destination, CellType::ground);
+			total_poi--;
 		}
 		if (getCellByCoordinates(destination).getType() == CellType::obstacle)
 		{
