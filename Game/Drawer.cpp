@@ -343,6 +343,26 @@ namespace Game
         }
     }
 
+    void Drawer::connectKeyPressed(View* target)
+    {
+        if (!target->isModule)
+        {
+            generateErrorView("Error. You cant connect anything but a module.");
+        }
+        else
+        {
+            try
+            {
+                dynamic_cast<Robots::EnergyGenerator*>(currentModule->mod)->connect(*dynamic_cast<ViewModule*>(target)->mod);
+                currentModule->draw();
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
     ViewModule* Drawer::moduleMenue()
     {
         Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();

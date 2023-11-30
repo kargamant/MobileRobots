@@ -11,7 +11,7 @@ namespace Robots
 		Platform* motherboard;
 		//int radius;
 	public:
-		Gun(Platform* motherboard = nullptr, double energy = 0, bool state = false, Priority priority = Priority::low, int cost = 0, int max_rad = 1) : motherboard(motherboard), Module(energy, state, priority, cost), Destroying(max_rad) { isGun = true; }
+		Gun(Platform* motherboard = nullptr, double energy = 1, bool state = false, Priority priority = Priority::low, int cost = 0, int max_rad = 1) : motherboard(motherboard), Module(energy, state, priority, cost), Destroying(max_rad) { isGun = true; }
 
 		void destroy(Field::Field* fld, std::pair<int, int> coordinates) override;
 	

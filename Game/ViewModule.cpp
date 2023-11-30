@@ -12,7 +12,7 @@ namespace Game
 
 	void ViewModule::draw()
 	{
-        
+        if (supplier != nullptr) supplier->draw();
         //texture->loadFromFile(RESOURCES_PATH+"/" + texture_name);
         sprite.setTexture(*texture);
 

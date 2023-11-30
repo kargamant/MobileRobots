@@ -63,23 +63,23 @@ namespace Game
         sf::RenderWindow window;
         View* tmp=nullptr;
         ViewRobot* currentPlt=nullptr;
-        //Robots::Platform* currentPlt = nullptr;
+        ViewModule* currentModule = nullptr;
         std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;
         Field::Field* field;
 
         void viewField(Field::Field* fld);
-        template<class K>
-        void processKey(std::string castName, std::string operation, std::string keyChar, std::pair<bool, std::string>& isPicking)
+        template<class K, class CurrentView, class ViewHandler>
+        void processKey(CurrentView* cp, ViewHandler* vh, std::string castName, std::string operation, std::string target, std::string keyChar, std::pair<bool, std::string>& isPicking)
         {
-            if (currentPlt != nullptr)
+            if (cp != nullptr)
             {
-                if (!isComponentCastable<Robots::Platform&, K&>(*currentPlt->plt))
+                if (!isComponentCastable<ViewHandler&, K&>(*vh))
                 {
                     generateErrorView("Error. Platform is not " + castName + ".");
                 }
                 else if (!isPicking.first)
                 {
-                    generateErrorView("Okay. Pick a robot to " + operation);
+                    generateErrorView("Okay. Pick a "+target+" to " + operation);
                     isPicking.first = true;
                     isPicking.second = keyChar;
                 }
@@ -95,6 +95,7 @@ namespace Game
         void reportKeyPressed(View* target);
         void modulePlacementKeyPressed();
         void moduleDeleteKeyPressed();
+        void connectKeyPressed(View* target);
 
         void moduleOnKeyPressed();
 

@@ -59,6 +59,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
     //dr.window = &window;
     std::pair<bool, std::string> isPicking = { false, "" };
+    bool moduleConnection = false;
     while (window.isOpen())
     {
         bool isFieldChanged = false;
@@ -111,7 +112,22 @@ int main()
                 }
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    dr.mouseRightClick(event);
+                    Game::View* choice=dr.mouseRightClick(event);
+                    if (isPicking.first)
+                    {
+                        switch ((char)isPicking.second[0])
+                        {
+                        case 'C':
+                            dr.connectKeyPressed(choice);
+                            break;
+                        }
+                        isPicking.first = false;
+                        moduleConnection = false;
+                    }
+                    else
+                    {
+                        dr.currentModule = dynamic_cast<Game::ViewModule*>(choice);
+                    }
                 }
             }
             else if (event.type == sf::Event::KeyPressed)
@@ -133,20 +149,20 @@ int main()
                         {
                             dr.moduleDeleteKeyPressed();
                         }
-                        else dr.processKey<Robots::Destroying>("destroying", "destroy", "D", isPicking);
+                        else dr.processKey<Robots::Destroying, Game::ViewRobot, Robots::Platform>(dr.currentPlt, dr.currentPlt->plt, "destroying", "destroy", "cell", "D", isPicking);
                     }
                 }
                 if (scanCode == sf::Keyboard::Key::S)
                 {
-                    dr.processKey<Robots::Rulling>("rulling", "subdue", "S", isPicking);
+                    dr.processKey<Robots::Rulling, Game::ViewRobot, Robots::Platform>(dr.currentPlt, dr.currentPlt->plt, "rulling", "subdue", "robot", "S", isPicking);
                 }
                 if (scanCode == sf::Keyboard::Key::R)
                 {
-                    dr.processKey<Robots::Rulling>("rulling", "release", "R", isPicking);
+                    dr.processKey<Robots::Rulling, Game::ViewRobot, Robots::Platform>(dr.currentPlt, dr.currentPlt->plt, "rulling", "release", "robot", "R", isPicking);
                 }
                 if (scanCode == sf::Keyboard::Key::G)
                 {
-                    dr.processKey<Robots::Rulling>("rulling", "report", "G", isPicking);
+                    dr.processKey<Robots::Rulling, Game::ViewRobot, Robots::Platform>(dr.currentPlt, dr.currentPlt->plt, "rulling", "report", "robot", "G", isPicking);
                 }
                 if (scanCode == sf::Keyboard::Key::M)
                 {
@@ -155,6 +171,11 @@ int main()
                 if (scanCode == sf::Keyboard::Key::O)
                 {
                     dr.moduleOnKeyPressed();
+                }
+                if (scanCode == sf::Keyboard::Key::C)
+                {
+                    moduleConnection = true;
+                    dr.processKey<Robots::EnergyGenerator, Game::ViewModule, Robots::Module>(dr.currentModule, dr.currentModule->mod, "", "connect", "module", "C", isPicking);
                 }
             }
         }
@@ -169,13 +190,14 @@ int main()
         {
             window.draw(dr.tmp->sprite);
             window.draw(dr.tmp->description);
-            if (dr.currentPlt!=nullptr && (dynamic_cast<Game::ViewRobot*>(dr.tmp)==dr.currentPlt || dr.tmp->isModule))
+            
+            if (dr.currentPlt!=nullptr && (dynamic_cast<Game::ViewRobot*>(dr.tmp) == dr.currentPlt || dr.tmp->isModule || moduleConnection))
             {
-                    for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)
-                    {
-                        window.draw(pair.first->inventoryView.sprite);
-                        window.draw(pair.first->sprite);
-                    }
+                for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)
+                {
+                    window.draw(pair.first->inventoryView.sprite);
+                    window.draw(pair.first->sprite);
+                }
             }
             
         }
