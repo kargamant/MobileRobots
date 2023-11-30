@@ -355,6 +355,28 @@ namespace Game
             {
                 dynamic_cast<Robots::EnergyGenerator*>(currentModule->mod)->connect(*dynamic_cast<ViewModule*>(target)->mod);
                 currentModule->draw();
+                generateErrorView("Module was succesfully connected.");
+            }
+            catch (std::invalid_argument error)
+            {
+                generateErrorView(error.what());
+            }
+        }
+    }
+
+    void Drawer::dissconnectKeyPressed(View* target)
+    {
+        if (!target->isModule)
+        {
+            generateErrorView("Error. You cant dissconnect anything but a module.");
+        }
+        else
+        {
+            try
+            {
+                dynamic_cast<Robots::EnergyGenerator*>(currentModule->mod)->dissconnect(dynamic_cast<ViewModule*>(target)->mod);
+                currentModule->draw();
+                generateErrorView("Module was succesfully dissconnected.");
             }
             catch (std::invalid_argument error)
             {

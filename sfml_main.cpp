@@ -120,6 +120,9 @@ int main()
                         case 'C':
                             dr.connectKeyPressed(choice);
                             break;
+                        case 'E':
+                            dr.dissconnectKeyPressed(choice);
+                            break;
                         }
                         isPicking.first = false;
                         moduleConnection = false;
@@ -176,6 +179,11 @@ int main()
                 {
                     moduleConnection = true;
                     dr.processKey<Robots::EnergyGenerator, Game::ViewModule, Robots::Module>(dr.currentModule, dr.currentModule->mod, "", "connect", "module", "C", isPicking);
+                }
+                if (scanCode == sf::Keyboard::Key::E)
+                {
+                    moduleConnection = true;
+                    dr.processKey<Robots::EnergyGenerator, Game::ViewModule, Robots::Module>(dr.currentModule, dr.currentModule->mod, "", "dissconnect", "module", "E", isPicking);
                 }
             }
         }

@@ -96,6 +96,7 @@ namespace Game
         void modulePlacementKeyPressed();
         void moduleDeleteKeyPressed();
         void connectKeyPressed(View* target);
+        void dissconnectKeyPressed(View* target);
 
         void moduleOnKeyPressed();
 
