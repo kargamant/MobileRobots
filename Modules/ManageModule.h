@@ -17,7 +17,7 @@ namespace Robots
 		void checkDuplicate(Platform* plt);
 		void checkSubOrd(Platform* plt);
 	public:
-		ManageModule(Platform* mom, int radius, int subord, double energy, bool state, Priority priority, int cost) :motherboard(mom), radius(radius), subord(subord), Module(energy, state, priority, cost) { isRulling = true; } //automatically set priority high on module
+		ManageModule(Platform* mom, int radius=1, int subord=1, double energy=2, bool state=false, Priority priority=Priority::high, int cost=5000) :motherboard(mom), radius(radius), subord(subord), Module(energy, state, priority, cost) { isRulling = true; } //automatically set priority high on module
 		//ManageModule(int radius, int subord, Platform* subordinates, Module& mod);
 
 		int getSub() { return subord; }

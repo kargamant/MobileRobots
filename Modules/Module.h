@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+//#include "EnergyGenerator.h"
 
 namespace Robots
 {
@@ -19,9 +20,8 @@ namespace Robots
 		bool state; //on/off
 		Priority priority;
 		int cost;
-	protected:
-		Module& setState(bool nstate) { state = nstate; return *this; }
 	public:
+		Module* supplier = nullptr;
 		bool isRulling = false;
 		bool isGun = false;
 		bool isSensor = false;
@@ -33,8 +33,9 @@ namespace Robots
 		Priority getPriority() { return priority; }
 		int getCost() { return cost; }
 		bool getIsRulling() { return isRulling; }
+		Module& setState(bool nstate) { state = nstate; return *this; }
 
-		virtual Module& turnOn() { state = true; return *this; }
-		virtual Module& turnOff() { state = false; return *this; }
+		virtual Module& turnOn(); //{ state = true; return *this; }
+		virtual Module& turnOff();// { state = false; return *this; }
 	};
 }

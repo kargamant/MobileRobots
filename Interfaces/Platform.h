@@ -46,8 +46,10 @@ namespace Robots
 		virtual void deleteModule(Module* mod);
 		virtual void placeModule(int ind, Module& mod);
 		virtual void placeModule(Module& mod);
-		void turnOn(int ind);
-		void turnOff(int ind);
+		virtual void turnOn(int ind);
+		virtual void turnOff(int ind);
+		virtual void turnOn(Module* mod);
+		virtual void turnOff(Module* mod);
 	};
 
 }

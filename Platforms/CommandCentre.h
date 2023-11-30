@@ -24,5 +24,9 @@ namespace Robots
 		void deleteModule(Module* mod) override;
 		void placeModule(int ind, Module& mod) override;
 		void placeModule(Module& mod) override;
+
+		//void turnOn(Module* mod) override;
+		//void turnOff(int ind) override;
+		void turnOff(Module* mod) override;
 	};
 }

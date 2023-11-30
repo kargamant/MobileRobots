@@ -46,7 +46,7 @@ namespace Game
 
     sf::Vector2f Drawer::SPRITE_SCALE = sf::Vector2f(0.2, 0.2);
 
-    int Drawer::LOG_INDENTATION = 300;
+    int Drawer::LOG_INDENTATION = 500;
 
 
     void Drawer::viewField(Field::Field* fld)
@@ -318,6 +318,28 @@ namespace Game
         catch (std::invalid_argument error)
         {
             generateErrorView(error.what());
+        }
+    }
+
+    void Drawer::moduleOnKeyPressed()
+    {
+        if (tmp != nullptr)
+        {
+            if (tmp->isModule)
+            {
+                Robots::Module* mod = dynamic_cast<ViewModule*>(tmp)->mod;
+                try
+                {
+                    if (mod->getState()) currentPlt->plt->turnOff(mod);
+                    else mod->turnOn();
+                    tmp->draw();
+                }
+                catch (std::invalid_argument error)
+                {
+                    generateErrorView(error.what());
+                }
+                
+            }
         }
     }
 

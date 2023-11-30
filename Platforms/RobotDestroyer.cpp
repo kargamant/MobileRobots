@@ -47,4 +47,22 @@ namespace Robots
 		}
 		if (!flag) throw std::invalid_argument("Error. Cant delete gun from robot destroyer.");
 	}
+
+	void RobotDestroyer::turnOff(Module* mod)
+	{
+		int ind = 0;
+		bool isOff = false;
+		for (Module* m : robo)
+		{
+			if (m == mod)
+			{
+				if (m->isGun) throw std::invalid_argument("Error. Cant turn off gun on robot destroyer.");
+				Platform::turnOff(ind);
+				isOff = true;
+				break;
+			}
+			++ind;
+		}
+		if (!isOff) throw std::invalid_argument("Error. No such module on platform.");
+	}
 }

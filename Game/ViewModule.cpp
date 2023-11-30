@@ -28,6 +28,7 @@ namespace Game
         std::string out = std::format("{} \nenergyLevel {} \n {} \nis {} \ncosts {}\n", name, std::to_string(mod.getEnergy()), Robots::priorityToString(mod.getPriority()), mod.getState() ? "on" : "off", std::to_string(mod.getCost()));
         if (mod.isRulling)
         {
+            out += std::format("radius: {}\n", dynamic_cast<Robots::ManageModule&>(mod).getRad());
             out += std::format("sub {}/{}\n", dynamic_cast<Robots::ManageModule&>(mod).getSubOrd().size(), dynamic_cast<Robots::ManageModule&>(mod).getSub());
             out += "\nsubordinates:\n";
             int i = 0;
@@ -46,7 +47,15 @@ namespace Game
         else if (mod.isEnergyGenerator)
         {
             out += "energySupply: " + std::to_string(dynamic_cast<Robots::EnergyGenerator&>(mod).getEnergySup()) + "\n";
+            out += "Usage: " + std::to_string(dynamic_cast<Robots::EnergyGenerator&>(mod).getCurrentLoad()) + "\n";
+            out += "\nConnected modules:\n";
 
+            int i = 0;
+            for (Robots::Module* m : dynamic_cast<Robots::EnergyGenerator&>(mod).getConnected())
+            {
+                ++i;
+                out += std::format("{}. {} is {}\n", std::to_string(i), moduleToName(*m).first, m->getState() ? "on" : "off");
+            }
         }
         return out;
     }

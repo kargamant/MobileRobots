@@ -98,4 +98,27 @@ namespace Robots
 			throw std::invalid_argument("Error. Platform is full.");
 		}
 	}
+
+	/*void CommandCentre::turnOff(int ind)
+	{
+
+	}*/
+
+	void CommandCentre::turnOff(Module* mod)
+	{
+		int ind = 0;
+		bool isOff = false;
+		for (Module* m : robo)
+		{
+			if (m == mod)
+			{
+				if (m->isRulling) throw std::invalid_argument("Error. Cant turn off manage module on rulling robot.");
+				Platform::turnOff(ind);
+				isOff = true;
+				break;
+			}
+			++ind;
+		}
+		if (!isOff) throw std::invalid_argument("Error. No such module on platform.");
+	}
 }

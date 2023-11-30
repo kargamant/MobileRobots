@@ -106,6 +106,39 @@ namespace Robots
 		robo[ind]->turnOff();
 	}
 
+	void Platform::turnOn(Module* mod)
+	{
+		int ind = 0;
+		bool isOn = false;
+		for (Module* m : robo)
+		{
+			if (m == mod)
+			{
+				turnOn(ind);
+				isOn = true;
+				break;
+			}
+			++ind;
+		}
+		if (!isOn) throw std::invalid_argument("Error. No such module on platform.");
+	}
+	void Platform::turnOff(Module* mod)
+	{
+		int ind = 0;
+		bool isOff = false;
+		for (Module* m : robo)
+		{
+			if (m == mod)
+			{
+				turnOff(ind);
+				isOff = true;
+				break;
+			}
+			++ind;
+		}
+		if (!isOff) throw std::invalid_argument("Error. No such module on platform.");
+	}
+
 	void Platform::checkInd(int ind)
 	{
 		if (ind > slots || ind < 0) throw std::invalid_argument("Error. Index is incorrect.");

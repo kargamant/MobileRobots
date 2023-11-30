@@ -96,6 +96,8 @@ namespace Game
         void modulePlacementKeyPressed();
         void moduleDeleteKeyPressed();
 
+        void moduleOnKeyPressed();
+
         ViewModule* moduleMenue();
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)

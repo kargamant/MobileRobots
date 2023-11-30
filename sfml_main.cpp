@@ -32,8 +32,9 @@ int main()
     Robots::MobilePlatform mp = Robots::MobilePlatform();
     Robots::QuantumPlatform qp = Robots::QuantumPlatform();
 
+    eg.connect(sens);
     qp.setCoordinates(4, 3);
-    mp.placeModule(sens);
+    //mp.placeModule(sens);
     rc->getCpu().setRadius(2);
     mp.setCoordinates(1, 3);
     fld->placePlatform(&mp);
@@ -150,6 +151,10 @@ int main()
                 if (scanCode == sf::Keyboard::Key::M)
                 {
                     dr.modulePlacementKeyPressed();
+                }
+                if (scanCode == sf::Keyboard::Key::O)
+                {
+                    dr.moduleOnKeyPressed();
                 }
             }
         }
