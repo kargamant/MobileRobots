@@ -6,6 +6,7 @@
 #include "../Modules/Sensor.h"
 #include <math.h>
 #include "../Interfaces/Moving.h"
+#include "../Platforms/KamikazeRobot.h"
 
 namespace Field
 {
@@ -224,8 +225,10 @@ namespace Field
 				{
 					sub->setMaster(nullptr);
 				}
+				
 			}
 			erasePlatform(target.getCoordinates());
+			
 		}
 		target.setType(CellType::ground);
 	}

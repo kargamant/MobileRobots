@@ -13,6 +13,7 @@
 #include "../Interfaces/Moving.h"
 #include "../Platforms/RobotDestroyer.h"
 #include "../Platforms/CommandCentre.h"
+#include <SFML/Audio.hpp>
 //#include "../Modules/Module.h"
 
 namespace Game
@@ -36,6 +37,7 @@ namespace Game
     std::string Drawer::MOBILE_PLATFORM_TEXTURE="mobile_platform.jpg";
     std::string Drawer::QUANTUM_PLATFORM_TEXTURE="quantum_platform.jpg";
     std::string Drawer::COMMAND_CENTRE_TEXTURE="command_centre.jpg";
+    std::string Drawer::ERROR_SOUND="fnafe_short.ogg";
 
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
@@ -333,6 +335,8 @@ namespace Game
                     if (mod->getState()) currentPlt->plt->turnOff(mod);
                     else mod->turnOn();
                     tmp->draw();
+                    currentPlt->draw();
+                    
                 }
                 catch (std::invalid_argument error)
                 {
@@ -354,6 +358,7 @@ namespace Game
             try
             {
                 dynamic_cast<Robots::EnergyGenerator*>(currentModule->mod)->connect(*dynamic_cast<ViewModule*>(target)->mod);
+                dynamic_cast<ViewModule*>(tmp)->supplier = currentModule;
                 currentModule->draw();
                 generateErrorView("Module was succesfully connected.");
             }
@@ -375,6 +380,7 @@ namespace Game
             try
             {
                 dynamic_cast<Robots::EnergyGenerator*>(currentModule->mod)->dissconnect(dynamic_cast<ViewModule*>(target)->mod);
+                dynamic_cast<ViewModule*>(tmp)->supplier = nullptr;
                 currentModule->draw();
                 generateErrorView("Module was succesfully dissconnected.");
             }
@@ -389,7 +395,7 @@ namespace Game
     {
         Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();
         Robots::Gun* g = new Robots::Gun(currentPlt->plt);
-        Robots::ManageModule* mm = new Robots::ManageModule(currentPlt->plt, 1, 3, 5, true, Robots::Priority::high, 1000);
+        Robots::ManageModule* mm = new Robots::ManageModule(currentPlt->plt, 1, 2, 3, false, Robots::Priority::high, 5000);
         Robots::Sensor* s =new Robots::Sensor();
 
         std::vector<Robots::Module*> modules;
@@ -409,7 +415,7 @@ namespace Game
         window.create(sf::VideoMode(SCALED_SPRITE_SIZE.first * store.size() + LOG_INDENTATION, SCALED_SPRITE_SIZE.second*3), "Module store");
         ViewModule* chosen=nullptr;
         bool isChoiceMade = false;
-        int indChoice = 0;
+        int indChoice = -1;
         while (window.isOpen())
         {
             sf::Event event;
@@ -460,11 +466,25 @@ namespace Game
         return chosen;
     }
 
-    void Drawer::generateErrorView(std::string error, std::string texture_name)
+    void Drawer::generateErrorView(std::string error, std::string texture_name, std::string sound_name, bool play)
     {
         //delete tmp;
+        /*
+            sf::SoundBuffer sb;
+                    //std::cout << "resources/" + sound_name << std::endl;
+                    sb.loadFromFile("resources/" + Game::Drawer::ERROR_SOUND);
+                    sf::Sound sd;
+                    sd.setBuffer(sb);
+                    sd.play();
+        */
         tmp = new View(texture_name, TOP_RIGHT_CORNER, error, TOP_RIGHT_CORNER_TEXT, sf::Vector2f(0.4, 0.4), FONT_NAME, 13);
-        tmp->draw();
+        if (play)
+        {
+            tmp->buffer = new sf::SoundBuffer();
+            tmp->buffer->loadFromFile("resources/" + sound_name);
+            tmp->draw();
+            tmp->sound.play();
+        }
     }
     /*std::pair<std::pair<int, int>, sf::Sprite> Drawer::mouseLeftClick(sf::Event event)
     {

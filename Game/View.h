@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <format>
 #pragma once
 
@@ -19,6 +20,8 @@ namespace Game
 		bool isModule = false;
 		sf::Sprite sprite;
 		sf::Texture* texture;
+		sf::Sound sound;
+		sf::SoundBuffer* buffer=nullptr;
 		//sf::Vector2f scale;
 		//sf::Vector2f position;
 		sf::Font font;

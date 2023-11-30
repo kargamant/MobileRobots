@@ -6,6 +6,7 @@ namespace Robots
 {
 	void ManageModule::subdue(Platform& plt)
 	{
+		if(!getState()) throw std::invalid_argument("Error. CPU is off.");
 		CommandCentre* urmom = dynamic_cast<CommandCentre*>(getMom());
 		ManageModule& urmom_cpu = urmom->getCpu();
 
@@ -29,6 +30,7 @@ namespace Robots
 
 	void ManageModule::release(Platform* subordinate)
 	{
+		if (!getState()) throw std::invalid_argument("Error. CPU is off.");
 		int ind = 0;
 		bool isReleased = false;
 		for (Platform* plt : subordinates)
@@ -116,6 +118,7 @@ namespace Robots
 
 		int sensor = checkSensor(reporter);
 		if (sensor == -1) throw std::invalid_argument("Error. Platform with this coordinates has no sensor module on it. Report is impossible.");
+		if (!reporter->getRobo()[sensor]->getState()) throw std::invalid_argument("Error. Reporter's sensor is off.");
 		//std::cout << "sensor: " << sensor << std::endl;
 		return dynamic_cast<Sensor*>(reporter->getRobo()[sensor])->scan(fld, reporter->getCoordinates());
 	}

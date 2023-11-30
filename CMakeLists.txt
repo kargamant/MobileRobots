@@ -13,5 +13,5 @@ add_subdirectory(Game)
 file(COPY resources DESTINATION .)
 
 add_executable(main sfml_main.cpp Modules/ManageModule.cpp)
-find_package (SFML 2.5 COMPONENTS graphics window system REQUIRED)
-target_link_libraries(main Game Field Interfaces Modules Platforms sfml-graphics sfml-window sfml-system)
+find_package (SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
+target_link_libraries(main Game Field Interfaces Modules Platforms sfml-graphics sfml-window sfml-system sfml-audio)

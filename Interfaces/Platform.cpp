@@ -3,6 +3,8 @@
 #include <iostream>
 #include "../Modules/ManageModule.h"
 #include "../utils/CheckComponent.h"
+#include "../Modules/EnergyGenerator.h"
+#include "../Modules/ManageModule.h"
 
 namespace Robots
 {
@@ -49,6 +51,20 @@ namespace Robots
 		{
 			if (md == mod)
 			{
+				if (md->isEnergyGenerator)
+				{
+					for (Module* m : dynamic_cast<EnergyGenerator&>(*md).getConnected())
+					{
+						dynamic_cast<EnergyGenerator&>(*md).dissconnect(m);
+					}
+				}
+				else if (md->isRulling)
+				{
+					for (Platform* sub : dynamic_cast<ManageModule&>(*md).getSubOrd())
+					{
+						dynamic_cast<ManageModule&>(*md).release(sub);
+					}
+				}
 				isDeleted = true;
 				robo.erase(robo.begin()+ind);
 				break;

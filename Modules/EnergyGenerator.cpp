@@ -103,5 +103,6 @@ namespace Robots
 		int ind = findModule(mod);
 		if (ind == -1) throw std::invalid_argument("Error. This module is not connected.");
 		dissconnect(ind);
+		//mod->supplier = nullptr;
 	}
 }

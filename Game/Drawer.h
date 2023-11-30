@@ -48,6 +48,8 @@ namespace Game
         static std::string QUANTUM_PLATFORM_TEXTURE;
         static std::string COMMAND_CENTRE_TEXTURE;
 
+        static std::string ERROR_SOUND;
+
         static std::pair<int, int> SPRITE_SIZE;
         static std::pair<int, int> SCALED_SPRITE_SIZE;
         static int CHARACTER_SIZE;
@@ -131,7 +133,7 @@ namespace Game
             return filename;
         }
 
-        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE);
+        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE, std::string sound_name = ERROR_SOUND, bool play = false);
 
         bool isClicked(View* view, std::pair<int, int> click)
         {

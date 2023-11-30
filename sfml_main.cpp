@@ -12,6 +12,7 @@
 #include "Game/ViewRobot.h"
 #include "Game/ViewCell.h"
 #include "Platforms/KamikazeRobot.h"
+#include <SFML/Audio.hpp>
 //#include "Modules/Gun.h"
 
 
@@ -25,14 +26,14 @@ int main()
 
     std::srand(time(NULL));
 
-    Robots::Sensor sens = Robots::Sensor();
-    Robots::EnergyGenerator eg= Robots::EnergyGenerator();
+    //Robots::Sensor sens = Robots::Sensor();
+    //Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
     Robots::MobilePlatform mp = Robots::MobilePlatform();
     Robots::QuantumPlatform qp = Robots::QuantumPlatform();
 
-    eg.connect(sens);
+    //eg.connect(sens);
     qp.setCoordinates(4, 3);
     //mp.placeModule(sens);
     rc->getCpu().setRadius(2);
@@ -41,13 +42,13 @@ int main()
     kr.setCoordinates(2, 2);
     kr.setMaxRadius(3);
     fld->placePlatform(&kr);
-    Robots::Gun gun = Robots::Gun();
+    //Robots::Gun gun = Robots::Gun();
     rd.getGun().setMaxRadius(3);
     rd.setCoordinates(1, 1);
     fld->placePlatform(&rd);
-    rc->placeModule(sens);
-    rc->placeModule(gun);
-    rc->placeModule(eg);
+    //rc->placeModule(sens);
+    //rc->placeModule(gun);
+    //rc->placeModule(eg);
     rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
     fld->placePlatform(&qp);
@@ -198,7 +199,7 @@ int main()
         {
             window.draw(dr.tmp->sprite);
             window.draw(dr.tmp->description);
-            
+            //dr.tmp->sound.play();
             if (dr.currentPlt!=nullptr && (dynamic_cast<Game::ViewRobot*>(dr.tmp) == dr.currentPlt || dr.tmp->isModule || moduleConnection))
             {
                 for (std::pair<Game::ViewModule*, Game::ViewModule*>& pair : dr.currentPlt->modules)

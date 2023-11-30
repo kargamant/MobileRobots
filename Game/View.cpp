@@ -27,6 +27,11 @@ namespace Game
 
 	void View::draw()
 	{
+		if (buffer != nullptr)
+		{
+			sound.setBuffer(*buffer);
+			//sound.play();
+		}
 		sprite.setTexture(*texture);
 	}
 

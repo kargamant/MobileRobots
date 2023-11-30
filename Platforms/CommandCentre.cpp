@@ -2,12 +2,13 @@
 #include "../Interfaces/Rulling.h"
 #include "../Modules/Sensor.h"
 #include "../utils/CheckComponent.h"
+#include "../Modules/EnergyGenerator.h"
 
 namespace Robots
 {
 	CommandCentre::CommandCentre(int radius, int sub, double energy, int slots, int cost, std::pair<int, int> coordinates) :Rulling(radius), Platform(energy, slots, cost, coordinates)
 	{
-		ManageModule* centreCpu = new ManageModule(this, radius, sub, energy, true, Priority::high, cost);
+		ManageModule* centreCpu = new ManageModule(this, radius, sub, energy, false, Priority::high, cost);
 		//std::cout << "db1" << std::endl;
 		placeModule(*centreCpu);
 		//std::cout << "db2" << std::endl;
@@ -28,13 +29,14 @@ namespace Robots
 
 	std::vector<Field::Cell> CommandCentre::getReport(Field::Field* fld, Platform* reporter)
 	{
+		if (!getCpu().getState()) throw std::invalid_argument("Error. CPU is off.");
 		return getCpu().getReport(fld, reporter);
 	}
 
 	void CommandCentre::moveRobo(Field::Field* fld, int ind, std::pair<int, int> vector)
 	{
 		checkInd(ind);
-		
+		if (!getCpu().getState()) throw std::invalid_argument("Error. CPU is off.");
 		fld->movePlatform(getCpu().getSubOrd()[ind]->getCoordinates(), vector);
 	}
 
@@ -63,6 +65,20 @@ namespace Robots
 		{
 			if (md == mod)
 			{
+				if (md->isEnergyGenerator)
+				{
+					for (Module* m : dynamic_cast<EnergyGenerator&>(*md).getConnected())
+					{
+						dynamic_cast<EnergyGenerator&>(*md).dissconnect(m);
+					}
+				}
+				else if (md->isRulling)
+				{
+					for (Platform* sub : dynamic_cast<ManageModule&>(*md).getSubOrd())
+					{
+						dynamic_cast<ManageModule&>(*md).release(sub);
+					}
+				}
 				if(ind==manageInd) throw std::invalid_argument("Error. Cant delete cpu from rulling robot.");
 				isDeleted = true;
 				robo.erase(robo.begin() + ind);
@@ -104,7 +120,7 @@ namespace Robots
 
 	}*/
 
-	void CommandCentre::turnOff(Module* mod)
+	/*void CommandCentre::turnOff(Module* mod)
 	{
 		int ind = 0;
 		bool isOff = false;
@@ -112,7 +128,7 @@ namespace Robots
 		{
 			if (m == mod)
 			{
-				if (m->isRulling) throw std::invalid_argument("Error. Cant turn off manage module on rulling robot.");
+				//if (m->isRulling) throw std::invalid_argument("Error. Cant turn off manage module on rulling robot.");
 				Platform::turnOff(ind);
 				isOff = true;
 				break;
@@ -120,5 +136,5 @@ namespace Robots
 			++ind;
 		}
 		if (!isOff) throw std::invalid_argument("Error. No such module on platform.");
-	}
+	}*/
 }

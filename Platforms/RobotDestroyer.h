@@ -20,6 +20,6 @@ namespace Robots
 		void deleteModule(Module* mod) override;
 		void destroy(Field::Field* fld, std::pair<int, int> coordinates) override;
 
-		void turnOff(Module* mod) override;
+		//void turnOff(Module* mod) override;
 	};
 }
