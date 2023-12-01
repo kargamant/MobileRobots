@@ -13,6 +13,10 @@
 #include "../Interfaces/Moving.h"
 #include "../Platforms/RobotDestroyer.h"
 #include "../Platforms/CommandCentre.h"
+#include "../Platforms/MobilePlatform.h"
+#include "../Platforms/KamikazeRobot.h"
+#include "../Platforms/QuantumPlatform.h"
+#include "../Platforms/RobotCommander.h"
 #include <SFML/Audio.hpp>
 //#include "../Modules/Module.h"
 
@@ -483,6 +487,104 @@ namespace Game
                 }
             }
         }
+        return chosen;
+    }
+
+    void Drawer::newRoboKeyPressed(std::pair<bool, std::string>& isPicking)
+    {
+        ViewRobot* choice = robotsMenue();
+        generateErrorView("Okay pick a cell to set your robot.");
+        isPicking.first = true;
+        isPicking.second = "P";
+    }
+
+    ViewRobot* Drawer::robotsMenue()
+    {
+        Robots::CommandCentre* cc = new Robots::CommandCentre();
+        Robots::KamikazeRobot* kr = new Robots::KamikazeRobot();
+        Robots::MobilePlatform* mp = new Robots::MobilePlatform();
+        Robots::QuantumPlatform* qp = new Robots::QuantumPlatform();
+        Robots::RobotCommander* rc = new Robots::RobotCommander();
+        Robots::RobotDestroyer* rd = new Robots::RobotDestroyer();
+
+        std::vector<Robots::Platform*> plts;
+        plts.push_back(cc);
+        plts.push_back(kr);
+        plts.push_back(mp);
+        plts.push_back(qp);
+        plts.push_back(rc);
+        plts.push_back(rd);
+        std::vector<View*> store;
+        std::pair<int, int> position = { 0, 0 };
+        for (Robots::Platform* plt : plts)
+        {
+            ViewRobot* vr = new ViewRobot(plt, field, position, "", TOP_RIGHT_CORNER_TEXT);
+            vr->draw();
+            store.push_back(vr);
+            position.first += SCALED_SPRITE_SIZE.first;
+        }
+        window.create(sf::VideoMode(SCALED_SPRITE_SIZE.first * store.size() + LOG_INDENTATION, SCALED_SPRITE_SIZE.second * 3), "Robot store");
+        ViewRobot* chosen = nullptr;
+        bool isChoiceMade = false;
+        int indChoice = -1;
+        while (window.isOpen())
+        {
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+                if (event.type == sf::Event::MouseButtonPressed)
+                {
+                    std::pair<int, int> click = { event.mouseButton.x / SCALED_SPRITE_SIZE.first, event.mouseButton.y / SCALED_SPRITE_SIZE.second, };
+                    //std::cout << "click" << click.first<<std::endl;
+                    if (click.first < 6)
+                    {
+                        if (chosen != nullptr) delete chosen;
+                        chosen = new ViewRobot(plts[click.first], field, std::pair<int, int>(SCALED_SPRITE_SIZE.first * store.size() + 5, 0), "", std::pair<int, int>(SCALED_SPRITE_SIZE.first * store.size() + 5, SCALED_SPRITE_SIZE.second));
+                        chosen->draw();
+                        indChoice = click.first;
+                        isChoiceMade = true;
+                    }
+
+                }
+            }
+
+            window.clear();
+            for (View* v : store)
+            {
+                window.draw(v->sprite);
+            }
+            if (chosen != nullptr)
+            {
+                window.draw(chosen->sprite);
+                window.draw(chosen->description);
+            }
+            window.display();
+
+        }
+        try
+        {
+            Ai->ai->setMoney(Ai->ai->getMoney() - plts[indChoice]->getCost());
+            Ai->draw();
+        }
+        catch (std::invalid_argument error)
+        {
+            generateErrorView(error.what());
+        }
+
+        /*if (isChoiceMade)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                if (i != indChoice)
+                {
+                    delete store[i];
+                    delete plts[i];
+                }
+            }
+        }*/
+        currentPlt = chosen;
         return chosen;
     }
 

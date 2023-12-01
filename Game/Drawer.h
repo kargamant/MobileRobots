@@ -103,10 +103,12 @@ namespace Game
         void moduleDeleteKeyPressed();
         void connectKeyPressed(View* target);
         void dissconnectKeyPressed(View* target);
+        void newRoboKeyPressed(std::pair<bool, std::string>& isPicking);
 
         void moduleOnKeyPressed();
 
         ViewModule* moduleMenue();
+        ViewRobot* robotsMenue();
 
         std::pair<int, int> moveKeyToVector(sf::Keyboard::Key key)
         {

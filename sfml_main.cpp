@@ -30,34 +30,25 @@ void Game::Application::sandBox()
 
     std::srand(time(NULL));
 
-    //Robots::Sensor sens = Robots::Sensor();
-    //Robots::EnergyGenerator eg= Robots::EnergyGenerator();
     Robots::RobotDestroyer rd = Robots::RobotDestroyer();
     Robots::KamikazeRobot kr = Robots::KamikazeRobot();
     Robots::MobilePlatform mp = Robots::MobilePlatform();
     Robots::QuantumPlatform qp = Robots::QuantumPlatform();
 
-    //eg.connect(sens);
     qp.setCoordinates(4, 3);
-    //mp.placeModule(sens);
     rc->getCpu().setRadius(2);
     mp.setCoordinates(1, 3);
     fld->placePlatform(&mp);
     kr.setCoordinates(2, 2);
     kr.setMaxRadius(3);
     fld->placePlatform(&kr);
-    //Robots::Gun gun = Robots::Gun();
     rd.getGun().setMaxRadius(3);
     rd.setCoordinates(1, 1);
     fld->placePlatform(&rd);
-    //rc->placeModule(sens);
-    //rc->placeModule(gun);
-    //rc->placeModule(eg);
     rc->setCoordinates(0, 0);
     fld->placePlatform(rc);
     fld->placePlatform(&qp);
-    //rc->getCpu().subdue(rd);
-    //std::cout << "subordinate: " << rc->getCpu().getSubOrd()[0].getName() << std::endl;
+
 
     Game::Drawer dr;
     dr.viewField(fld);
@@ -102,6 +93,17 @@ void Game::Application::sandBox()
                             break;
                         case 'G':
                             dr.reportKeyPressed(view);
+                            break;
+                        case 'P':
+                            if (view != nullptr)
+                            {
+                                if (view->isCell)
+                                {
+                                    //std::cout << "placed" << std::endl;
+                                    dr.currentPlt->plt->setCoordinates(dynamic_cast<ViewCell*>(view)->cell->getCoordinates().first, dynamic_cast<ViewCell*>(view)->cell->getCoordinates().second);
+                                    fld->placePlatform(dr.currentPlt->plt);
+                                }
+                            }
                             break;
                         }
                         
@@ -196,6 +198,10 @@ void Game::Application::sandBox()
                 {
                     moduleConnection = true;
                     dr.processKey<Robots::EnergyGenerator, Game::ViewModule, Robots::Module>(dr.currentModule, dr.currentModule->mod, "", "dissconnect", "module", "E", isPicking);
+                }
+                if (scanCode == sf::Keyboard::Key::P)
+                {
+                    dr.newRoboKeyPressed(isPicking);
                 }
             }
         }

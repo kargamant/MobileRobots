@@ -119,6 +119,10 @@ namespace Field
 	{
 		if (getCellByCoordinates(plt->getCoordinates()).getType() == CellType::pointOfInterest) total_poi--;
 		changeCellType(plt->getCoordinates(), CellType::ground);
+		if (checkPlatformOnField(plt->getCoordinates()) != nullptr)
+		{
+			throw std::invalid_argument("Error. There is platform on this cell.");
+		}
 		platforms.insert({plt->getCoordinates(), plt});
 	}
 

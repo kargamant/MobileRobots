@@ -67,7 +67,7 @@ namespace Game
 			ViewModule* vm = new ViewModule(mod, { base_position.first + x_other_way * (i + 1) * Drawer::SCALED_SPRITE_SIZE.first + Drawer::SCALED_SPRITE_SIZE.first / 4, base_position.second + Drawer::SCALED_SPRITE_SIZE.second / 4 }, "", {0, 0}, sf::Vector2f(0.1, 0.1));
 			vm->draw();
 			vm->inventoryView.sprite.setPosition(sf::Vector2f(base_position.first + x_other_way * (i + 1) * Drawer::SCALED_SPRITE_SIZE.first, y_other_way * base_position.second));
-			ViewModule* vm_big = new ViewModule(mod, { Drawer::TOP_RIGHT_CORNER.first, Drawer::TOP_RIGHT_CORNER.second }, "", Drawer::TOP_RIGHT_CORNER_TEXT, Drawer::SPRITE_SCALE);
+			ViewModule* vm_big = new ViewModule(mod, { Drawer::TOP_RIGHT_CORNER.first, Drawer::TOP_RIGHT_CORNER.second }, "", { Drawer::TOP_RIGHT_CORNER_TEXT.first,  Drawer::TOP_RIGHT_CORNER_TEXT.second -100}, Drawer::SPRITE_SCALE);
 			vm_big->draw();
 			modules.push_back({vm, vm_big});
 		}
