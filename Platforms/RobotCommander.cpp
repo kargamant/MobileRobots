@@ -8,9 +8,12 @@ namespace Robots
 		try
 		{
 			fld->movePlatform(coordinates, vector);
+			
 		}
 		catch (std::invalid_argument)
 		{
+			std::cout << "coordinates: " << coordinates.first << " " << coordinates.second << std::endl;
+			std::cout << "vector: " << vector.first << " " << vector.second << std::endl;
 			throw std::invalid_argument("Error. Commander cant go through this cell.");
 		}
 		for (Platform* plt : getCpu().getSubOrd())

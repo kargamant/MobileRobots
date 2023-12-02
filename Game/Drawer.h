@@ -139,7 +139,7 @@ namespace Game
             return filename;
         }
 
-        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE, std::string sound_name = ERROR_SOUND, bool play = false);
+        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE, std::string sound_name = ERROR_SOUND, bool play = true);
 
         bool isClicked(View* view, std::pair<int, int> click)
         {

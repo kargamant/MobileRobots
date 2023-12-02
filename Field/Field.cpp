@@ -155,6 +155,8 @@ namespace Field
 
 		if (!isComponentCastable<Robots::Platform*, Robots::Moving*>(plt)) throw std::invalid_argument("Error. This platform is not movable.");
 
+		if (plt->getMaster() == nullptr && !plt->getIsMaster()) throw std::invalid_argument("Error. You cant move independently.");
+
 		if (plt->getMaster() != nullptr && !inArea(plt->getMaster()->getCoordinates(), coordinates, dynamic_cast<Robots::CommandCentre*>(plt->getMaster())->getCpu().getRad()))
 		{
 			throw std::invalid_argument("Error. You cant go far from master robot.");

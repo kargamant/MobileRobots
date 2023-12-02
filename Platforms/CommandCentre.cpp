@@ -8,6 +8,7 @@ namespace Robots
 {
 	CommandCentre::CommandCentre(int radius, int sub, double energy, int slots, int cost, std::pair<int, int> coordinates) :Rulling(radius), Platform(energy, slots, cost, coordinates)
 	{
+		isMaster = true;
 		ManageModule* centreCpu = new ManageModule(this, radius, sub, energy, false, Priority::high, cost);
 		//std::cout << "db1" << std::endl;
 		placeModule(*centreCpu);
