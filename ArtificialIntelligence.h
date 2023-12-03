@@ -2,7 +2,7 @@
 
 #include "Field/Field.h"
 #include "Interfaces/Platform.h"
-
+#include <limits>
 #include <unordered_map>
 #pragma once
 
@@ -10,15 +10,22 @@ namespace Robots
 {
 	struct Node
 	{
-		int f; //f cost = h+g
-		int g; //g cost - cost to get from start
-		int h; //h cost - heuristic cost to get to end from this node
-		Field::Cell& cell;
+		int f = std::numeric_limits<int>::max(); //f cost = h+g
+		int g = std::numeric_limits<int>::max(); //g cost - cost to get from start
+		int h = std::numeric_limits<int>::max(); //h cost - heuristic cost to get to end from this node
+		Field::Cell* cell;
 		Node* predecessor;
 		std::vector<Node*> neighbours;
 		bool isTraversable = true;
+		bool isOpen = false;
+		bool isClosed = false;
 
-		Node(Field::Cell& cell) :cell(cell), predecessor(nullptr) { if (cell.getType() == Field::CellType::obstacle) isTraversable = false; }
+		Node(Field::Cell* cell=nullptr) :cell(cell), predecessor(nullptr) { if (cell->getType() == Field::CellType::obstacle) isTraversable = false; }
+		~Node() = default;
+		//Node(const Node& node) : f(node.f), g(node.g), h(node.h), cell(node.cell), predecessor(node.predecessor), neighbours(node.neighbours), isTraversable(node.isTraversable), isOpen(node.isOpen), isClosed(node.isClosed) {}
+		//Node(Node&& node) : f(node.f), g(node.g), h(node.h), cell(node.cell), predecessor(node.predecessor), neighbours(node.neighbours), isTraversable(node.isTraversable), isOpen(node.isOpen), isClosed(node.isClosed) {}
+		void calculateF() { f = g + h; }
+		void consoleOut(std::ostream& stream);
 	};
 	class ArtificialIntelligence
 	{
@@ -30,16 +37,6 @@ namespace Robots
 		int points;
 	public:
 		ArtificialIntelligence() :obstacles(), poi(), money(20000) {}
-		~ArtificialIntelligence()
-		{
-			for (auto it : graph)
-			{
-				for (auto neighbour : it.second.neighbours)
-				{
-					delete neighbour;
-				}
-			}
-		}
 
 		int getMoney() { return money; }
 		int getPoints() { return points; }
@@ -59,6 +56,6 @@ namespace Robots
 
 		void find();
 		std::string makeMove();
-		std::vector<Field::Cell*> path(Field::Cell* from, Field::Cell* to);
+		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 	};
 }

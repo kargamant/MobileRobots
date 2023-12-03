@@ -1,5 +1,7 @@
 #include <utility>
 #include <string>
+#include <iostream>
+#include <format>
 #pragma once
 namespace Field
 {
@@ -34,5 +36,10 @@ namespace Field
 		Cell& setX(int nx) { coordinates.first = nx; return *this; }
 		Cell& setY(int ny) { coordinates.second = ny; return *this; }
 		Cell& setType(CellType ntype) { type = ntype; return *this; }
+
+		void consoleOut(std::ostream& stream)
+		{
+			stream << std::format("( {}, {}) | type: {}", std::to_string(getX()), std::to_string(getY()), CellTypeToString(type)) << std::endl;
+		}
 	};
 }
