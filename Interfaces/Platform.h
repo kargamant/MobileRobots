@@ -25,6 +25,7 @@ namespace Robots
 		Platform(double energy, int slots, int cost, std::pair<int, int> coordinates); //name will be chosen randomly
 		Platform(std::string name=std::string("c3po"), double energy=0, int slots=1, int cost=1000, std::pair<int, int> coordinates=std::pair<int, int>(0, 0));
 
+		bool isDynamic = false;
 		int getSlots() { return slots; }
 		std::pair<int, int>& getCoordinates() { return coordinates; }
 		int getX() { return coordinates.first; }

@@ -27,7 +27,17 @@ namespace Field
 	double distance(std::pair<int, int> cell1, std::pair<int, int> cell2);
 	bool inArea(std::pair<int, int> centre, std::pair<int, int> cell, int radius);
 
-	
+	enum class RobotsTypes
+	{
+		CommandCentre,
+		KamikazeRobot,
+		MobilePlatform,
+		QuantumPlatform,
+		RobotCommander,
+		RobotDestroyer,
+		count
+	};
+
 	class Field
 	{
 	private:
@@ -44,12 +54,23 @@ namespace Field
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size
 		Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt);
-		
+		/*~Field()
+		{
+			for (auto it : platforms)
+			{
+				if (it.second->isDynamic)
+				{
+					delete it.second;
+				}
+			}
+		}*/
+
 		int getWidth() { return size.first; }
 		int getHeight() { return size.second; }
 		std::pair<int, int> getSize() { return size; }
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
+		std::vector<std::vector<Cell>>& getMap() { return map; }
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> getPlatforms() { return platforms; }
 		
 		void resize(int nwidth, int nheight);
@@ -59,6 +80,7 @@ namespace Field
 		void changeCellType(int x, int y, CellType ntype);
 
 		void placePlatform(Robots::Platform* plt);
+		void placeRandomPlatforms(int n);
 		void erasePlatform(std::pair<int, int> coordinates);
 		void erasePlatform(Robots::Platform* plt);
 		//void erasePLatform(std::pair<int, int> coordinates, Robots::Platform* plt);

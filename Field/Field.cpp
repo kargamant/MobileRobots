@@ -7,6 +7,9 @@
 #include <math.h>
 #include "../Interfaces/Moving.h"
 #include "../Platforms/KamikazeRobot.h"
+#include "../Platforms/MobilePlatform.h"
+#include "../Platforms/QuantumPlatform.h"
+#include "../Platforms/RobotDestroyer.h"
 
 namespace Field
 {
@@ -35,6 +38,52 @@ namespace Field
 			}
 		}
 		return map;
+	}
+
+	void Field::placeRandomPlatforms(int n)
+	{
+		std::srand(time(NULL));
+		for (int i = 0; i < n; i++)
+		{
+			RobotsTypes type{std::rand()%static_cast<int>(RobotsTypes::count)};
+			Robots::Platform* plt;
+			switch (type)
+			{
+			case RobotsTypes::CommandCentre:
+				plt = new Robots::CommandCentre(std::rand()%size.first, std::rand()%size.first);
+				break;
+			case RobotsTypes::RobotCommander:
+				plt = new Robots::RobotCommander(1, std::rand() % size.first, std::rand() % size.first);
+				break;
+			case RobotsTypes::KamikazeRobot:
+				plt = new Robots::KamikazeRobot(std::rand() % size.first);
+				break;
+			case RobotsTypes::MobilePlatform:
+				plt = new Robots::MobilePlatform(1);
+				break;
+			case RobotsTypes::QuantumPlatform:
+				plt = new Robots::QuantumPlatform();
+				break;
+			case RobotsTypes::RobotDestroyer:
+				plt = new Robots::RobotDestroyer();
+				break;
+			}
+			bool correctlyPlaced = false;
+			while (!correctlyPlaced)
+			{
+				try
+				{
+					plt->setCoordinates(std::rand() % size.first, std::rand() % size.second);
+				}
+				catch (std::invalid_argument)
+				{
+					continue;
+				}
+				correctlyPlaced = true;
+			}
+			plt->isDynamic = true;
+			placePlatform(plt);
+		}
 	}
 
 	Field::Field()

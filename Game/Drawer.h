@@ -42,6 +42,7 @@ namespace Game
         static std::string ERROR_TEXTURE;
         static std::string FONT_NAME;
 
+        static bool PLAY_SOUND;
         static std::string ROBOT_COMMANDER_TEXTURE;
         static std::string ROBOT_DESTROYER_TEXTURE;
         static std::string KAMIKAZE_ROBOT_TEXTURE;
@@ -139,7 +140,7 @@ namespace Game
             return filename;
         }
 
-        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE, std::string sound_name = ERROR_SOUND, bool play = true);
+        void generateErrorView(std::string error, std::string texture_name = ERROR_TEXTURE, std::string sound_name = ERROR_SOUND, bool play = PLAY_SOUND);
 
         bool isClicked(View* view, std::pair<int, int> click)
         {

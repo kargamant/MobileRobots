@@ -44,6 +44,7 @@ namespace Game
     std::string Drawer::ERROR_SOUND="fnafe_short.ogg";
     std::string Drawer::ENDING_TEXTURE = "You_won.png";
 
+    bool Drawer::PLAY_SOUND = false;
     int Drawer::CHARACTER_SIZE = 20;
     std::pair<int, int> Drawer::SPRITE_SIZE = { 512, 512 };
     std::pair<int, int> Drawer::SCALED_SPRITE_SIZE = { 102, 102 };
@@ -500,7 +501,7 @@ namespace Game
 
     ViewRobot* Drawer::robotsMenue()
     {
-        Robots::CommandCentre* cc = new Robots::CommandCentre();
+        Robots::CommandCentre* cc = new Robots::CommandCentre(10);
         Robots::KamikazeRobot* kr = new Robots::KamikazeRobot();
         Robots::MobilePlatform* mp = new Robots::MobilePlatform();
         Robots::QuantumPlatform* qp = new Robots::QuantumPlatform();

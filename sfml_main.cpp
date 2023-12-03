@@ -14,48 +14,19 @@
 #include "Platforms/KamikazeRobot.h"
 #include <SFML/Audio.hpp>
 #include "Application.h"
-//#include "Modules/Gun.h"
 
 
 void Game::Application::sandBox()
 {
     
     Field::Field::GROUND_MODE_ON = false;
-    
-    //Field::Field* fld = new Field::Field(8, 8);
+
     Field::Field* fld = &field;
-    //Robots::ArtificialIntelligence ai = ai;
-    Robots::RobotCommander* rc = new Robots::RobotCommander();
-    rc->setSlots(5);
-
-    std::srand(time(NULL));
-
-    Robots::RobotDestroyer rd = Robots::RobotDestroyer();
-    Robots::KamikazeRobot kr = Robots::KamikazeRobot();
-    Robots::MobilePlatform mp = Robots::MobilePlatform();
-    Robots::QuantumPlatform qp = Robots::QuantumPlatform();
-
-    qp.setCoordinates(4, 3);
-    rc->getCpu().setRadius(2);
-    mp.setCoordinates(1, 3);
-    fld->placePlatform(&mp);
-    kr.setCoordinates(2, 2);
-    kr.setMaxRadius(3);
-    fld->placePlatform(&kr);
-    rd.getGun().setMaxRadius(3);
-    rd.setCoordinates(1, 1);
-    fld->placePlatform(&rd);
-    rc->setCoordinates(0, 0);
-    fld->placePlatform(rc);
-    fld->placePlatform(&qp);
-
 
     Game::Drawer dr;
     dr.viewField(fld);
     dr.Ai = new ViewAi(&ai, "AI.jpg", Drawer::BOTTOM_RIGHT_CORNER, "", Drawer::BOTTOM_RIGHT_CORNER_TEXT);
-    //dr.Ai=new View("resources/Ai.jpg", Drawer::BOTTOM_RIGHT_CORNER, "")
     sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
-    //dr.window = &window;
     std::pair<bool, std::string> isPicking = { false, "" };
     bool moduleConnection = false;
     View win = View(Drawer::ENDING_TEXTURE, { 0, 0 }, "", { 0, 0 }, sf::Vector2f(1, 1));
