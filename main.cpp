@@ -5,7 +5,7 @@
 int main()
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Game::Application app = Game::Application(10, 10);
+	Game::Application app = Game::Application(7, 7);
 
 	/*for (int i = 0; i < 5; i++)
 	{

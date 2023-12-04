@@ -107,10 +107,13 @@ namespace Robots
 
 	std::vector<Game::Chunk> ArtificialIntelligence::divideField(Field::Field& fld)
 	{
-		//int maxEdge = std::max(fld.getSize().first, fld.getSize().second);
 		std::vector<Game::Chunk> chunks;
 		int x_left_border = 0, y_left_border=0;
 		int x_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1, y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
+
+		int lastY = 0;
+		
+		//filling up squares
 		while (x_right_border < fld.getWidth())
 		{
 			while (y_right_border < fld.getHeight())
@@ -118,12 +121,47 @@ namespace Robots
 				chunks.push_back(Game::Chunk(x_left_border, y_left_border, x_right_border, y_right_border, fld));
 				y_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
 				y_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+				lastY = y_left_border;
 			}
 			y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
 			y_left_border = 0;
 			x_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
 			x_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
 		}
+		//filling up remaining chunks
+
+		if (fld.getWidth() % MINIMUM_CHUNKABLE_FIELD_SIZE != 0)
+		{
+			while (y_right_border < fld.getHeight())
+			{
+				chunks.push_back(Game::Chunk(x_left_border, y_left_border, fld.getWidth() - 1, y_right_border, fld));
+				y_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+				y_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+			}
+			if ((fld.getHeight() - 1) >= y_left_border)
+			{
+				chunks.push_back(Game::Chunk(x_left_border, y_left_border, fld.getWidth() - 1, fld.getHeight() - 1, fld));
+			}
+		}
+		
+		
+		
+
+		
+		if (fld.getHeight() % MINIMUM_CHUNKABLE_FIELD_SIZE != 0)
+		{
+			x_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
+			x_left_border = 0;
+			y_left_border = lastY;
+			while (x_right_border < fld.getWidth())
+			{
+				chunks.push_back(Game::Chunk(x_left_border, y_left_border, x_right_border, fld.getHeight() - 1, fld));
+				x_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+				x_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+			}
+		}
+		
+		
 		return chunks;
 	}
 

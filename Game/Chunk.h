@@ -12,7 +12,14 @@ namespace Game
 		int yLeftBorder;
 		int yRightBorder;
 	public:
+
+		int getXLeftBorder() { return xLeftBorder; }
+		int getYLeftBorder() { return yLeftBorder; }
+		int getXRightBorder() { return xRightBorder; }
+		int getYRightBorder() { return yRightBorder; }
+
 		Chunk(int x_left_border, int y_left_border, int x_right_border, int y_right_border, Field::Field& fld) :xLeftBorder(x_left_border), yLeftBorder(y_left_border), xRightBorder(x_right_border), yRightBorder(y_right_border), fld(fld) {}
+		//Chunk& operator=(Chunk&& chunk);
 
 		void checkCoordinates(int x, int y);
 		void checkCoordinates(std::pair<int, int> coordinates);

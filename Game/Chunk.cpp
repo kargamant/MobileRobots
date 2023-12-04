@@ -2,6 +2,15 @@
 
 namespace Game
 {
+	/*Chunk& Chunk::operator=(Chunk&& chunk)
+	{
+		fld = chunk.fld;
+		xLeftBorder = chunk.xLeftBorder;
+		xRightBorder = chunk.xRightBorder;
+		yLeftBorder = chunk.yLeftBorder;
+		yRightBorder = chunk.yRightBorder;
+	}*/
+
 	void Chunk::checkCoordinates(int x, int y)
 	{
 		if (x > xRightBorder || x < xLeftBorder || y > yRightBorder || y < yLeftBorder) throw std::invalid_argument("Error. Invalid coordinates for this field.");
