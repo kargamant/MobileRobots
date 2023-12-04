@@ -105,11 +105,33 @@ namespace Robots
 		return path;
 	}
 
-	std::string ArtificialIntelligence::makeMove(Field::Field& fld)
+	std::vector<Game::Chunk> ArtificialIntelligence::divideField(Field::Field& fld)
+	{
+		//int maxEdge = std::max(fld.getSize().first, fld.getSize().second);
+		std::vector<Game::Chunk> chunks;
+		int x_left_border = 0, y_left_border=0;
+		int x_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1, y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
+		while (x_right_border < fld.getWidth())
+		{
+			while (y_right_border < fld.getHeight())
+			{
+				chunks.push_back(Game::Chunk(x_left_border, y_left_border, x_right_border, y_right_border, fld));
+				y_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+				y_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+			}
+			y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
+			y_left_border = 0;
+			x_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+			x_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
+		}
+		return chunks;
+	}
+
+	/*std::string ArtificialIntelligence::makeMove(Game::Chunk& fld)
 	{
 		if (fld.getHeight() <= MINIMUM_CHUNKABLE_FIELD_SIZE && fld.getWidth() <= MINIMUM_CHUNKABLE_FIELD_SIZE)
 		{
 			
 		}
-	}
+	}*/
 }

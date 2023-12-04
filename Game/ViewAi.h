@@ -1,5 +1,5 @@
 #include "View.h"
-#include "../ArtificialIntelligence.h"
+#include "ArtificialIntelligence.h"
 
 namespace Game
 {

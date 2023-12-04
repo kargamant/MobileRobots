@@ -1,9 +1,10 @@
-#include "Modules/ManageModule.h"
+#include "../Modules/ManageModule.h"
 
-#include "Field/Field.h"
-#include "Interfaces/Platform.h"
+#include "../Field/Field.h"
+#include "../Interfaces/Platform.h"
 #include <limits>
 #include <unordered_map>
+#include "Chunk.h"
 #pragma once
 
 namespace Robots
@@ -55,7 +56,8 @@ namespace Robots
 		
 		void consoleOutGraph(std::ostream& stream);
 
-		std::string makeMove(Field::Field& fld);
+		std::string makeMove(Game::Chunk& chunk);
+		std::vector<Game::Chunk> divideField(Field::Field& fld);
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 	};
 }
