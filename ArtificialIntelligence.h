@@ -22,8 +22,6 @@ namespace Robots
 
 		Node(Field::Cell* cell=nullptr) :cell(cell), predecessor(nullptr) { if (cell->getType() == Field::CellType::obstacle) isTraversable = false; }
 		~Node() = default;
-		//Node(const Node& node) : f(node.f), g(node.g), h(node.h), cell(node.cell), predecessor(node.predecessor), neighbours(node.neighbours), isTraversable(node.isTraversable), isOpen(node.isOpen), isClosed(node.isClosed) {}
-		//Node(Node&& node) : f(node.f), g(node.g), h(node.h), cell(node.cell), predecessor(node.predecessor), neighbours(node.neighbours), isTraversable(node.isTraversable), isOpen(node.isOpen), isClosed(node.isClosed) {}
 		void calculateF() { f = g + h; }
 		void consoleOut(std::ostream& stream);
 	};
@@ -33,6 +31,8 @@ namespace Robots
 		std::unordered_map<std::pair<int, int>, std::vector<Field::Cell*>, Field::CoordHash, Field::CoordEqual> obstacles; //discovered obstacles
 		std::unordered_map<std::pair<int, int>, std::vector<Field::Cell*>, Field::CoordHash, Field::CoordEqual> poi; //discovered points of interest
 		std::unordered_map<std::pair<int, int>, Node, Field::CoordHash, Field::CoordEqual> graph;
+		std::vector<std::vector<Field::Cell>> cloneMap;
+		static const int MINIMUM_CHUNKABLE_FIELD_SIZE=3;
 		int money;
 		int points;
 	public:
@@ -40,6 +40,7 @@ namespace Robots
 
 		int getMoney() { return money; }
 		int getPoints() { return points; }
+		std::vector<std::vector<Field::Cell>>& getCloneMap() { return cloneMap; }
 		std::unordered_map<std::pair<int, int>, Node, Field::CoordHash, Field::CoordEqual>& getGraph() { return graph; }
 
 		ArtificialIntelligence& setMoney(int nmoney) 
@@ -54,8 +55,7 @@ namespace Robots
 		
 		void consoleOutGraph(std::ostream& stream);
 
-		void find();
-		std::string makeMove();
+		std::string makeMove(Field::Field& fld);
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 	};
 }

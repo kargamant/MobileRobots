@@ -53,7 +53,7 @@ namespace Field
 
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size
-		Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt);
+		Field(int width, int height, std::vector<std::vector<Cell>>& map, std::vector<Robots::Platform>& plt);
 		/*~Field()
 		{
 			for (auto it : platforms)
@@ -71,10 +71,10 @@ namespace Field
 		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
 		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
 		std::vector<std::vector<Cell>>& getMap() { return map; }
-		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual> getPlatforms() { return platforms; }
+		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual>& getPlatforms() { return platforms; }
 		
-		void resize(int nwidth, int nheight);
-		void resize(std::pair<int, int> nsize);
+		Field& resize(int nwidth, int nheight);
+		Field& resize(std::pair<int, int> nsize);
 
 		void changeCellType(std::pair<int, int> coordinates, CellType ntype);
 		void changeCellType(int x, int y, CellType ntype);
@@ -92,7 +92,7 @@ namespace Field
 
 		void consoleOutField(std::ostream& stream=std::cout);
 		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
-		void checkCoordinates(int x, int y);
-		void checkCoordinates(std::pair<int, int> coordinates);
+		virtual void checkCoordinates(int x, int y);
+		virtual void checkCoordinates(std::pair<int, int> coordinates);
 	};
 }

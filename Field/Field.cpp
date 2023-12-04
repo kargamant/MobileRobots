@@ -99,7 +99,7 @@ namespace Field
 		map = createRandomMap(size.first, size.second);
 	}
 
-	Field::Field(int width, int height, std::vector<std::vector<Cell>> map, std::vector<Robots::Platform> plt):size(std::pair<int, int>(width, height)), map(map)
+	Field::Field(int width, int height, std::vector<std::vector<Cell>>& map, std::vector<Robots::Platform>& plt):size(std::pair<int, int>(width, height)), map(map)
 	{
 		for (Robots::Platform& it : plt)
 		{
@@ -107,7 +107,7 @@ namespace Field
 		}
 	}
 
-	void Field::resize(int nwidth, int nheight)
+	Field& Field::resize(int nwidth, int nheight)
 	{
 		int width = getWidth();
 		int height = getHeight();
@@ -144,12 +144,12 @@ namespace Field
 		}
 		size.first = nwidth;
 		size.second = nheight;
-		
+		return *this;
 	}
 
-	void Field::resize(std::pair<int, int> nsize)
+	Field& Field::resize(std::pair<int, int> nsize)
 	{
-		resize(nsize.first, nsize.second);
+		return resize(nsize.first, nsize.second);
 	}
 
 	void Field::changeCellType(int x, int y, CellType ntype)
@@ -166,8 +166,8 @@ namespace Field
 
 	void Field::placePlatform(Robots::Platform* plt)
 	{
-		if (getCellByCoordinates(plt->getCoordinates()).getType() == CellType::pointOfInterest) total_poi--;
 		changeCellType(plt->getCoordinates(), CellType::ground);
+		if (getCellByCoordinates(plt->getCoordinates()).getType() == CellType::pointOfInterest) total_poi--;
 		if (checkPlatformOnField(plt->getCoordinates()) != nullptr)
 		{
 			throw std::invalid_argument("Error. There is platform on this cell.");
@@ -183,6 +183,7 @@ namespace Field
 
 	void Field::erasePlatform(Robots::Platform* plt)
 	{
+		checkCoordinates(plt->getCoordinates());
 		for (auto it = platforms.begin(); it != platforms.end();)
 		{
 			
@@ -197,7 +198,6 @@ namespace Field
 
 	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)
 	{
-		//std::cout << "db2" << std::endl;
 		if (checkPlatformOnField(coordinates) == nullptr) throw std::invalid_argument("Error. No platform with such coordinates on field.");
 
 		Robots::Platform* plt = platforms[coordinates];
@@ -297,6 +297,7 @@ namespace Field
 
 	void Field::destroyArea(int radius, std::pair<int, int> centre)
 	{
+		checkCoordinates(centre);
 		std::pair<int, int> tlCorner = std::pair<int, int>(std::max(0, centre.first - radius), std::max(0, centre.second - radius));
 		std::pair<int, int> brCorner = std::pair<int, int>(std::min(centre.first + radius, size.first), std::min(centre.second + radius, size.second));
 		std::pair<int, int> it = tlCorner;
@@ -347,7 +348,6 @@ namespace Field
 
 	Robots::Platform* Field::checkPlatformOnField(std::pair<int, int> coordinates)
 	{
-		//std::cout << "db2" << std::endl;
 		if (platforms.find(coordinates) == platforms.end()) return nullptr;
 		return  platforms[coordinates];
 	}

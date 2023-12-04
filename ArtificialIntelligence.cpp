@@ -104,4 +104,12 @@ namespace Robots
 		}
 		return path;
 	}
+
+	std::string ArtificialIntelligence::makeMove(Field::Field& fld)
+	{
+		if (fld.getHeight() <= MINIMUM_CHUNKABLE_FIELD_SIZE && fld.getWidth() <= MINIMUM_CHUNKABLE_FIELD_SIZE)
+		{
+			
+		}
+	}
 }
