@@ -162,6 +162,7 @@ namespace Field
 	{
 		checkCoordinates(coordinates);
 		getCellByCoordinates(coordinates).setType(ntype);
+		if (ntype == CellType::pointOfInterest) total_poi++;
 	}
 
 	void Field::placePlatform(Robots::Platform* plt)
@@ -211,7 +212,7 @@ namespace Field
 			throw std::invalid_argument("Error. You cant go far from master robot.");
 		}
 		std::pair<int, int> destination = { coordinates.first + vector.first, coordinates.second + vector.second };
-
+		
 		checkCoordinates(destination);
 
 		if (getCellByCoordinates(destination).getType() == CellType::pointOfInterest)

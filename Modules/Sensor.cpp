@@ -52,7 +52,7 @@ namespace Robots
 		std::vector<Field::Cell> result;
 		std::pair<int, int> coordinates = mom_coordinates;
 		std::pair<int, int> tlCorner = { std::max(coordinates.first - radius, 0), std::max(coordinates.second - radius, 0) };
-		std::pair<int, int> brCorner = { std::min(coordinates.first + radius, fld->getWidth()), std::min(coordinates.second + radius, fld->getHeight())};
+		std::pair<int, int> brCorner = { std::min(coordinates.first + radius, fld->getWidth()-1), std::min(coordinates.second + radius, fld->getHeight()-1)};
 		std::pair<int, int> it = tlCorner;
 		double angle_rad = toRadians(angle);
 		bool isBrChecked = false;
@@ -66,6 +66,7 @@ namespace Robots
 			if (angle==ViewAngles::tau)
 			{
 				result.push_back(fld->getCellByCoordinates(it));
+				//std::cout << "pushable: " << it.first << " " << it.second << std::endl;
 			}
 			else
 			{

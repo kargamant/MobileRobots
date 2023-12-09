@@ -14,4 +14,9 @@ namespace Game
 			}
 		}
 	}
+
+	void Application::play()
+	{
+		ai.find(field);
+	}
 }

@@ -3,11 +3,41 @@
 #include "Platforms/KamikazeRobot.h"
 #include "Platforms/RobotCommander.h"
 #include "Modules/Gun.h"
+#include "Platforms/MobilePlatform.h"
+#include "Modules/EnergyGenerator.h"
+#include "Modules/Sensor.h"
 
 int main()
 {
-	Field::Field::GROUND_MODE_ON = false;
+	Field::Field::GROUND_MODE_ON = true;
 	Game::Application app = Game::Application(7, 7);
+
+	Robots::RobotCommander rc = Robots::RobotCommander();
+	Robots::MobilePlatform mp = Robots::MobilePlatform();
+	Robots::Sensor sens = Robots::Sensor();
+	Robots::EnergyGenerator eg = Robots::EnergyGenerator();
+
+	eg.connect(rc.getCpu());
+	rc.placeModule(eg);
+	rc.getCpu().turnOn();
+	rc.getCpu().subdue(mp);
+	rc.getCpu().setRadius(4);
+
+	sens.setRadius(4);
+	mp.placeModule(sens);
+	mp.placeModule(eg);
+	eg.connect(sens);
+	mp.getRobo()[0]->turnOn();
+
+	app.getField().placePlatform(&rc);
+	mp.setCoordinates(1, 2);
+	app.getField().placePlatform(&mp);
+	app.getField().changeCellType({1, 3}, Field::CellType::pointOfInterest);
+	app.getField().changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
+
+	app.getField().consoleOutField();
+	app.play();
+	app.getField().consoleOutField();
 	/*
 	for (int i = 0; i < 5; i++)
 	{

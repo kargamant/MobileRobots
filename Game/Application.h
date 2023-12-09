@@ -14,7 +14,7 @@ namespace Game
 	public:
 		Application(Field::Field& fld, Robots::ArtificialIntelligence& ai) : field(fld), ai(ai) { createGraph(); }
 		Application() : field(Field::Field()), ai(Robots::ArtificialIntelligence()) { createGraph(); } //in this case Field will be totally random
-		Application(int width, int height) : field(width, height), ai(Robots::ArtificialIntelligence()) { field.placeRandomPlatforms(1 + field.getWidth() / 4); createGraph(); }
+		Application(int width, int height) : field(width, height), ai(Robots::ArtificialIntelligence()) {  createGraph(); } //field.placeRandomPlatforms(1 + field.getWidth() / 4);
 		
 		Robots::ArtificialIntelligence& getAi() { return ai; }
 		Field::Field& getField() { return field; }

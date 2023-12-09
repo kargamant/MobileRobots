@@ -36,6 +36,7 @@ namespace Robots
 		static const int MINIMUM_CHUNKABLE_FIELD_SIZE=3;
 		int money;
 		int points;
+		void cleanPath(std::vector<Node*>& path);
 	public:
 		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
 
@@ -56,9 +57,9 @@ namespace Robots
 		
 		void consoleOutGraph(std::ostream& stream);
 
-		void find(Field::Field& fld);
-		std::string makeMove(Game::Chunk& chunk);
-		std::vector<Game::Chunk> divideField(Field::Field& fld);
+		void find(Field::Field& fld, std::ostream& log = std::cout);
+		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets);
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
+		
 	};
 }

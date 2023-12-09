@@ -1,11 +1,14 @@
 #include "ArtificialIntelligence.h"
 #include <format>
 #include <queue>
+#include "../Platforms/CommandCentre.h"
 #include "../utils/CheckComponent.h"
+#include "../Platforms/MobilePlatform.h"
+#include <algorithm>
 
 namespace Robots
 {
-	void Node::consoleOut(std::ostream& stream)
+	void Node::consoleOut(std::ostream& stream=std::cout)
 	{
 		stream << std::format("({}, {}) type: {} isTraversable: {}", std::to_string(cell->getX()), std::to_string(cell->getY()), Field::CellTypeToString(cell->getType()), isTraversable) << std::endl;
 	}
@@ -106,91 +109,60 @@ namespace Robots
 		return path;
 	}
 
-	std::vector<Game::Chunk> ArtificialIntelligence::divideField(Field::Field& fld)
+	void ArtificialIntelligence::cleanPath(std::vector<Node*>& path)
 	{
-		std::vector<Game::Chunk> chunks;
-		int x_left_border = 0, y_left_border=0;
-		int x_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1, y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
-
-		int lastY = 0;
-		
-		//filling up squares
-		while (x_right_border < fld.getWidth())
+		for (Node* node : path)
 		{
-			while (y_right_border < fld.getHeight())
-			{
-				chunks.push_back(Game::Chunk(x_left_border, y_left_border, x_right_border, y_right_border, fld));
-				y_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-				y_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-				lastY = y_left_border;
-			}
-			y_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
-			y_left_border = 0;
-			x_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-			x_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-		}
-		//filling up remaining chunks
-
-		if (fld.getWidth() % MINIMUM_CHUNKABLE_FIELD_SIZE != 0)
-		{
-			while (y_right_border < fld.getHeight())
-			{
-				chunks.push_back(Game::Chunk(x_left_border, y_left_border, fld.getWidth() - 1, y_right_border, fld));
-				y_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-				y_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-			}
-			if ((fld.getHeight() - 1) >= y_left_border)
-			{
-				chunks.push_back(Game::Chunk(x_left_border, y_left_border, fld.getWidth() - 1, fld.getHeight() - 1, fld));
-			}
-		}
-		
-		
-		
-
-		
-		if (fld.getHeight() % MINIMUM_CHUNKABLE_FIELD_SIZE != 0)
-		{
-			x_right_border = MINIMUM_CHUNKABLE_FIELD_SIZE - 1;
-			x_left_border = 0;
-			y_left_border = lastY;
-			while (x_right_border < fld.getWidth())
-			{
-				chunks.push_back(Game::Chunk(x_left_border, y_left_border, x_right_border, fld.getHeight() - 1, fld));
-				x_left_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-				x_right_border += MINIMUM_CHUNKABLE_FIELD_SIZE;
-			}
-		}
-		
-		
-		return chunks;
-	}
-
-	void ArtificialIntelligence::find(Field::Field& fld)
-	{
-		std::vector<Game::Chunk> chunks = divideField(fld);
-		for (Game::Chunk& ch : chunks)
-		{
-			std::string log = "";
-			while (log != "all poi collected")
-			{
-				log = makeMove(ch);
-			}
+			node->predecessor = nullptr;
+			node->neighbours = std::vector<Node*>();
+			node->isOpen = false;
+			node->isClosed = false;
 		}
 	}
 
-	std::string ArtificialIntelligence::makeMove(Game::Chunk& chunk)
+	void ArtificialIntelligence::find(Field::Field& fld, std::ostream& log)
 	{
-		//checking for platforms on chunk
-		for (int i = chunk.getXLeftBorder(); i <= chunk.getXRightBorder(); i++)
+		while (fld.total_poi != 0)
 		{
-			for (int j = chunk.getYLeftBorder(); j <= chunk.getYRightBorder(); j++)
+			for (auto it : fld.getPlatforms())
 			{
-				if (chunk.getFld().checkPlatformOnField({ i, j }) != nullptr && isComponentCastable<Robots::Platform*, Robots::Rulling*>(chunk.getFld().checkPlatformOnField({i, j})))
+				Robots::Platform* plt = it.second;
+				if (plt->getIsMaster())
 				{
-					
+					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
+					{
+						log << "sub coord: " << sub->getCoordinates().first << " " << sub->getCoordinates().second << std::endl;
+						std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+
+						log << makeMove(*sub, fld, report)<<std::endl;
+						//fld.consoleOutField(log);
+						log << std::endl;
+					}
+					log << std::endl;
 				}
 			}
 		}
+	}
+
+	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets)
+	{
+		for (Field::Cell& target : targets)
+		{
+			if (target.getType() == Field::CellType::pointOfInterest)
+			{
+				std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
+				std::reverse(pth.begin(), pth.end());
+
+				Field::Cell* closest_cell = pth[1]->cell;
+				std::pair<int, int> old_coordinates = plt.getCoordinates();
+				dynamic_cast<Robots::MobilePlatform&>(plt).move(&fld, { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
+				std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
+				
+				cleanPath(pth);
+				return log;
+			}
+		}
+
+		return "No poi was spotted.";
 	}
 }
