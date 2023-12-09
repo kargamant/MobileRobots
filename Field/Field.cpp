@@ -301,7 +301,7 @@ namespace Field
 		std::pair<int, int> tlCorner = std::pair<int, int>(std::max(0, centre.first - radius), std::max(0, centre.second - radius));
 		std::pair<int, int> brCorner = std::pair<int, int>(std::min(centre.first + radius, size.first), std::min(centre.second + radius, size.second));
 		std::pair<int, int> it = tlCorner;
-		while (it != brCorner)
+		while (true)
 		{
 			try
 			{
@@ -312,6 +312,10 @@ namespace Field
 				goto step;
 			}
 		step:
+			if (it == brCorner)
+			{
+				break;
+			}
 			if (it.second != brCorner.second) it.second++;
 			else
 			{

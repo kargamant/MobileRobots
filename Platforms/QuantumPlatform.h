@@ -11,7 +11,7 @@ namespace Robots
 		int linked;
 		std::vector<QuantumPlatform> platforms;
 	public:
-		QuantumPlatform(int linkageRadius = 1, std::string name = "c3po", double energy = 0, int slots = 1, int cost = 0, std::pair<int, int> coordinates = { 0, 0 }) : linkageRadius(linkageRadius), Platform(name, energy, slots, cost, coordinates) {}
+		QuantumPlatform(int linkageRadius = 1, std::string name = "c3po", double energy = 0, int slots = 3, int cost = 0, std::pair<int, int> coordinates = { 0, 0 }) : linkageRadius(linkageRadius), Platform(name, energy, slots, cost, coordinates) {}
 
 		int getLinkRad() { return linkageRadius; }
 		int getLinked() { return linked; }

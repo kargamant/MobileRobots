@@ -1,6 +1,7 @@
 #include "ArtificialIntelligence.h"
 #include <format>
 #include <queue>
+#include "../utils/CheckComponent.h"
 
 namespace Robots
 {
@@ -165,11 +166,31 @@ namespace Robots
 		return chunks;
 	}
 
-	/*std::string ArtificialIntelligence::makeMove(Game::Chunk& fld)
+	void ArtificialIntelligence::find(Field::Field& fld)
 	{
-		if (fld.getHeight() <= MINIMUM_CHUNKABLE_FIELD_SIZE && fld.getWidth() <= MINIMUM_CHUNKABLE_FIELD_SIZE)
+		std::vector<Game::Chunk> chunks = divideField(fld);
+		for (Game::Chunk& ch : chunks)
 		{
-			
+			std::string log = "";
+			while (log != "all poi collected")
+			{
+				log = makeMove(ch);
+			}
 		}
-	}*/
+	}
+
+	std::string ArtificialIntelligence::makeMove(Game::Chunk& chunk)
+	{
+		//checking for platforms on chunk
+		for (int i = chunk.getXLeftBorder(); i <= chunk.getXRightBorder(); i++)
+		{
+			for (int j = chunk.getYLeftBorder(); j <= chunk.getYRightBorder(); j++)
+			{
+				if (chunk.getFld().checkPlatformOnField({ i, j }) != nullptr && isComponentCastable<Robots::Platform*, Robots::Rulling*>(chunk.getFld().checkPlatformOnField({i, j})))
+				{
+					
+				}
+			}
+		}
+	}
 }

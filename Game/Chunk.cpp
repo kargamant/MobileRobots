@@ -80,4 +80,16 @@ namespace Game
 		}
 		stream << "-------------------" << std::endl;
 	}
+
+	/*std::string Chunk::logEntity(Entity ent)
+	{
+		switch (ent)
+		{
+		case Entity::cell:
+			return "cell ";
+		case Entity::robot:
+			return "robot ";
+		}
+	}
+	std::string logAction(Action act);*/
 }

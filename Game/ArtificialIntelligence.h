@@ -37,7 +37,7 @@ namespace Robots
 		int money;
 		int points;
 	public:
-		ArtificialIntelligence() :obstacles(), poi(), money(20000) {}
+		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
 
 		int getMoney() { return money; }
 		int getPoints() { return points; }
@@ -56,6 +56,7 @@ namespace Robots
 		
 		void consoleOutGraph(std::ostream& stream);
 
+		void find(Field::Field& fld);
 		std::string makeMove(Game::Chunk& chunk);
 		std::vector<Game::Chunk> divideField(Field::Field& fld);
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);

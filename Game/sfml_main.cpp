@@ -18,7 +18,6 @@
 
 void Game::Application::sandBox()
 {
-    
     Field::Field::GROUND_MODE_ON = false;
 
     Field::Field* fld = &field;
@@ -26,7 +25,7 @@ void Game::Application::sandBox()
     Game::Drawer dr;
     dr.viewField(fld);
     dr.Ai = new ViewAi(&ai, "AI.jpg", Drawer::BOTTOM_RIGHT_CORNER, "", Drawer::BOTTOM_RIGHT_CORNER_TEXT);
-    sf::RenderWindow window(sf::VideoMode(Game::Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Game::Drawer::LOG_INDENTATION, Game::Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
+    sf::RenderWindow window(sf::VideoMode(Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Drawer::LOG_INDENTATION, Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
     std::pair<bool, std::string> isPicking = { false, "" };
     bool moduleConnection = false;
     View win = View(Drawer::ENDING_TEXTURE, { 0, 0 }, "", { 0, 0 }, sf::Vector2f(1, 1));
