@@ -37,6 +37,7 @@ namespace Robots
 		int money;
 		int points;
 		void cleanPath(std::vector<Node*>& path);
+		void cleanNode(Node* node);
 	public:
 		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
 
@@ -58,7 +59,7 @@ namespace Robots
 		void consoleOutGraph(std::ostream& stream);
 
 		void find(Field::Field& fld, std::ostream& log = std::cout);
-		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets);
+		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target = {-1, -1});
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 		
 	};

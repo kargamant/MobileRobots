@@ -21,7 +21,7 @@ int main()
 	rc.placeModule(eg);
 	rc.getCpu().turnOn();
 	rc.getCpu().subdue(mp);
-	rc.getCpu().setRadius(4);
+	rc.getCpu().setRadius(2);
 
 	sens.setRadius(4);
 	mp.placeModule(sens);
@@ -34,7 +34,7 @@ int main()
 	app.getField().placePlatform(&mp);
 	app.getField().changeCellType({1, 3}, Field::CellType::pointOfInterest);
 	app.getField().changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
-
+	
 	app.getField().consoleOutField();
 	app.play();
 	app.getField().consoleOutField();
