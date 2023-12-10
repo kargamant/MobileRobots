@@ -34,6 +34,9 @@ int main()
 	app.getField().placePlatform(&mp);
 	app.getField().changeCellType({1, 3}, Field::CellType::pointOfInterest);
 	app.getField().changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
+	app.getField().changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
+	//app.getField().changeCellType({ 4, 5 }, Field::CellType::obstacle);
+	//app.getField().changeCellType({ 5, 4 }, Field::CellType::obstacle);
 	
 	app.getField().consoleOutField();
 	app.play();

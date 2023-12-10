@@ -185,16 +185,16 @@ namespace Field
 	void Field::erasePlatform(Robots::Platform* plt)
 	{
 		checkCoordinates(plt->getCoordinates());
-		for (auto it = platforms.begin(); it != platforms.end();)
+		platforms.erase(plt->getCoordinates());
+		/*for (auto it : platforms)
 		{
 			
-			if (it->second == plt)
+			if (it.second == plt)
 			{
-				platforms.erase(it);
+				platforms.erase(it.first);
 				break;
 			}
-			++it;
-		}
+		}*/
 	}
 
 	void Field::movePlatform(std::pair<int, int> coordinates, std::pair<int, int> vector)

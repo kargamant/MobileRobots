@@ -61,11 +61,27 @@ namespace Robots
 				}
 
 				//cleaning nodes not in the path
-				for (int i = 0; i < openList.size(); i++)
+				while(!openList.empty())
 				{
 					Node* unused = openList.top();
 					openList.pop();
 					cleanNode(unused);
+				}
+
+				while(!closedList.empty())
+				{
+					Node* mbused = closedList.top();
+					closedList.pop();
+					bool inPath = false;
+					for (Node* nd : path)
+					{
+						if (nd == mbused)
+						{
+							inPath = true;
+							break;
+						}
+					}
+					if (!inPath) cleanNode(mbused);
 				}
 				return path;
 			}
@@ -125,10 +141,17 @@ namespace Robots
 		}
 
 		//cleaning nodes not in the path
-		for (int i = 0; i < openList.size(); i++)
+		while(!openList.empty())
 		{
 			Node* unused = openList.top();
 			openList.pop();
+			cleanNode(unused);
+		}
+
+		while(!closedList.empty())
+		{
+			Node* unused = closedList.top();
+			closedList.pop();
 			cleanNode(unused);
 		}
 		return path;
@@ -157,8 +180,10 @@ namespace Robots
 	{
 		while (fld.total_poi != 0)
 		{
-			for (auto it : fld.getPlatforms())
+			int size = fld.getPlatforms().size();
+			for(auto& it: fld.getPlatforms())
 			{
+				if (size == 0) break;
 				Robots::Platform* plt = it.second;
 				//std::cout << plt->getIsMaster() << std::endl;
 				if (plt->getIsMaster())
@@ -187,6 +212,7 @@ namespace Robots
 					}
 					log << std::endl;
 				}
+				size--;
 			}
 		}
 	}
@@ -215,11 +241,11 @@ namespace Robots
 					std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
 					std::reverse(pth.begin(), pth.end());
 
-					for (Node* node : pth)
+					/*for (Node* node : pth)
 					{
 						node->consoleOut();
 					}
-					std::cout << std::endl;
+					std::cout << std::endl;*/
 
 					Field::Cell* closest_cell = pth[1]->cell;
 					std::pair<int, int> old_coordinates = plt.getCoordinates();
