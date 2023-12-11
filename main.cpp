@@ -10,7 +10,8 @@
 
 int main()
 {
-	Field::Field::GROUND_MODE_ON = true;
+	Field::Field::GROUND_MODE_ON = false;
+	Field::Field::OBSTACLE_PERCENTAGE = 30;
 	Game::Application app = Game::Application(7, 7);
 
 	Robots::RobotCommander rc = Robots::RobotCommander();
@@ -33,7 +34,7 @@ int main()
 	rc.getCpu().subdue(rd);
 	rc.getCpu().setRadius(2);
 
-	sens.setRadius(4);
+	//sens.setRadius(4);
 	mp.placeModule(sens);
 	mp.placeModule(eg);
 	eg.connect(sens);
@@ -44,14 +45,15 @@ int main()
 	app.getField().placePlatform(&mp);
 	rd.setCoordinates(5, 3);
 	app.getField().placePlatform(&rd);
-	app.changeCellType({1, 3}, Field::CellType::pointOfInterest);
+	/*app.changeCellType({1, 3}, Field::CellType::pointOfInterest);
 	app.changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
 	app.changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
 	app.changeCellType({ 4, 5 }, Field::CellType::obstacle);
 	app.changeCellType({ 5, 4 }, Field::CellType::obstacle);
 	app.changeCellType({ 5, 6 }, Field::CellType::obstacle);
-	app.changeCellType({ 6, 5 }, Field::CellType::obstacle);
+	app.changeCellType({ 6, 5 }, Field::CellType::obstacle);*/
 
+	//std::cout << "rad: " << sens.getRad() << std::endl;
 	app.getField().consoleOutField();
 	/*std::cout << "iterating through platform map:" << std::endl;
 	for (auto it : app.getField().getPlatforms())

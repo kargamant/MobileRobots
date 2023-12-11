@@ -50,6 +50,7 @@ namespace Field
 		int total_poi=0;
 		static int MAX_RANDOM_SIZE;
 		static bool GROUND_MODE_ON;
+		static int OBSTACLE_PERCENTAGE;
 
 		Field(); //absolutely random field
 		Field(int width, int height); //random field with fixed size

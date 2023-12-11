@@ -274,7 +274,7 @@ namespace Robots
 		std::vector<Field::Cell> traversable;
 		for (Field::Cell& target : targets)
 		{
-			if (target.getType() != Field::CellType::obstacle) traversable.push_back(target);
+			if (target.getType() != Field::CellType::obstacle && fld.checkPlatformOnField(target.getCoordinates())==nullptr) traversable.push_back(target);
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
 				std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
@@ -344,9 +344,36 @@ namespace Robots
 				return log;
 			}
 		}
-		int rand_direction = std::rand() % traversable.size();
-		dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
-		std::string out = std::format("{} moved randomly to ({}, {})", plt.getName(), std::to_string(traversable[rand_direction].getX()), std::to_string(traversable[rand_direction].getY()));
-		return out;
+		
+		if (!plt.getIsMaster())
+		{
+			std::srand(time(NULL));
+			if (traversable.size() == 0)
+			{
+				std::cout << "GG" << std::endl;
+				std::cout << plt.getName() << " ruined the game" << std::endl;
+				//throw std::invalid_argument("No way to go");
+				return "No way to go.";
+			}
+			int rand_direction = std::rand() % traversable.size();
+			dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
+			std::string out = std::format("{} moved randomly to ({}, {})", plt.getName(), std::to_string(traversable[rand_direction].getX()), std::to_string(traversable[rand_direction].getY()));
+			return out;
+		}
+		return "";
+		/*bool isSuccesful = false;
+		while (!isSuccesful)
+		{
+			try
+			{
+				dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
+			}
+			catch (std::invalid_argument)
+			{
+				rand_direction= std::rand() % traversable.size();
+				continue;
+			}
+			isSuccesful = true;
+		}*/
 	}
 }

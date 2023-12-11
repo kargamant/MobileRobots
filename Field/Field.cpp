@@ -15,8 +15,13 @@ namespace Field
 {
 	int Field::MAX_RANDOM_SIZE = 3;
 	bool Field::GROUND_MODE_ON = false;
+	int Field::OBSTACLE_PERCENTAGE = 20;
 	std::vector<std::vector<Cell>> Field::createRandomMap(int width, int height)
 	{
+
+		int max_obstacles = (double)((size.first * size.second) * ((double)OBSTACLE_PERCENTAGE / (double)100));
+		//std::cout << "max obstacles: " << max_obstacles << std::endl;
+		//exit(0);
 		//maybe do it more smart
 		std::srand(time(NULL));
 		std::vector<std::vector<Cell>> map;
@@ -32,6 +37,8 @@ namespace Field
 				else
 				{
 					CellType randType = CellType{ static_cast<CellType>(std::rand() % static_cast<int>(CellType::count)) };
+					if (randType == CellType::obstacle && max_obstacles == 0) randType = CellType::ground;
+					else if (randType == CellType::obstacle) max_obstacles--;
 					map[i].push_back(Cell(i, j, randType));
 					if (randType == CellType::pointOfInterest) total_poi++;
 				}
