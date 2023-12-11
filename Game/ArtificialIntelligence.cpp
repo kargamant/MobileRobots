@@ -192,6 +192,16 @@ namespace Robots
 				Robots::Platform* plt = it.second;
 				if (plt->getIsMaster())
 				{
+					dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
+					//int min_distance = std::numeric_limits<int>::max();
+					/*for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
+					{
+						if (Field::distance(plt->getCoordinates(), sub->getCoordinates()) < min_distance)
+						{
+							min_distance = Field::distance(plt->getCoordinates(), sub->getCoordinates());
+							dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+						}
+					}*/
 					//Robots::Priority last_sub_priority = Robots::Priority::low;
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{
@@ -202,11 +212,45 @@ namespace Robots
 						}
 						catch (std::invalid_argument)
 						{
-							isReachable = false;
-							std::vector<Field::Cell> pseudo_report;
-							pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-							log << makeMove(*plt, fld, pseudo_report, sub->getCoordinates()) << std::endl;
-							dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+							if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
+							{
+								Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
+								if (last_sub->getRoboPriority() > sub->getRoboPriority())
+								{
+									continue;
+								}
+								else if (last_sub->getRoboPriority() == sub->getRoboPriority())
+								{
+									if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
+									{
+										continue;
+									}
+									else
+									{
+										isReachable = false;
+										std::vector<Field::Cell> pseudo_report;
+										pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+										log << makeMove(*plt, fld, pseudo_report, sub->getCoordinates()) << std::endl;
+										dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+									}
+								}
+								else
+								{
+									isReachable = false;
+									std::vector<Field::Cell> pseudo_report;
+									pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+									log << makeMove(*plt, fld, pseudo_report, sub->getCoordinates()) << std::endl;
+									dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+								}
+							}
+							else
+							{
+								isReachable = false;
+								std::vector<Field::Cell> pseudo_report;
+								pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+								log << makeMove(*plt, fld, pseudo_report, sub->getCoordinates()) << std::endl;
+								dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+							}
 						}
 						if (isReachable)
 						{
@@ -216,6 +260,7 @@ namespace Robots
 						}
 						fld.consoleOutField(log);
 						log << std::endl;
+						//if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub()==nullptr) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
 					}
 					log << std::endl;
 				}
