@@ -159,4 +159,18 @@ namespace Robots
 	{
 		if (ind > slots || ind < 0) throw std::invalid_argument("Error. Index is incorrect.");
 	}
+
+	std::string priorityToString(Priority pr)
+	{
+		switch (pr)
+		{
+		case Priority::high:
+			return "high";
+		case Priority::medium:
+			return "medium";
+		case Priority::low:
+			return "low";
+		}
+		return "";
+	}
 }

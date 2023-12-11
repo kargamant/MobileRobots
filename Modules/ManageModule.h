@@ -10,6 +10,7 @@ namespace Robots
 	{
 	private:
 		Platform* motherboard;
+		Platform* last_sub = nullptr;
 		int radius;
 		int subord;
 		std::vector<Platform*> subordinates;
@@ -25,6 +26,8 @@ namespace Robots
 		int getRad() { return radius; }
 		ManageModule& setRadius(int nrad) { radius = nrad; return *this; }
 		Platform* getMom() { return motherboard; }
+		Platform* getLastSub() { return last_sub; }
+		ManageModule& setLastSub(Platform* nsub) { last_sub = nsub; return *this; }
 
 		void subdue(Platform& plt);
 		void release(int ind);

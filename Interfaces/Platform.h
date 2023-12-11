@@ -8,9 +8,12 @@
 namespace Robots
 {
 	std::string randomRoboName(std::fstream& file);
+	std::string priorityToString(Priority pr);
+	
 	class Platform
 	{
 	protected:
+		Priority roboPriority;
 		static std::string NICKNAME_FILENAME;
 		std::string name;
 		Platform* master = nullptr;
@@ -37,6 +40,7 @@ namespace Robots
 		Module* operator[](int ind) { return getRobo()[ind]; }
 		Platform* getMaster() { return master; }
 		bool getIsMaster() { return isMaster; }
+		Priority getRoboPriority() { return roboPriority; }
 
 		Platform& setName(std::string nname) { name = nname; return *this; }
 		Platform& setEnergyLevel(double nenergy) { energyLevel = nenergy; return *this; }

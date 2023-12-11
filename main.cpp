@@ -6,6 +6,7 @@
 #include "Platforms/MobilePlatform.h"
 #include "Modules/EnergyGenerator.h"
 #include "Modules/Sensor.h"
+#include "Platforms/RobotDestroyer.h"
 
 int main()
 {
@@ -14,13 +15,22 @@ int main()
 
 	Robots::RobotCommander rc = Robots::RobotCommander();
 	Robots::MobilePlatform mp = Robots::MobilePlatform();
+	Robots::RobotDestroyer rd = Robots::RobotDestroyer();
 	Robots::Sensor sens = Robots::Sensor();
 	Robots::EnergyGenerator eg = Robots::EnergyGenerator();
+
+	rd.setName("aboba");
+
+	eg.connect(rd.getGun());
+	rd.placeModule(sens);
+	rd.placeModule(eg);
+	rd.getGun().turnOn();
 
 	eg.connect(rc.getCpu());
 	rc.placeModule(eg);
 	rc.getCpu().turnOn();
 	rc.getCpu().subdue(mp);
+	rc.getCpu().subdue(rd);
 	rc.getCpu().setRadius(2);
 
 	sens.setRadius(4);
@@ -32,13 +42,23 @@ int main()
 	app.getField().placePlatform(&rc);
 	mp.setCoordinates(1, 2);
 	app.getField().placePlatform(&mp);
-	app.getField().changeCellType({1, 3}, Field::CellType::pointOfInterest);
-	app.getField().changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
-	app.getField().changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
-	//app.getField().changeCellType({ 4, 5 }, Field::CellType::obstacle);
-	//app.getField().changeCellType({ 5, 4 }, Field::CellType::obstacle);
-	
+	rd.setCoordinates(5, 3);
+	app.getField().placePlatform(&rd);
+	app.changeCellType({1, 3}, Field::CellType::pointOfInterest);
+	app.changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
+	app.changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
+	app.changeCellType({ 4, 5 }, Field::CellType::obstacle);
+	app.changeCellType({ 5, 4 }, Field::CellType::obstacle);
+	app.changeCellType({ 5, 6 }, Field::CellType::obstacle);
+	app.changeCellType({ 6, 5 }, Field::CellType::obstacle);
+
 	app.getField().consoleOutField();
+	/*std::cout << "iterating through platform map:" << std::endl;
+	for (auto it : app.getField().getPlatforms())
+	{
+		std::cout << "(" << it.first.first <<", " <<it.first.second<<") " << " | " << it.second->getName() << std::endl;
+	}*/
+
 	app.play();
 	app.getField().consoleOutField();
 	/*

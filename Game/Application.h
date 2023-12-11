@@ -19,6 +19,14 @@ namespace Game
 		Robots::ArtificialIntelligence& getAi() { return ai; }
 		Field::Field& getField() { return field; }
 		void createGraph();
+		void changeCellType(std::pair<int, int> coordinates, Field::CellType ntype)
+		{
+			field.changeCellType(coordinates, ntype);
+			if (ntype == Field::CellType::obstacle)
+			{
+				ai.getGraph()[coordinates].isTraversable = false;
+			}
+		}
 
 		void loadFieldFromFile(std::string filename, std::fstream& stream);
 

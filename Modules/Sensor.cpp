@@ -60,7 +60,12 @@ namespace Robots
 		{
 			if (it == coordinates)
 			{
-				it.second++;
+				if (it.second == brCorner.second)
+				{
+					it.second = tlCorner.second;
+					it.first++;
+				}
+				else it.second++;
 				continue;
 			}
 			if (angle==ViewAngles::tau)

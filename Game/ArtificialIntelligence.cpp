@@ -6,6 +6,8 @@
 #include "../Platforms/MobilePlatform.h"
 #include <algorithm>
 #include "../Platforms/RobotCommander.h"
+#include "../Interfaces/Destroying.h"
+#include "../Platforms/RobotDestroyer.h"
 
 namespace Robots
 {
@@ -181,13 +183,16 @@ namespace Robots
 		while (fld.total_poi != 0)
 		{
 			int size = fld.getPlatforms().size();
-			for(auto& it: fld.getPlatforms())
+			auto map = fld.getPlatforms();
+			for(auto& it : map)
 			{
+				//if (it == fld.getPlatforms().end()) std::cout << "END" << std::endl;
 				if (size == 0) break;
+				size--;
 				Robots::Platform* plt = it.second;
-				//std::cout << plt->getIsMaster() << std::endl;
 				if (plt->getIsMaster())
 				{
+					//Robots::Priority last_sub_priority = Robots::Priority::low;
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{
 						bool isReachable = true;
@@ -201,31 +206,38 @@ namespace Robots
 							std::vector<Field::Cell> pseudo_report;
 							pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
 							log << makeMove(*plt, fld, pseudo_report, sub->getCoordinates()) << std::endl;
+							dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
 						}
 						if (isReachable)
 						{
 							std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
-							log << makeMove(*sub, fld, report) << std::endl;
+							std::string out = makeMove(*sub, fld, report);
+							log << out << std::endl;
 						}
 						fld.consoleOutField(log);
 						log << std::endl;
 					}
 					log << std::endl;
 				}
-				size--;
+				
 			}
 		}
 	}
 
 	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target)
 	{
+		std::vector<Field::Cell> traversable;
 		for (Field::Cell& target : targets)
 		{
+			if (target.getType() != Field::CellType::obstacle) traversable.push_back(target);
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
 				std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
 				std::reverse(pth.begin(), pth.end());
-
+				if (pth.size() == 0)
+				{
+					continue;
+				}
 				Field::Cell* closest_cell = pth[1]->cell;
 				std::pair<int, int> old_coordinates = plt.getCoordinates();
 				dynamic_cast<Robots::MobilePlatform&>(plt).move(&fld, { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
@@ -246,7 +258,12 @@ namespace Robots
 						node->consoleOut();
 					}
 					std::cout << std::endl;*/
-
+					if (pth.size() == 0)
+					{
+						continue;
+						//std::string log = std::format("{} doesnt have path to poi.", plt.getName());
+						//return log;
+					}
 					Field::Cell* closest_cell = pth[1]->cell;
 					std::pair<int, int> old_coordinates = plt.getCoordinates();
 					fld.movePlatform(plt.getCoordinates(), {closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second});
@@ -254,31 +271,37 @@ namespace Robots
 
 					cleanPath(pth);
 					return log;
-					/*
-					Super simple version
-					int radius = dynamic_cast<Robots::CommandCentre&>(plt).getCpu().getRad();
-					std::pair<int, int> old_coordinates = plt.getCoordinates();
-					std::pair<int, int> vector = { 0, 0 };
-					if ((std::abs(plt.getCoordinates().first - specific_target.first) - radius) == 1)
-					{
-						if (plt.getCoordinates().first < specific_target.first) vector={ 1, 0 };
-						else vector={ -1, 0 };
-					}
-					if ((std::abs(plt.getCoordinates().second - specific_target.second) - radius) == 1)
-					{
-						if (plt.getCoordinates().second < specific_target.second) vector={ 0, 1 };
-						else vector={ 0, -1 };
-					}
-					
-					fld.movePlatform(plt.getCoordinates(), vector);
-					Field::Cell* closest_cell = &fld.getCellByCoordinates(plt.getCoordinates());
-					std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
-					
-					return log;*/
 				}
 			}
-		}
+			else if (isComponentCastable<Robots::Platform&, Robots::Destroying&>(plt) && target.getType() == Field::CellType::obstacle)
+			{
+				bool isReachable = true;
+				try
+				{
+					dynamic_cast<Robots::RobotDestroyer&>(plt).getGun().destroy(&fld, target.getCoordinates());
+				}
+				catch (std::invalid_argument)
+				{
+					isReachable = false;
+					std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
+					std::reverse(pth.begin(), pth.end());
 
-		return "No poi was spotted.";
+					if (pth.size() == 0) continue;
+
+					Field::Cell* closest_cell = pth[1]->cell;
+					std::pair<int, int> old_coordinates = plt.getCoordinates();
+					dynamic_cast<Robots::MobilePlatform&>(plt).move(&fld, { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
+					cleanPath(pth);
+					std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
+					return log;
+				}
+				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
+				return log;
+			}
+		}
+		int rand_direction = std::rand() % traversable.size();
+		dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
+		std::string out = std::format("{} moved randomly to ({}, {})", plt.getName(), std::to_string(traversable[rand_direction].getX()), std::to_string(traversable[rand_direction].getY()));
+		return out;
 	}
 }
