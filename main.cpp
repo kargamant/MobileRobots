@@ -11,7 +11,7 @@
 int main()
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Field::Field::OBSTACLE_PERCENTAGE = 30;
+	Field::Field::OBSTACLE_PERCENTAGE = 20;
 	Game::Application app = Game::Application(7, 7);
 
 	Robots::RobotCommander rc = Robots::RobotCommander();
@@ -48,10 +48,10 @@ int main()
 	/*app.changeCellType({1, 3}, Field::CellType::pointOfInterest);
 	app.changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
 	app.changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 4, 5 }, Field::CellType::obstacle);
-	app.changeCellType({ 5, 4 }, Field::CellType::obstacle);
-	app.changeCellType({ 5, 6 }, Field::CellType::obstacle);
-	app.changeCellType({ 6, 5 }, Field::CellType::obstacle);*/
+	app.changeCellType({ 4, 5 }, Field::CellType::pointOfInterest);
+	app.changeCellType({ 5, 4 }, Field::CellType::pointOfInterest);
+	app.changeCellType({ 5, 6 }, Field::CellType::pointOfInterest);
+	app.changeCellType({ 6, 5 }, Field::CellType::pointOfInterest);*/
 
 	//std::cout << "rad: " << sens.getRad() << std::endl;
 	app.getField().consoleOutField();

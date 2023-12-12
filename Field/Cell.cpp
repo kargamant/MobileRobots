@@ -13,6 +13,8 @@ namespace Field
 			return 'o';
 		case CellType::pointOfInterest:
 			return 'i';
+		case CellType::unknown:
+			return 'u';
 		default:
 			return '\0';
 		}
@@ -43,6 +45,8 @@ namespace Field
 			return "obstacle";
 		case CellType::pointOfInterest:
 			return "point of interest";
+		case CellType::unknown:
+			return "unknown";
 		default:
 			return "";
 		}

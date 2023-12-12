@@ -10,7 +10,8 @@ namespace Field
 		ground,
 		obstacle,
 		pointOfInterest,
-		count //just to track count of types if new ones will be added
+		count, //just to track count of types if new ones will be added
+		unknown
 	};
 
 	char CellTypeToChar(CellType type);
