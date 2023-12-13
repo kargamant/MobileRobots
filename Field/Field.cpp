@@ -10,6 +10,7 @@
 #include "../Platforms/MobilePlatform.h"
 #include "../Platforms/QuantumPlatform.h"
 #include "../Platforms/RobotDestroyer.h"
+#include "../Modules/EnergyGenerator.h"
 
 namespace Field
 {
@@ -50,17 +51,23 @@ namespace Field
 	void Field::placeRandomPlatforms(int n)
 	{
 		std::srand(time(NULL));
+		bool commander_placed = false;
 		for (int i = 0; i < n; i++)
 		{
 			RobotsTypes type{std::rand()%static_cast<int>(RobotsTypes::count)};
+			if (type == RobotsTypes::KamikazeRobot || type == RobotsTypes::QuantumPlatform) type = RobotsTypes::RobotDestroyer;
+			else if ((type == RobotsTypes::RobotCommander || type == RobotsTypes::CommandCentre) && commander_placed) type = RobotsTypes::RobotDestroyer;
 			Robots::Platform* plt;
 			switch (type)
 			{
 			case RobotsTypes::CommandCentre:
-				plt = new Robots::CommandCentre(std::rand()%size.first, std::rand()%size.first);
+				plt = new Robots::CommandCentre();
+				dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setRadius(std::max(size.first, size.second));
+				commander_placed = true;
 				break;
 			case RobotsTypes::RobotCommander:
-				plt = new Robots::RobotCommander(1, std::rand() % size.first, std::rand() % size.first);
+				plt = new Robots::RobotCommander(1);
+				commander_placed = true;
 				break;
 			case RobotsTypes::KamikazeRobot:
 				plt = new Robots::KamikazeRobot(std::rand() % size.first);
@@ -72,8 +79,31 @@ namespace Field
 				plt = new Robots::QuantumPlatform();
 				break;
 			case RobotsTypes::RobotDestroyer:
-				plt = new Robots::RobotDestroyer();
+				plt = new Robots::RobotDestroyer(2);
 				break;
+			}
+			std::cout << plt->getName() << " " << (int)type << std::endl;
+			Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();
+			plt->placeModule(*eg);
+			if (type != RobotsTypes::MobilePlatform)
+			{
+				dynamic_cast<Robots::EnergyGenerator*>(plt->getRobo()[1])->connect(*plt->getRobo()[0]);
+				plt->getRobo()[0]->turnOn();
+			}
+			if(!plt->getIsMaster())
+			{
+				Robots::Sensor* sens = new Robots::Sensor();
+				plt->placeModule(*sens);
+				if (type != RobotsTypes::MobilePlatform)
+				{
+					dynamic_cast<Robots::EnergyGenerator*>(plt->getRobo()[1])->connect(*plt->getRobo()[2]);
+					plt->getRobo()[2]->turnOn();
+				}
+				else
+				{
+					dynamic_cast<Robots::EnergyGenerator*>(plt->getRobo()[0])->connect(*plt->getRobo()[1]);
+					plt->getRobo()[1]->turnOn();
+				}
 			}
 			bool correctlyPlaced = false;
 			while (!correctlyPlaced)
@@ -90,6 +120,31 @@ namespace Field
 			}
 			plt->isDynamic = true;
 			placePlatform(plt);
+		}
+		if (!commander_placed)
+		{
+			Robots::Platform* pt = new Robots::RobotCommander(1, std::rand() % size.first, std::rand() % size.first);
+			Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();
+			pt->placeModule(*eg);
+			dynamic_cast<Robots::EnergyGenerator*>(pt->getRobo()[1])->connect(*pt->getRobo()[0]);
+			pt->getRobo()[0]->turnOn();
+
+			commander_placed = true;
+			bool correctlyPlaced = false;
+			while (!correctlyPlaced)
+			{
+				try
+				{
+					pt->setCoordinates(std::rand() % size.first, std::rand() % size.second);
+				}
+				catch (std::invalid_argument)
+				{
+					continue;
+				}
+				correctlyPlaced = true;
+			}
+			pt->isDynamic = true;
+			placePlatform(pt);
 		}
 	}
 

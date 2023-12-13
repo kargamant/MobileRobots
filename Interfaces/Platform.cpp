@@ -5,6 +5,7 @@
 #include "../utils/CheckComponent.h"
 #include "../Modules/EnergyGenerator.h"
 #include "../Modules/ManageModule.h"
+#include "../Game/ViewModule.h"
 
 namespace Robots
 {
@@ -172,5 +173,15 @@ namespace Robots
 			return "low";
 		}
 		return "";
+	}
+
+	void Platform::consoleOut(std::ostream& stream)
+	{
+		std::string out = std::format("{} | ({}, {}) | Modules: ", name, std::to_string(coordinates.first), std::to_string(coordinates.second));
+		for (Module* mod : robo)
+		{
+			out += moduleToString(*mod) + ", ";
+		}
+		stream << out << std::endl;
 	}
 }

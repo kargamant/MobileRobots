@@ -1,6 +1,10 @@
 #include "Module.h"
 #include "../Interfaces/Platform.h"
 #include "EnergyGenerator.h"
+#include "../utils/CheckComponent.h"
+#include "Sensor.h"
+#include "Gun.h"
+#include "ManageModule.h"
 
 namespace Robots
 {
@@ -30,4 +34,25 @@ namespace Robots
 		}
 		return *this;
 	}
+
+	std::string moduleToString(Module& mod)
+	{
+		if (isComponentCastable<Robots::Module&, Robots::EnergyGenerator&>(mod))
+		{
+			return "energy generator";
+		}
+		else if (isComponentCastable<Robots::Module&, Robots::Sensor&>(mod))
+		{
+			return "sensor";
+		}
+		else if (isComponentCastable<Robots::Module&, Robots::ManageModule&>(mod))
+		{
+			return "manage module";
+		}
+		else if (isComponentCastable<Robots::Module&, Robots::Gun&>(mod))
+		{
+			return "gun";
+		}
+	}
+	
 }

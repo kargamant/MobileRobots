@@ -7,6 +7,7 @@
 #include "Modules/EnergyGenerator.h"
 #include "Modules/Sensor.h"
 #include "Platforms/RobotDestroyer.h"
+#include "utils/CheckComponent.h"
 
 int main()
 {
@@ -14,10 +15,7 @@ int main()
 	Field::Field::OBSTACLE_PERCENTAGE = 50;
 	Game::Application app = Game::Application(7, 7);
 
-
-	app.connectGraph();
-
-	Robots::RobotCommander rc = Robots::RobotCommander();
+	/*Robots::RobotCommander rc = Robots::RobotCommander();
 	Robots::MobilePlatform mp = Robots::MobilePlatform();
 	Robots::RobotDestroyer rd = Robots::RobotDestroyer();
 	Robots::Sensor sens = Robots::Sensor();
@@ -33,8 +31,8 @@ int main()
 	eg.connect(rc.getCpu());
 	rc.placeModule(eg);
 	rc.getCpu().turnOn();
-	rc.getCpu().subdue(mp);
-	rc.getCpu().subdue(rd);
+	//rc.getCpu().subdue(mp);
+	//rc.getCpu().subdue(rd);
 	rc.getCpu().setRadius(2);
 
 	//sens.setRadius(4);
@@ -47,12 +45,10 @@ int main()
 	mp.setCoordinates(1, 2);
 	app.getField().placePlatform(&mp);
 	rd.setCoordinates(5, 3);
-	app.getField().placePlatform(&rd);
+	app.getField().placePlatform(&rd);*/
 	
-	app.updateGraphTraversity();
+	//app.updateGraphTraversity();
 	app.getField().consoleOutField();
-	
-	
 	app.play();
 	app.getField().consoleOutField();
 	

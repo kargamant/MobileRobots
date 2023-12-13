@@ -12,6 +12,7 @@ namespace Robots
 	};
 
 	std::string priorityToString(Priority pr);
+	
 
 	class Module
 	{
@@ -38,4 +39,5 @@ namespace Robots
 		virtual Module& turnOn(); //{ state = true; return *this; }
 		virtual Module& turnOff();// { state = false; return *this; }
 	};
+	std::string moduleToString(Module& mod);
 }

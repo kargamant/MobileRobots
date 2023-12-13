@@ -49,7 +49,7 @@ namespace Robots
 		Platform& setCoordinates(int x, int y) { coordinates.first = x; coordinates.second = y; return *this; }
 		Platform& setMaster(Platform* nmaster) { master = nmaster; return *this; }
 		
-
+		void consoleOut(std::ostream& stream = std::cout);
 
 		virtual void deleteModule(int ind);
 		virtual void deleteModule(Module* mod);

@@ -209,10 +209,15 @@ namespace Robots
 				Robots::Platform* plt = it.second;
 				if (plt->getIsMaster())
 				{
-					dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
+					
+				
+					if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{
 						log << "sub name: " << sub->getName() << std::endl;
+						log << "field out: " << std::endl;
+						fld.consoleOutField();
+						//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
 						bool isReachable = true;
 						try
 						{
@@ -225,12 +230,16 @@ namespace Robots
 								Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
 								if (last_sub->getRoboPriority() > sub->getRoboPriority())
 								{
+									std::cout << "db1" << std::endl;
 									continue;
 								}
 								else if (last_sub->getRoboPriority() == sub->getRoboPriority())
 								{
 									if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
 									{
+										std::cout << "db2" << std::endl;
+										std::string out = masterSwitchTarget(plt, last_sub, fld);
+										log << out << std::endl;
 										continue;
 									}
 									else
@@ -277,7 +286,31 @@ namespace Robots
 							break;
 						}
 					}
-					log << std::endl;
+					log << "." << std::endl;
+					//fld.consoleOutField();
+					log << dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub() << std::endl;
+					if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()< dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub())
+					{
+						int min_dist = std::numeric_limits<int>::max();
+						Robots::Platform* potentialSubord;
+						for (auto itr : map)
+						{
+							Robots::Platform* robo = itr.second;
+							if (robo != plt)
+							{
+								if ((Field::distance(plt->getCoordinates(), robo->getCoordinates()) < min_dist))
+								{
+									min_dist = Field::distance(plt->getCoordinates(), robo->getCoordinates());
+									potentialSubord = robo;
+								}
+							}
+						}
+						if (potentialSubord->getMaster() == nullptr)
+						{
+							masterSwitchTarget(plt, potentialSubord, fld);
+						}
+					}
+				
 				}
 				
 			}
@@ -390,11 +423,37 @@ namespace Robots
 
 	std::string ArtificialIntelligence::masterSwitchTarget(Robots::Platform* plt, Robots::Platform* sub, Field::Field& fld)
 	{
-		std::vector<Field::Cell> pseudo_report;
-		pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-		std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
-		dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
-		return out;
+		if (Field::inArea(plt->getCoordinates(), sub->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getRad()) && sub->getMaster()==nullptr)
+		{
+			if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub())
+			{
+				dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().subdue(*sub);
+				dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+				return std::format("{} succesfully subdued {}", plt->getName(), sub->getName());
+			}
+			else
+			{
+				for (Robots::Platform* subord : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
+				{
+					if (subord->getRoboPriority() < sub->getRoboPriority())
+					{
+						dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().release(subord);
+						dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().subdue(*sub);
+						dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+						return std::format("{} succesfully released {}.\n {} succesfully subdued {}.", plt->getName(), subord->getName(), plt->getName(), sub->getName());
+					}
+				}
+			}
+			return "cant subdue";
+		}
+		else
+		{
+			std::vector<Field::Cell> pseudo_report;
+			pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+			std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
+			dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+			return out;
+		}
 	}
 
 	std::string ArtificialIntelligence::goToTarget(Robots::Platform& plt, Field::Cell& target, Field::Field& fld)
@@ -423,6 +482,7 @@ namespace Robots
 			}
 			break;
 		}
+		//if (i == pth.size()) return "No path";
 		std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
 
 		cleanPath(pth);
