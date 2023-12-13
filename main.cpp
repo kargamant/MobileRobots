@@ -11,7 +11,7 @@
 int main()
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Field::Field::OBSTACLE_PERCENTAGE = 20;
+	Field::Field::OBSTACLE_PERCENTAGE = 0;
 	Game::Application app = Game::Application(7, 7);
 
 	Robots::RobotCommander rc = Robots::RobotCommander();

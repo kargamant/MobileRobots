@@ -174,12 +174,13 @@ namespace Field
 
 	void Field::placePlatform(Robots::Platform* plt)
 	{
-		changeCellType(plt->getCoordinates(), CellType::ground);
+		
 		if (getCellByCoordinates(plt->getCoordinates()).getType() == CellType::pointOfInterest) total_poi--;
 		if (checkPlatformOnField(plt->getCoordinates()) != nullptr)
 		{
 			throw std::invalid_argument("Error. There is platform on this cell.");
 		}
+		changeCellType(plt->getCoordinates(), CellType::ground);
 		platforms.insert({plt->getCoordinates(), plt});
 	}
 

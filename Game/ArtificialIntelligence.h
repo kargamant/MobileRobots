@@ -61,6 +61,7 @@ namespace Robots
 		void find(Field::Field& fld, std::ostream& log = std::cout);
 		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target = {-1, -1});
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
-		
+		std::string masterSwitchTarget(Robots::Platform* plt, Robots::Platform* sub, Field::Field& fld);
+		std::string goToTarget(Robots::Platform& plt, Field::Cell& target, Field::Field& fld);
 	};
 }

@@ -230,40 +230,36 @@ namespace Robots
 									else
 									{
 										isReachable = false;
-										std::vector<Field::Cell> pseudo_report;
-										pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-										std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
-										log <<  out<< std::endl;
-										dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+										std::string out = masterSwitchTarget(plt, sub, fld);
+										log << out << std::endl;
 									}
 								}
 								else
 								{
 									isReachable = false;
-									std::vector<Field::Cell> pseudo_report;
-									pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-									std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
+									std::string out = masterSwitchTarget(plt, sub, fld);
 									log << out << std::endl;
-									dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+									
 								}
 							}
 							else
 							{
 								isReachable = false;
-								std::vector<Field::Cell> pseudo_report;
-								pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-								std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
+								std::string out = masterSwitchTarget(plt, sub, fld);
 								log << out << std::endl;
-								dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
 							}
 						}
 						if (isReachable)
 						{
 							std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+
+							//updating clone map
 							for (Field::Cell cell : report)
 							{
 								cloneMap[cell.getX()][cell.getY()].setType(cell.getType());
 							}
+
+
 							std::string out = makeMove(*sub, fld, report);
 							log << out << std::endl;
 						}
@@ -284,70 +280,21 @@ namespace Robots
 
 	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target)
 	{
+		std::cout << "total poi: " << fld.total_poi << std::endl;
 		for (Field::Cell& target : targets)
 		{
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
-				std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
-				std::reverse(pth.begin(), pth.end());
-				if (pth.size() == 0)
-				{
-					continue;
-				}
-				Field::Cell* closest_cell = pth[1]->cell;
-				std::pair<int, int> old_coordinates = plt.getCoordinates();
-				int i = 2;
-				while (1)
-				{
-					try
-					{
-						dynamic_cast<Robots::MobilePlatform&>(plt).move(&fld, { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
-					}
-					catch (std::invalid_argument)
-					{
-						closest_cell = pth[i]->cell;
-						i++;
-						continue;
-					}
-					break;
-				}
-				
-				std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
-				
-				cleanPath(pth);
+				std::string log = goToTarget(plt, target, fld);
+				if (log == "empty") continue;
 				return log;
 			}
 			else if (plt.getIsMaster() && fld.checkPlatformOnField(target.getCoordinates()) != nullptr)
 			{
 				if (target.getCoordinates() == specific_target)
 				{
-					std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
-					std::reverse(pth.begin(), pth.end());
-
-					if (pth.size() == 0)
-					{
-						continue;
-					}
-					Field::Cell* closest_cell = pth[1]->cell;
-					std::pair<int, int> old_coordinates = plt.getCoordinates();
-					int i = 2;
-					while (1)
-					{
-						try
-						{
-							fld.movePlatform(plt.getCoordinates(), { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
-						}
-						catch (std::invalid_argument)
-						{
-							closest_cell = pth[i]->cell;
-							i++;
-							continue;
-						}
-						break;
-					}
-					std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
-
-					cleanPath(pth);
+					std::string log = goToTarget(plt, target, fld);
+					if (log == "empty") continue;
 					return log;
 				}
 			}
@@ -361,30 +308,8 @@ namespace Robots
 				catch (std::invalid_argument)
 				{
 					isReachable = false;
-					std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
-					std::reverse(pth.begin(), pth.end());
-
-					if (pth.size() == 0) continue;
-
-					Field::Cell* closest_cell = pth[1]->cell;
-					std::pair<int, int> old_coordinates = plt.getCoordinates();
-					int i = 2;
-					while (1)
-					{
-						try
-						{
-							dynamic_cast<Robots::MobilePlatform&>(plt).move(&fld, { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
-						}
-						catch (std::invalid_argument)
-						{
-							closest_cell = pth[i]->cell;
-							i++;
-							continue;
-						}
-						break;
-					}
-					cleanPath(pth);
-					std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
+					std::string log = goToTarget(plt, target, fld);
+					if (log == "empty") continue;
 					return log;
 				}
 				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
@@ -399,11 +324,12 @@ namespace Robots
 			{
 				for (Field::Cell cell : row)
 				{
-					if (cell.getType() == Field::CellType::unknown)
+					if (cell.getType() == Field::CellType::unknown || cell.getType()==Field::CellType::pointOfInterest)
 					{
 						std::cout << "current unknown target: ";
 						cell.consoleOut();
 						std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &fld.getCellByCoordinates(cell.getCoordinates()), fld);
+						std::reverse(pth.begin(), pth.end());
 						if (pth.size() != 0)
 						{
 							Field::Cell* closest_cell = pth[1]->cell;
@@ -437,42 +363,54 @@ namespace Robots
 				}
 			}
 			std::cout << "No unknown target for " <<plt.getName() <<" found." << std::endl;
+			std::cout << "poi now: " << fld.total_poi << std::endl;
 			std::vector<Robots::Platform> emptyPlt;
 			Field::Field tmp = Field::Field(fld.getWidth(), fld.getHeight(), cloneMap, emptyPlt);
 			tmp.consoleOutField();
 			exit(0);
 		}
-		
-
-		/*if (!plt.getIsMaster())
-		{
-			std::srand(time(NULL));
-			if (traversable.size() == 0)
-			{
-				std::cout << "GG" << std::endl;
-				std::cout << plt.getName() << " ruined the game" << std::endl;
-				//throw std::invalid_argument("No way to go");
-				return "No way to go.";
-			}
-			int rand_direction = std::rand() % traversable.size();
-			dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
-			std::string out = std::format("{} moved randomly to ({}, {})", plt.getName(), std::to_string(traversable[rand_direction].getX()), std::to_string(traversable[rand_direction].getY()));
-			return out;
-		}*/
 		return "boba";
-		/*bool isSuccesful = false;
-		while (!isSuccesful)
+	}
+
+	std::string ArtificialIntelligence::masterSwitchTarget(Robots::Platform* plt, Robots::Platform* sub, Field::Field& fld)
+	{
+		std::vector<Field::Cell> pseudo_report;
+		pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+		std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
+		dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
+		return out;
+	}
+
+	std::string ArtificialIntelligence::goToTarget(Robots::Platform& plt, Field::Cell& target, Field::Field& fld)
+	{
+		std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
+		std::reverse(pth.begin(), pth.end());
+
+		if (pth.size() == 0)
+		{
+			return "empty";
+		}
+		Field::Cell* closest_cell = pth[1]->cell;
+		std::pair<int, int> old_coordinates = plt.getCoordinates();
+		int i = 2;
+		while (1)
 		{
 			try
 			{
-				dynamic_cast<Robots::Moving&>(plt).move(&fld, { traversable[rand_direction].getX() - plt.getCoordinates().first, traversable[rand_direction].getY() - plt.getCoordinates().second });
+				fld.movePlatform(plt.getCoordinates(), { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
 			}
 			catch (std::invalid_argument)
 			{
-				rand_direction= std::rand() % traversable.size();
+				closest_cell = pth[i]->cell;
+				i++;
 				continue;
 			}
-			isSuccesful = true;
-		}*/
+			break;
+		}
+		std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
+
+		cleanPath(pth);
+		cloneMap[closest_cell->getX()][closest_cell->getY()].setType(closest_cell->getType());
+		return log;
 	}
 }
