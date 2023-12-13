@@ -13,6 +13,10 @@ namespace Robots
 		CommandCentre& setManageInd(int nmind) { manageInd = nmind; return *this; }
 	public:
 		CommandCentre(int radius = 1, int sub = 2, double energy = 3, int slots = 3, int cost = 5000, std::pair<int, int> coordinates = std::pair<int, int>(0, 0));
+		~CommandCentre()
+		{
+			delete &getCpu();
+		}
 
 		int getManageInd() const { return manageInd; }
 		ManageModule& getCpu() { return *(dynamic_cast<ManageModule*>(getRobo()[manageInd])); }

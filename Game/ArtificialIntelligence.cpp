@@ -11,7 +11,7 @@
 
 namespace Robots
 {
-	void Node::consoleOut(std::ostream& stream=std::cout)
+	void Node::consoleOut(std::ostream& stream)
 	{
 		stream << std::format("({}, {}) type: {} isTraversable: {}", std::to_string(cell->getX()), std::to_string(cell->getY()), Field::CellTypeToString(cell->getType()), isTraversable) << std::endl;
 	}
@@ -332,6 +332,11 @@ namespace Robots
 						std::reverse(pth.begin(), pth.end());
 						if (pth.size() != 0)
 						{
+							if (pth.size() == 1)
+							{
+								cloneMap[plt.getCoordinates().first][plt.getCoordinates().second].setType(fld.getCellByCoordinates(plt.getCoordinates()).getType());
+								continue;
+							}
 							Field::Cell* closest_cell = pth[1]->cell;
 							std::pair<int, int> old_coordinates = plt.getCoordinates();
 							int i = 2;

@@ -24,7 +24,7 @@ namespace Robots
 		Node(Field::Cell* cell=nullptr) :cell(cell), predecessor(nullptr) { if (cell->getType() == Field::CellType::obstacle) isTraversable = false; }
 		~Node() = default;
 		void calculateF() { f = g + h; }
-		void consoleOut(std::ostream& stream);
+		void consoleOut(std::ostream& stream=std::cout);
 	};
 	class ArtificialIntelligence
 	{

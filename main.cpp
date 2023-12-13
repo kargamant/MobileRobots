@@ -11,8 +11,10 @@
 int main()
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Field::Field::OBSTACLE_PERCENTAGE = 0;
+	Field::Field::OBSTACLE_PERCENTAGE = 20;
 	Game::Application app = Game::Application(7, 7);
+
+
 
 	Robots::RobotCommander rc = Robots::RobotCommander();
 	Robots::MobilePlatform mp = Robots::MobilePlatform();
@@ -54,13 +56,12 @@ int main()
 	app.changeCellType({ 6, 5 }, Field::CellType::pointOfInterest);*/
 
 	//std::cout << "rad: " << sens.getRad() << std::endl;
-	app.getField().consoleOutField();
 	/*std::cout << "iterating through platform map:" << std::endl;
 	for (auto it : app.getField().getPlatforms())
 	{
 		std::cout << "(" << it.first.first <<", " <<it.first.second<<") " << " | " << it.second->getName() << std::endl;
 	}*/
-
+	app.getField().consoleOutField();
 	app.play();
 	app.getField().consoleOutField();
 	/*
