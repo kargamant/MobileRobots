@@ -26,11 +26,17 @@ namespace Game
 			{
 				ai.getGraph()[coordinates].isTraversable = false;
 			}
+			else if(ntype == Field::CellType::ground)
+			{
+				ai.getGraph()[coordinates].isTraversable = true;
+			}
 		}
 
 		void loadFieldFromFile(std::string filename, std::fstream& stream);
 
 		void play(); //starts game mode
 		void sandBox(); //starts sandBox mode
+		void connectGraph();
+		void updateGraphTraversity();
 	};
 }

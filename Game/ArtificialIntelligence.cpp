@@ -34,6 +34,7 @@ namespace Robots
 		std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> openList(cmp);
 		std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> closedList(cmp);
 		std::vector<Node*> path;
+		std::vector<Node*> obstacles;
 
 		Node* start = &graph[from->getCoordinates()];
 		Node* target = &graph[to->getCoordinates()];
@@ -120,7 +121,11 @@ namespace Robots
 
 			for (Node* neighbour : current->neighbours)
 			{
-				if (!neighbour->isTraversable || neighbour->isClosed) continue;
+				if (!neighbour->isTraversable || neighbour->isClosed)
+				{
+					if (!neighbour->isTraversable) obstacles.push_back(neighbour);
+					continue;
+				}
 				else
 				{
 					int ng = current->g + 1;
@@ -156,7 +161,8 @@ namespace Robots
 			closedList.pop();
 			cleanNode(unused);
 		}
-		return path;
+
+		return obstacles;
 	}
 
 	void ArtificialIntelligence::cleanPath(std::vector<Node*>& path)
@@ -286,7 +292,7 @@ namespace Robots
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
 				std::string log = goToTarget(plt, target, fld);
-				if (log == "empty") continue;
+				if (log == "no path") continue;
 				return log;
 			}
 			else if (plt.getIsMaster() && fld.checkPlatformOnField(target.getCoordinates()) != nullptr)
@@ -294,23 +300,28 @@ namespace Robots
 				if (target.getCoordinates() == specific_target)
 				{
 					std::string log = goToTarget(plt, target, fld);
-					if (log == "empty") continue;
+					if (log == "no path") continue;
 					return log;
 				}
 			}
 			else if (isComponentCastable<Robots::Platform&, Robots::Destroying&>(plt) && target.getType() == Field::CellType::obstacle)
 			{
-				bool isReachable = true;
+				bool isDestroyed = true;
 				try
 				{
 					dynamic_cast<Robots::RobotDestroyer&>(plt).getGun().destroy(&fld, target.getCoordinates());
 				}
 				catch (std::invalid_argument)
 				{
-					isReachable = false;
+					isDestroyed = false;
 					std::string log = goToTarget(plt, target, fld);
-					if (log == "empty") continue;
+					if (log == "no path") continue;
 					return log;
+				}
+				if (isDestroyed)
+				{
+					graph[target.getCoordinates()].isTraversable = true;
+					cloneMap[target.getX()][target.getY()].setType(Field::CellType::ground);
 				}
 				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
 				return log;
@@ -330,7 +341,7 @@ namespace Robots
 						cell.consoleOut();
 						std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &fld.getCellByCoordinates(cell.getCoordinates()), fld);
 						std::reverse(pth.begin(), pth.end());
-						if (pth.size() != 0)
+						if (pth[0]->isTraversable)
 						{
 							if (pth.size() == 1)
 							{
@@ -391,9 +402,9 @@ namespace Robots
 		std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
 		std::reverse(pth.begin(), pth.end());
 
-		if (pth.size() == 0)
+		if (!pth[0]->isTraversable)
 		{
-			return "empty";
+			return "no path";
 		}
 		Field::Cell* closest_cell = pth[1]->cell;
 		std::pair<int, int> old_coordinates = plt.getCoordinates();

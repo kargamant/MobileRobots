@@ -11,10 +11,11 @@
 int main()
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Field::Field::OBSTACLE_PERCENTAGE = 20;
+	Field::Field::OBSTACLE_PERCENTAGE = 50;
 	Game::Application app = Game::Application(7, 7);
 
 
+	app.connectGraph();
 
 	Robots::RobotCommander rc = Robots::RobotCommander();
 	Robots::MobilePlatform mp = Robots::MobilePlatform();
@@ -47,54 +48,13 @@ int main()
 	app.getField().placePlatform(&mp);
 	rd.setCoordinates(5, 3);
 	app.getField().placePlatform(&rd);
-	/*app.changeCellType({1, 3}, Field::CellType::pointOfInterest);
-	app.changeCellType({ 3, 3 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 5, 5 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 4, 5 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 5, 4 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 5, 6 }, Field::CellType::pointOfInterest);
-	app.changeCellType({ 6, 5 }, Field::CellType::pointOfInterest);*/
-
-	//std::cout << "rad: " << sens.getRad() << std::endl;
-	/*std::cout << "iterating through platform map:" << std::endl;
-	for (auto it : app.getField().getPlatforms())
-	{
-		std::cout << "(" << it.first.first <<", " <<it.first.second<<") " << " | " << it.second->getName() << std::endl;
-	}*/
+	
+	app.updateGraphTraversity();
 	app.getField().consoleOutField();
+	
+	
 	app.play();
 	app.getField().consoleOutField();
-	/*
-	for (int i = 0; i < 5; i++)
-	{
-		//if (i == 2) continue;
-		Robots::KamikazeRobot kr = Robots::KamikazeRobot();
-		if (i == 1 || i==3) kr.setCoordinates(i, 3);
-		else kr.setCoordinates(i, 1);
-		app.getField().placePlatform(&kr);
-		app.getAi().getGraph()[kr.getCoordinates()].isTraversable = false;
-	}
-	*/
 	
-	/*
-	app.getField().consoleOutField();
-	std::cout << "Chunks:" << std::endl;
-	std::vector<Game::Chunk> chunks = app.getAi().divideField(app.getField());
-	for (Game::Chunk& ch : chunks)
-	{
-		ch.consoleOut(std::cout);
-	}*/
-	
-
-	/*
-	std::cout << std::endl;
-	Field::Cell& cell1 = app.getField().getCellByCoordinates(1, 4);
-	Field::Cell& cell2 = app.getField().getCellByCoordinates(0, 0);
-	std::vector<Robots::Node*> path = app.getAi().path(&cell1, &cell2, app.getField());
-	for (Robots::Node* node : path)
-	{
-		node->consoleOut(std::cout);
-	}
-	*/
 	return 0;
 }

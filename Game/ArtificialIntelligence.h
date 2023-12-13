@@ -36,8 +36,7 @@ namespace Robots
 		static const int MINIMUM_CHUNKABLE_FIELD_SIZE=3;
 		int money;
 		int points;
-		void cleanPath(std::vector<Node*>& path);
-		void cleanNode(Node* node);
+		
 	public:
 		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
 
@@ -45,6 +44,8 @@ namespace Robots
 		int getPoints() { return points; }
 		std::vector<std::vector<Field::Cell>>& getCloneMap() { return cloneMap; }
 		std::unordered_map<std::pair<int, int>, Node, Field::CoordHash, Field::CoordEqual>& getGraph() { return graph; }
+
+		ArtificialIntelligence& setGraph(std::unordered_map<std::pair<int, int>, Node, Field::CoordHash, Field::CoordEqual> ngraph) { graph = ngraph; return *this; }
 
 		ArtificialIntelligence& setMoney(int nmoney) 
 		{ 
@@ -61,6 +62,8 @@ namespace Robots
 		void find(Field::Field& fld, std::ostream& log = std::cout);
 		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target = {-1, -1});
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
+		void cleanPath(std::vector<Node*>& path);
+		void cleanNode(Node* node);
 		std::string masterSwitchTarget(Robots::Platform* plt, Robots::Platform* sub, Field::Field& fld);
 		std::string goToTarget(Robots::Platform& plt, Field::Cell& target, Field::Field& fld);
 	};
