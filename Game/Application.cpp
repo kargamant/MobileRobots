@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Drawer.h"
+#include "ViewAi.h"
 
 namespace Game
 {
@@ -78,11 +79,14 @@ namespace Game
 		{
 			Drawer dr;
 			dr.viewField(&field);
+			dr.Ai= new Game::ViewAi(&ai, "AI.jpg", Drawer::BOTTOM_RIGHT_CORNER, "", Drawer::BOTTOM_RIGHT_CORNER_TEXT);
 			dr.window.create(sf::VideoMode(Drawer::SCALED_SPRITE_SIZE.first * field.getHeight() + Drawer::LOG_INDENTATION, Drawer::SCALED_SPRITE_SIZE.second * field.getWidth()), "MobileRobots AI playing");
 			ai.find(field, true, std::cout, &dr);
 			dr.cleanViews();
 			delete dr.tmp->texture;
 			delete dr.tmp;
+			delete dr.Ai->texture;
+			delete dr.Ai;
 		}
 		else
 		{

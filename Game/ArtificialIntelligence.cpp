@@ -208,6 +208,9 @@ namespace Robots
 			{
 				dr->window.draw(view->sprite);
 			}
+			dr->Ai->draw();
+			dr->window.draw(dr->Ai->sprite);
+			dr->window.draw(dr->Ai->description);
 		}
 	}
 
@@ -393,12 +396,14 @@ namespace Robots
 	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target)
 	{
 		std::cout << "total poi: " << fld.total_poi << std::endl;
+		int old_total_poi = fld.total_poi;
 		for (Field::Cell& target : targets)
 		{
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
 				std::string log = goToTarget(plt, target, fld);
 				if (log == "no path") continue;
+				if (old_total_poi > fld.total_poi) addPoint();
 				return log;
 			}
 			else if (plt.getIsMaster() && fld.checkPlatformOnField(target.getCoordinates()) != nullptr)
@@ -407,6 +412,8 @@ namespace Robots
 				{
 					std::string log = goToTarget(plt, target, fld);
 					if (log == "no path") continue;
+					if (old_total_poi > fld.total_poi) addPoint();
+
 					return log;
 				}
 			}
@@ -422,6 +429,8 @@ namespace Robots
 					isDestroyed = false;
 					std::string log = goToTarget(plt, target, fld);
 					if (log == "no path") continue;
+					if (old_total_poi < fld.total_poi) addPoint();
+
 					return log;
 				}
 				if (isDestroyed)
@@ -430,6 +439,8 @@ namespace Robots
 					cloneMap[target.getX()][target.getY()].setType(Field::CellType::ground);
 				}
 				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
+				if (old_total_poi > fld.total_poi) addPoint();
+
 				return log;
 			}
 		}
@@ -473,6 +484,8 @@ namespace Robots
 							}
 							cleanPath(pth);
 							std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
+							if (old_total_poi < fld.total_poi) addPoint();
+
 							return log;
 						}
 						else
