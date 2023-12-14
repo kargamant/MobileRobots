@@ -15,6 +15,11 @@ int main()
 	Field::Field::OBSTACLE_PERCENTAGE = 50;
 	Game::Application app = Game::Application(7, 7);
 
+	app.getField().consoleOutField();
+	for (auto it : app.getField().getPlatforms())
+	{
+		it.second->consoleOut();
+	}
 	/*Robots::RobotCommander rc = Robots::RobotCommander();
 	Robots::MobilePlatform mp = Robots::MobilePlatform();
 	Robots::RobotDestroyer rd = Robots::RobotDestroyer();

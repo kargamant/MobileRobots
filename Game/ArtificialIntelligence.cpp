@@ -211,12 +211,10 @@ namespace Robots
 				{
 					
 				
-					if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
+					if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0 && dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub()==nullptr) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{
 						log << "sub name: " << sub->getName() << std::endl;
-						log << "field out: " << std::endl;
-						fld.consoleOutField();
 						//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
 						bool isReachable = true;
 						try
@@ -228,9 +226,13 @@ namespace Robots
 							if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
 							{
 								Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
+								std::cout << "last sub: " << last_sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(last_sub->getCoordinates().first), std::to_string(last_sub->getCoordinates().second)) << (int)last_sub->getRoboPriority() << std::endl;
+								std::cout << "sub: " << sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second)) << (int)sub->getRoboPriority() << std::endl;
 								if (last_sub->getRoboPriority() > sub->getRoboPriority())
 								{
 									std::cout << "db1" << std::endl;
+									std::string out = masterSwitchTarget(plt, last_sub, fld);
+									log << out << std::endl;
 									continue;
 								}
 								else if (last_sub->getRoboPriority() == sub->getRoboPriority())
@@ -240,10 +242,16 @@ namespace Robots
 										std::cout << "db2" << std::endl;
 										std::string out = masterSwitchTarget(plt, last_sub, fld);
 										log << out << std::endl;
+										/*if (!Field::inArea(plt->getCoordinates(), last_sub->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getRad()))
+										{
+											log<<goToTarget(*plt, fld.getCellByCoordinates(last_sub->getCoordinates()), fld)<<std::endl;
+										}*/
 										continue;
 									}
 									else
 									{
+										std::cout << "db3" << std::endl;
+
 										isReachable = false;
 										std::string out = masterSwitchTarget(plt, sub, fld);
 										log << out << std::endl;
@@ -251,6 +259,8 @@ namespace Robots
 								}
 								else
 								{
+									std::cout << "db4" << std::endl;
+
 									isReachable = false;
 									std::string out = masterSwitchTarget(plt, sub, fld);
 									log << out << std::endl;
@@ -259,6 +269,8 @@ namespace Robots
 							}
 							else
 							{
+								std::cout << "db5" << std::endl;
+
 								isReachable = false;
 								std::string out = masterSwitchTarget(plt, sub, fld);
 								log << out << std::endl;
@@ -266,6 +278,8 @@ namespace Robots
 						}
 						if (isReachable)
 						{
+							std::cout << "db6" << std::endl;
+
 							std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
 
 							//updating clone map
@@ -288,7 +302,11 @@ namespace Robots
 					}
 					log << "." << std::endl;
 					//fld.consoleOutField();
-					log << dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub() << std::endl;
+					/*log << dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub() << std::endl;
+					for (auto it : fld.getPlatforms())
+					{
+						it.second->consoleOut();
+					}*/
 					if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()< dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub())
 					{
 						int min_dist = std::numeric_limits<int>::max();
@@ -476,6 +494,11 @@ namespace Robots
 			}
 			catch (std::invalid_argument)
 			{
+				if (i == pth.size())
+				{
+					cleanPath(pth);
+					return "No path";
+				}
 				closest_cell = pth[i]->cell;
 				i++;
 				continue;

@@ -110,7 +110,11 @@ namespace Field
 			{
 				try
 				{
-					plt->setCoordinates(std::rand() % size.first, std::rand() % size.second);
+					int rand_x = std::rand() % size.first;
+					int rand_y = std::rand() % size.second;
+					plt->setCoordinates(rand_x, rand_y);
+					plt->isDynamic = true;
+					placePlatform(plt);
 				}
 				catch (std::invalid_argument)
 				{
@@ -118,12 +122,11 @@ namespace Field
 				}
 				correctlyPlaced = true;
 			}
-			plt->isDynamic = true;
-			placePlatform(plt);
+			
 		}
 		if (!commander_placed)
 		{
-			Robots::Platform* pt = new Robots::RobotCommander(1, std::rand() % size.first, std::rand() % size.first);
+			Robots::Platform* pt = new Robots::RobotCommander(1);
 			Robots::EnergyGenerator* eg = new Robots::EnergyGenerator();
 			pt->placeModule(*eg);
 			dynamic_cast<Robots::EnergyGenerator*>(pt->getRobo()[1])->connect(*pt->getRobo()[0]);
