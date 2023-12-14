@@ -6,7 +6,7 @@
 #include "ViewModule.h"
 #include "ViewRobot.h"
 #include <SFML/Window/Keyboard.hpp>
-#include "ViewAi.h"
+//#include "ViewAi.h"
 #include "../utils/CheckComponent.h"
 
 namespace Game
@@ -63,18 +63,19 @@ namespace Game
         static std::string EXPLODE_TEXTURE;
         static int LOG_INDENTATION;
         static std::string ENDING_TEXTURE;
+        static std::string AI_WON_TEXTURE;
 
         std::vector<View*> views;
 
         sf::RenderWindow window;
         View* tmp=nullptr;
-        ViewAi* Ai = nullptr;
+        View* Ai = nullptr;
         ViewRobot* currentPlt=nullptr;
         ViewModule* currentModule = nullptr;
         std::vector<std::pair<ViewModule*, ViewModule*>> tmp_inv;
         Field::Field* field;
 
-        void viewField(Field::Field* fld);
+        void viewField(Field::Field* fld, bool drawInventory=false);
         template<class K, class CurrentView, class ViewHandler>
         void processKey(CurrentView* cp, ViewHandler* vh, std::string castName, std::string operation, std::string target, std::string keyChar, std::pair<bool, std::string>& isPicking)
         {
@@ -148,5 +149,7 @@ namespace Game
             std::pair<int, int> size = { view->sprite.getTexture()->getSize().x*view->sprite.getScale().x, view->sprite.getTexture()->getSize().y*view->sprite.getScale().y};
             return (click.first > coordinates.first && click.first<(coordinates.first + size.first) && click.second>coordinates.second && click.second < (coordinates.second + size.second));
         }
+
+        void cleanViews();
     };
 }

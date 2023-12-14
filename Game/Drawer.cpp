@@ -18,6 +18,7 @@
 #include "../Platforms/QuantumPlatform.h"
 #include "../Platforms/RobotCommander.h"
 #include <SFML/Audio.hpp>
+#include "ViewAi.h"
 //#include "../Modules/Module.h"
 
 namespace Game
@@ -43,6 +44,7 @@ namespace Game
     std::string Drawer::COMMAND_CENTRE_TEXTURE="command_centre.jpg";
     std::string Drawer::ERROR_SOUND="fnafe_short.ogg";
     std::string Drawer::ENDING_TEXTURE = "You_won.png";
+    std::string Drawer::AI_WON_TEXTURE = "AI_supremacy.png";
 
     bool Drawer::PLAY_SOUND = false;
     int Drawer::CHARACTER_SIZE = 20;
@@ -57,8 +59,30 @@ namespace Game
 
     int Drawer::LOG_INDENTATION = 500;
 
+    void Drawer::cleanViews()
+    {
+        for (Game::View* v : views)
+        {
+            if (v->isRobot)
+            {
+                for (auto it : dynamic_cast<ViewRobot*>(v)->modules)
+                {
+                    delete it.first->texture;
+                    delete it.first;
+                    it.first = nullptr;
+                    delete it.second->texture;
+                    delete it.second;
+                    it.second = nullptr;
+                }
+                
+            }
+            delete v->texture;
+            delete v;
+            v = nullptr;
+        }
+    }
 
-    void Drawer::viewField(Field::Field* fld)
+    void Drawer::viewField(Field::Field* fld, bool drawInventory)
     {
         //std::vector<sf::Sprite> sprites;
         std::pair<int, int> tlCorner = { 0, 0 };
@@ -72,6 +96,7 @@ namespace Game
             if (fld->checkPlatformOnField(it) != nullptr)
             {
                 view = new ViewRobot(fld->checkPlatformOnField(it), fld, position, "", { SCALED_SPRITE_SIZE.first * field->getHeight() + 5, SCALED_SPRITE_SIZE.second * 2 });
+                dynamic_cast<ViewRobot*>(view)->drawInventory = drawInventory;
                 view->draw();
             }
             else
@@ -166,7 +191,7 @@ namespace Game
                 dynamic_cast<Robots::Moving*>(currentPlt->plt)->move(field, vector);
                 if (field->total_poi < old_poi)
                 {
-                    Ai->ai->addPoint();
+                    dynamic_cast<ViewAi*>(Ai)->ai->addPoint();
                     Ai->draw();
                 }
             }
@@ -469,7 +494,7 @@ namespace Game
         }
         try
         {
-            Ai->ai->setMoney(Ai->ai->getMoney() - modules[indChoice]->getCost());
+            dynamic_cast<ViewAi*>(Ai)->ai->setMoney(dynamic_cast<ViewAi*>(Ai)->ai->getMoney() - modules[indChoice]->getCost());
             Ai->draw();
         }
         catch (std::invalid_argument error)
@@ -566,7 +591,7 @@ namespace Game
         }
         try
         {
-            Ai->ai->setMoney(Ai->ai->getMoney() - plts[indChoice]->getCost());
+            dynamic_cast<ViewAi*>(Ai)->ai->setMoney(dynamic_cast<ViewAi*>(Ai)->ai->getMoney() - plts[indChoice]->getCost());
             Ai->draw();
         }
         catch (std::invalid_argument error)
@@ -591,7 +616,11 @@ namespace Game
 
     void Drawer::generateErrorView(std::string error, std::string texture_name, std::string sound_name, bool play)
     {
-        //delete tmp;
+        if (tmp != nullptr)
+        {
+            delete tmp->texture;
+            delete tmp;
+        }
         /*
             sf::SoundBuffer sb;
                     //std::cout << "resources/" + sound_name << std::endl;

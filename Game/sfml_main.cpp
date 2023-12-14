@@ -14,6 +14,7 @@
 #include "../Platforms/KamikazeRobot.h"
 #include <SFML/Audio.hpp>
 #include "Application.h"
+#include "ViewAi.h"
 
 
 void Game::Application::sandBox()

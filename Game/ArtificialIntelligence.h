@@ -1,5 +1,5 @@
 #include "../Modules/ManageModule.h"
-
+#include "Drawer.h"
 #include "../Field/Field.h"
 #include "../Interfaces/Platform.h"
 #include <limits>
@@ -59,7 +59,7 @@ namespace Robots
 		
 		void consoleOutGraph(std::ostream& stream);
 
-		void find(Field::Field& fld, std::ostream& log = std::cout);
+		void find(Field::Field& fld, bool windowView=false, std::ostream& log = std::cout, Game::Drawer* dr=nullptr);
 		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target = {-1, -1});
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 		void cleanPath(std::vector<Node*>& path);

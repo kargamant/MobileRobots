@@ -39,7 +39,7 @@ namespace Game
 
 		void loadFieldFromFile(std::string filename, std::fstream& stream);
 
-		void play(); //starts game mode
+		void play(bool windowView=true); //starts game mode
 		void sandBox(); //starts sandBox mode
 		void connectGraph();
 		void updateGraphTraversity();

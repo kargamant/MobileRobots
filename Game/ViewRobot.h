@@ -14,6 +14,7 @@ namespace Game
 		std::string formRobotDescription(Robots::Platform& plt);
 		std::string formTextureName(Robots::Platform& plt);
 	public:
+		bool drawInventory = true;
 		ViewRobot* master=nullptr;
 		Robots::Platform* plt;
 		std::vector<std::pair<ViewModule*, ViewModule*>> modules;

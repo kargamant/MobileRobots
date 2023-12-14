@@ -139,6 +139,8 @@ namespace Field
 				try
 				{
 					pt->setCoordinates(std::rand() % size.first, std::rand() % size.second);
+					pt->isDynamic = true;
+					placePlatform(pt);
 				}
 				catch (std::invalid_argument)
 				{
@@ -146,8 +148,7 @@ namespace Field
 				}
 				correctlyPlaced = true;
 			}
-			pt->isDynamic = true;
-			placePlatform(pt);
+			
 		}
 	}
 

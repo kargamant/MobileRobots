@@ -1,5 +1,8 @@
 #include "Application.h"
 #include <algorithm>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include "Drawer.h"
 
 namespace Game
 {
@@ -69,8 +72,21 @@ namespace Game
 		}
 	}
 
-	void Application::play()
+	void Application::play(bool windowView)
 	{
-		ai.find(field);
+		if (windowView)
+		{
+			Drawer dr;
+			dr.viewField(&field);
+			dr.window.create(sf::VideoMode(Drawer::SCALED_SPRITE_SIZE.first * field.getHeight() + Drawer::LOG_INDENTATION, Drawer::SCALED_SPRITE_SIZE.second * field.getWidth()), "MobileRobots AI playing");
+			ai.find(field, true, std::cout, &dr);
+			dr.cleanViews();
+			delete dr.tmp->texture;
+			delete dr.tmp;
+		}
+		else
+		{
+			ai.find(field, false);
+		}
 	}
 }

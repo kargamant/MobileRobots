@@ -8,6 +8,8 @@
 #include "../Platforms/RobotCommander.h"
 #include "../Interfaces/Destroying.h"
 #include "../Platforms/RobotDestroyer.h"
+#include <chrono>
+#include <thread>
 
 namespace Robots
 {
@@ -184,7 +186,32 @@ namespace Robots
 		node->isClosed = false;
 	}
 
-	void ArtificialIntelligence::find(Field::Field& fld, std::ostream& log)
+	//some view functions
+	void viewMove(std::string out, bool windowView = false, std::ostream& log = std::cout, Game::Drawer* dr=nullptr)
+	{
+		if (!windowView) log << out << std::endl;
+		else
+		{
+			dr->generateErrorView(out);
+		}
+	}
+
+	void viewField(Field::Field* fld, bool windowView = false, std::ostream& log = std::cout, Game::Drawer* dr=nullptr)
+	{
+		if (!windowView) fld->consoleOutField(log);
+		else
+		{
+			dr->cleanViews();
+			dr->views = std::vector<Game::View*>();
+			dr->viewField(fld);
+			for (Game::View* view : dr->views)
+			{
+				dr->window.draw(view->sprite);
+			}
+		}
+	}
+
+	void ArtificialIntelligence::find(Field::Field& fld, bool windowView, std::ostream& log, Game::Drawer* dr)
 	{
 		cloneMap = std::vector<std::vector<Field::Cell>>(fld.getWidth());
 		for (int i = 0; i < fld.getWidth(); i++)
@@ -195,6 +222,8 @@ namespace Robots
 				cloneMap[i].push_back(Field::Cell(i, j, Field::CellType::unknown));
 			}
 		}
+
+
 		bool gameEnd = false;
 		while (fld.total_poi != 0)
 		{
@@ -214,7 +243,7 @@ namespace Robots
 					if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0 && dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub()==nullptr) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{
-						log << "sub name: " << sub->getName() << std::endl;
+						//log << "sub name: " << sub->getName() << std::endl;
 						//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
 						bool isReachable = true;
 						try
@@ -226,22 +255,22 @@ namespace Robots
 							if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
 							{
 								Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
-								std::cout << "last sub: " << last_sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(last_sub->getCoordinates().first), std::to_string(last_sub->getCoordinates().second)) << (int)last_sub->getRoboPriority() << std::endl;
-								std::cout << "sub: " << sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second)) << (int)sub->getRoboPriority() << std::endl;
+								//std::cout << "last sub: " << last_sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(last_sub->getCoordinates().first), std::to_string(last_sub->getCoordinates().second)) << (int)last_sub->getRoboPriority() << std::endl;
+								//std::cout << "sub: " << sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second)) << (int)sub->getRoboPriority() << std::endl;
 								if (last_sub->getRoboPriority() > sub->getRoboPriority())
 								{
-									std::cout << "db1" << std::endl;
+									//std::cout << "db1" << std::endl;
 									std::string out = masterSwitchTarget(plt, last_sub, fld);
-									log << out << std::endl;
+									viewMove(out, windowView, log, dr);
 									continue;
 								}
 								else if (last_sub->getRoboPriority() == sub->getRoboPriority())
 								{
 									if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
 									{
-										std::cout << "db2" << std::endl;
+										//std::cout << "db2" << std::endl;
 										std::string out = masterSwitchTarget(plt, last_sub, fld);
-										log << out << std::endl;
+										viewMove(out, windowView, log, dr);
 										/*if (!Field::inArea(plt->getCoordinates(), last_sub->getCoordinates(), dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getRad()))
 										{
 											log<<goToTarget(*plt, fld.getCellByCoordinates(last_sub->getCoordinates()), fld)<<std::endl;
@@ -250,35 +279,35 @@ namespace Robots
 									}
 									else
 									{
-										std::cout << "db3" << std::endl;
+										//std::cout << "db3" << std::endl;
 
 										isReachable = false;
 										std::string out = masterSwitchTarget(plt, sub, fld);
-										log << out << std::endl;
+										viewMove(out, windowView, log, dr);
 									}
 								}
 								else
 								{
-									std::cout << "db4" << std::endl;
+									//std::cout << "db4" << std::endl;
 
 									isReachable = false;
 									std::string out = masterSwitchTarget(plt, sub, fld);
-									log << out << std::endl;
+									viewMove(out, windowView, log, dr);
 									
 								}
 							}
 							else
 							{
-								std::cout << "db5" << std::endl;
+								//std::cout << "db5" << std::endl;
 
 								isReachable = false;
 								std::string out = masterSwitchTarget(plt, sub, fld);
-								log << out << std::endl;
+								viewMove(out, windowView, log, dr);
 							}
 						}
 						if (isReachable)
 						{
-							std::cout << "db6" << std::endl;
+							//std::cout << "db6" << std::endl;
 
 							std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
 
@@ -290,9 +319,17 @@ namespace Robots
 
 
 							std::string out = makeMove(*sub, fld, report);
-							log << out << std::endl;
+							viewMove(out, windowView, log, dr);
 						}
-						fld.consoleOutField(log);
+						if (windowView) dr->window.clear();
+						viewField(&fld, windowView, log, dr);
+						if (windowView)
+						{
+							dr->window.draw(dr->tmp->description);
+							dr->window.display();
+							//std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+						}
+						//fld.consoleOutField(log);
 						log << std::endl;
 						if (fld.total_poi == 0)
 						{
@@ -300,7 +337,7 @@ namespace Robots
 							break;
 						}
 					}
-					log << "." << std::endl;
+					log << std::endl;
 					//fld.consoleOutField();
 					/*log << dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub() << std::endl;
 					for (auto it : fld.getPlatforms())
@@ -325,7 +362,8 @@ namespace Robots
 						}
 						if (potentialSubord->getMaster() == nullptr)
 						{
-							masterSwitchTarget(plt, potentialSubord, fld);
+							std::string out=masterSwitchTarget(plt, potentialSubord, fld);
+							viewMove(out, windowView, log, dr);
 						}
 					}
 				
@@ -333,7 +371,24 @@ namespace Robots
 				
 			}
 		}
+		if (windowView)
+		{
+			dr->generateErrorView("AI won!", Game::Drawer::AI_WON_TEXTURE);
+			dr->window.draw(dr->tmp->sprite);
+			dr->window.display();
+			while (dr->window.isOpen())
+			{
+				sf::Event event;
+				while (dr->window.pollEvent(event))
+				{
+					if (event.type == sf::Event::Closed) dr->window.close();
+				}
+			}
+		}
+		
 	}
+
+	
 
 	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target)
 	{
@@ -388,8 +443,8 @@ namespace Robots
 				{
 					if (cell.getType() == Field::CellType::unknown || cell.getType()==Field::CellType::pointOfInterest)
 					{
-						std::cout << "current unknown target: ";
-						cell.consoleOut();
+						//std::cout << "current unknown target: ";
+						//cell.consoleOut();
 						std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &fld.getCellByCoordinates(cell.getCoordinates()), fld);
 						std::reverse(pth.begin(), pth.end());
 						if (pth[0]->isTraversable)

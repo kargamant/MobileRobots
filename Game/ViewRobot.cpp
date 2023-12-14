@@ -15,7 +15,7 @@ namespace Game
 	void ViewRobot::draw()
 	{
 		description.setString(formRobotDescription(*plt));
-		drawModuleBar();
+		if(drawInventory) drawModuleBar();
 	}
 
 	std::string ViewRobot::formRobotDescription(Robots::Platform& plt)
@@ -70,6 +70,10 @@ namespace Game
 			ViewModule* vm_big = new ViewModule(mod, { Drawer::TOP_RIGHT_CORNER.first, Drawer::TOP_RIGHT_CORNER.second }, "", { Drawer::TOP_RIGHT_CORNER_TEXT.first,  Drawer::TOP_RIGHT_CORNER_TEXT.second -100}, Drawer::SPRITE_SCALE);
 			vm_big->draw();
 			modules.push_back({vm, vm_big});
+			/*delete vm->texture;
+			delete vm;
+			delete vm_big->texture;
+			delete vm_big;*/
 		}
 	}
 }
