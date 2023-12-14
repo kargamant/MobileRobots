@@ -95,5 +95,7 @@ namespace Field
 		Robots::Platform* checkPlatformOnField(std::pair<int, int> coordinates);
 		virtual void checkCoordinates(int x, int y);
 		virtual void checkCoordinates(std::pair<int, int> coordinates);
+
+		void cleanField();
 	};
 }

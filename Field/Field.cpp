@@ -433,4 +433,24 @@ namespace Field
 	{
 		return (std::abs(cell.first - centre.first) <= radius && std::abs(cell.second - centre.second) <= radius);
 	}
+
+	void Field::cleanField()
+	{
+		for (auto it : platforms)
+		{
+			for (Robots::Module* mod : it.second->getRobo())
+			{
+				if (mod != nullptr)
+				{
+					delete mod;
+					mod = nullptr;
+				}
+			}
+			if (it.second->isDynamic)
+			{
+				delete it.second;
+				it.second = nullptr;
+			}
+		}
+	}
 }

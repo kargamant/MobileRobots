@@ -8,13 +8,15 @@
 #include "Modules/Sensor.h"
 #include "Platforms/RobotDestroyer.h"
 #include "utils/CheckComponent.h"
+#include "MenueLib/Menue.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 70;
 	Game::Application app = Game::Application(10, 10);
 
+	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
 	std::cout << "Field:" << std::endl;
 	app.getField().consoleOutField();
@@ -24,24 +26,25 @@ int main()
 	{
 		it.second->consoleOut();
 	}
-
 	std::cout << std::endl << "Let's start the game!" << std::endl;
-	app.play();
-	for (auto it : app.getField().getPlatforms())
+
+
+	if (Dialogue::isArg(argv, argv + argc, "-ai"))
 	{
-		for (Robots::Module* mod : it.second->getRobo())
-		{
-			if (mod != nullptr)
-			{
-				delete mod;
-				mod = nullptr;
-			}
-		}
-		if (it.second->isDynamic)
-		{
-			delete it.second;
-			it.second = nullptr;
-		}
+		app.play();
 	}
+	else if (Dialogue::isArg(argv, argv + argc, "-sand-box"))
+	{
+		app.sandBox();
+	}
+	else
+	{
+		std::cout << "No mode specified. Bye!" << std::endl;
+	}
+
+	
+	
+	
+	app.getField().cleanField();
 	return 0;
 }
