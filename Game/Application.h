@@ -16,7 +16,7 @@ namespace Game
 		Application() : field(Field::Field()), ai(Robots::ArtificialIntelligence()) { createGraph(); } //in this case Field will be totally random
 		Application(int width, int height) : field(width, height), ai(Robots::ArtificialIntelligence()) 
 		{ 
-			field.placeRandomPlatforms(1 + field.getWidth() / 4); 
+			field.placeRandomPlatforms(2 + field.getWidth() / 4); 
 			createGraph();
 			connectGraph();
 		}
