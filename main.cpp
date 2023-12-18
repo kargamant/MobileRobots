@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 70;
-	Game::Application app = Game::Application(10, 10);
+	Game::Application app = Game::Application(7, 7);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
 	if (Dialogue::isArg(argv, argv + argc, "-ai"))
 	{
-		app.play();
+		app.play(true);
 	}
 	else if (Dialogue::isArg(argv, argv + argc, "-sand-box"))
 	{

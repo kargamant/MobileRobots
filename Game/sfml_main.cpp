@@ -24,7 +24,7 @@ void Game::Application::sandBox()
     Field::Field* fld = &field;
 
     Game::Drawer dr;
-    dr.viewField(fld);
+    dr.viewField(fld, true);
     dr.Ai = new ViewAi(&ai, "AI.jpg", Drawer::BOTTOM_RIGHT_CORNER, "", Drawer::BOTTOM_RIGHT_CORNER_TEXT);
     sf::RenderWindow window(sf::VideoMode(Drawer::SCALED_SPRITE_SIZE.first * fld->getHeight() + Drawer::LOG_INDENTATION, Drawer::SCALED_SPRITE_SIZE.second * fld->getWidth()), "MobileRobots");
     std::pair<bool, std::string> isPicking = { false, "" };
@@ -185,7 +185,7 @@ void Game::Application::sandBox()
                 v = nullptr;
             }
             dr.views = std::vector<Game::View*>();
-            dr.viewField(fld);
+            dr.viewField(fld, true);
         }
         //if (dr.field->total_poi == 0) window.draw(win.sprite);
         
