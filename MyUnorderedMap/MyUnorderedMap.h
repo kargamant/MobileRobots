@@ -2,9 +2,13 @@
 #include <concepts>
 //structs
 
+template<std::default_initializable Key, std::default_initializable T, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
+class MyUnorderedMap;
+
 template<class V>
 struct Item
 {
+	bool isEnd = false;
 	V value;
 	Item* next; //last in bucket points to next bucket or nullptr if this is the last bucket
 };
@@ -12,11 +16,70 @@ struct Item
 template<class V>
 struct Bucket
 {
-	int size;
-	Item<V>* pre_first;
+	int size=0;
+	Item<V>* first=nullptr;
+	Item<V>* last=nullptr;
+	Item<V>* end=nullptr;
+
+	Bucket() : end(new Item<V>) { end->isEnd = true; }
+
+	bool isEmpty() { return first == nullptr; }
+
+	Item<V>* push(V value)
+	{
+		Item<V>* item = new Item<V>;
+		item->value = value;
+		if (isEmpty())
+		{
+			first = item;
+			last = item;
+			item->next = end;
+		}
+		else
+		{
+			last->next = item;
+			item->next = end;
+			last = item;
+		}
+		size++;
+		item->isEnd = false;
+		return item;
+	}
+
+	Item<V>* find(V value)
+	{
+		if (!isEmpty())
+		{
+			Item<V>* ptr = first;
+			while (!ptr->isEnd && ptr->value!=value)
+			{
+				ptr = ptr->next;
+			}
+			return ptr;
+		}
+		return end;
+	}
+
+	void erase(Item<V>* prev)
+	{
+		if (prev != end)
+		{
+			Item<V>* target = prev->next;
+			prev->next = target->next;
+			delete target;
+		}
+	}
 };
 
-class MyUnorderedMap;
+template<class Iter, class NodeType>
+struct ReturnType
+{
+	Iter position;
+	bool inserted;
+	NodeType node;
+};
+
+
 
 template<class V, bool is_const>
 class UnorderedMapIterator
@@ -32,7 +95,7 @@ public:
 
 	item_ptr it;
 
-	//friend UnorderedMapIterator<V, !is_const>;
+	friend UnorderedMapIterator<V, !is_const>;
 
 	UnorderedMapIterator() :it(nullptr) {}
 	UnorderedMapIterator(item_ptr it) : it(it) {}
@@ -135,9 +198,10 @@ UnorderedMapIterator<V, is_const> UnorderedMapIterator<V, is_const>::operator++(
 static_assert(std::forward_iterator<UnorderedMapIterator<int, true>>);
 static_assert(std::forward_iterator<UnorderedMapIterator<int, false>>);
 
-template<std::default_initializable Key, std::default_initializable T, class Hash=std::hash<Key>, class KeyEqual=std::equal_to<Key>, class Allocator=std::allocator<std::pair<const Key, T>>>
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 class MyUnorderedMap
 {
+	
 	typedef Key key_type;
 	typedef T mapped_type;
 	typedef std::pair<const Key, T> value_type;
@@ -151,12 +215,72 @@ class MyUnorderedMap
 	typedef std::allocator_traits<Allocator>::pointer pointer;
 	typedef std::allocator_traits<Allocator>::const_pointer const_pointer;
 
-	//4 more typedefs for local and non-local iterators
+	typedef UnorderedMapIterator<value_type, false> iterator;
+	typedef UnorderedMapIterator<value_type, true> const_iterator;
 
-	typedef Item node_type;
-	//insert_return_type need iterator
+	typedef Item<value_type> node_type;
+	typedef Bucket<value_type> bucket_type;
+	typedef ReturnType<iterator, node_type> insert_return_type;
 
-	size_t buckets_size=0;
-	Bucket<value_type>* buckets;
-	Item<value_type>* before_begin;
+	static const size_type DEFAULT_BUCKET_COUNT = 7;
+	size_type buckets_size=0;
+	bucket_type* buckets=nullptr;
+	node_type* before_begin=nullptr;
+	node_type* past_the_last=nullptr;
+	float max_load_factor = 1;
+
+	void alloc_bucket_array(size_type size)
+	{
+		buckets = new bucket_type[size];
+		buckets_size = size;
+	}
+
+	void release_bucket_array()
+	{
+		delete[] buckets;
+		buckets_size = 0;
+	}
+
+	iterator find_item(key_type key)
+	{
+		size_type position = Hash(key);
+		iterator itr = iterator(buckets[position].first);
+		while (itr.it->value.first != key && !itr.it->isEnd) ++itr;
+		return itr;
+	}
+
+	iterator insert_item(value_type nitem)
+	{
+		size_type position = Hash(nitem.first);
+		iterator itr=iterator(buckets[position].push(nitem));
+		return itr;
+	}
+
+	iterator erase_item(key_type key)
+	{
+		size_type position = Hash(key);
+		iterator itr = iterator(buckets[position].first);
+		while (itr.it->next->value.first != key && !itr.it->next->isEnd) ++itr;
+		buckets[position].erase(itr.it);
+		return itr;
+	}
+	
+	MyUnorderedMap();// : bucket_size(DEFAULT_BUCKET_SIZE), buckets(new bucket_type[DEFAULT_BUCKET_SIZE]),
+	
+	template<class Iter>
+	MyUnorderedMap(Iter first, Iter last, size_type bucket_count=DEFAULT_BUCKET_COUNT, const hasher& hash=Hash(), const key_equal& equal=KeyEqual(), const allocator_type& alloc=Allocator());
+
+	MyUnorderedMap(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um);
+
+	MyUnorderedMap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>&& um);
+
+	MyUnorderedMap(std::initializer_list<value_type> il, size_type bucket_count = DEFAULT_BUCKET_COUNT, const hasher& hash = Hash(), const key_equal& equal = KeyEqual(), const allocator_type& alloc = Allocator());
+
+	~MyUnorderedMap();
+
+	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um2);
+	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>&& um2);
+	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(std::initializer_list<value_type> il);
+	allocator_type get_allocator() const noexcept;
+	
 };
