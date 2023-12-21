@@ -302,7 +302,7 @@ public:
 	template<class... Args>
 	iterator emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>);
 	template<class... Args>
-	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>);
+	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>) requires(std::constructible_from<T, Args...>);
 	insert_return_type insert(const value_type& value);
 	insert_return_type insert(value_type&& value);
 	void insert(iterator first, iterator last);
@@ -370,6 +370,8 @@ private:
 	float lf = 0;
 
 	size_type getInd(const key_type& key) {size_type img=hash(key); return (img>0)? img%mbc : (-img)%mbc;}
+	size_type getInd(value_type& val) {return getInd(val.first);}
+	size_type getInd(node_type* item) {return getInd(item->value);}
 
 	void alloc_bucket_array(size_type size)
 	{
@@ -401,9 +403,10 @@ private:
 		return itr;
 	}
 
-	insert_return_type insert_item(node_type* nitem)
+	template<class Insert>
+	insert_return_type insert_item(Insert nitem)
 	{
-		size_type position = getInd(nitem->value.first);
+		size_type position = getInd(nitem);
 		auto result=buckets[position].push(nitem);
 		if (result.first == buckets[position].first)
 		{
@@ -420,6 +423,7 @@ private:
 		return result;
 	}
 
+	
 	iterator erase_item(key_type key)
 	{
 		size_type position = getInd(key);
@@ -569,7 +573,7 @@ template<class... Args>
 insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Args&&... args) requires(std::constructible_from<T, Args...>)
 {	
 	node_type* node=alloc_node(std::forward<Args>(args)...);
-	auto result=insert_item(node);
+	auto result=insert_item<node_type*>(node);
 	if(!result.second)
 	{
 		delete node;
@@ -607,7 +611,7 @@ template<class... Args>
 insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>)
 {
 	node_type* node=alloc_node(key, std::forward<Args>(args)...);
-	auto result=insert_item(node);
+	auto result=insert_item<node_type*>(node);
 	if(!result.second)
 	{
 		delete node;
@@ -616,6 +620,56 @@ insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplac
 }
 
 
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(const value_type& value)
+{
+	return insert_item<value_type>(value);
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
+{
+	return insert_item<value_type&&>(value);	
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(UnorderedMapIterator<std::pair<const Key, T>, false> first, UnorderedMapIterator<std::pair<const Key, T>, false> last)
+{
+	iterator itr=first;
+	while(itr!=last)
+	{
+		insert(itr.it->value);
+		++itr;
+	}
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(std::initializer_list<value_type> il)
+{
+	for(auto it: il)
+	{
+		insert(*it);
+	}
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(node_type&& nh)
+{
+	return insert(nh.value);
+}
+
+insert_return_type insert_or_assign(const key_type& key, mapped_type&& obj)
+{
+	size_type position=hash(key);
+	iterator result=iterator(buckets[position].find(value_type(key, obj)));
+	if(result.it->isEnd)
+	{
+		//can be some problems with moving, but it's gonna be tested later
+		return insert(value_type(key, obj));
+	}
+	result.it->value.second=std::move(obj);
+	return insert_return_type(result, true);
+}
 
 
 
