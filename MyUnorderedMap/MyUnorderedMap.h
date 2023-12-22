@@ -1,5 +1,6 @@
 #include <functional>
 #include <concepts>
+#include <stdexcept>
 //structs
 
 template<std::default_initializable Key, std::default_initializable T, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
@@ -302,7 +303,7 @@ public:
 	template<class... Args>
 	iterator emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>);
 	template<class... Args>
-	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>) requires(std::constructible_from<T, Args...>);
+	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>);
 
 	insert_return_type insert(const value_type& value);
 	insert_return_type insert(value_type&& value);
@@ -414,7 +415,7 @@ private:
 	node_type* alloc_node(Args&&... args)
 	{
 		node_type* node=new node_type;
-		node_type.value=value_type(std::forward<Args>(args)...);
+		node->value=value_type(std::forward<Args>(args)...);
 		return node;
 	}
 
@@ -498,7 +499,7 @@ private:
 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(size_type bucket_count=DEFAULT_BUCKET_COUNT, const hasher& hash = Hash(), const key_equal& equal = KeyEqual()) : hash(hash), equal(equal)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(size_type bucket_count, const hasher& hash, const key_equal& equal) : hash(hash), equal(equal)
 {
 	before_begin = new node_type;
 	past_the_last = new node_type;
@@ -508,7 +509,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(size_type buck
 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(UnorderedMapIterator<std::pair<const Key, T>, false> first, UnorderedMapIterator<std::pair<const Key, T>, false> last, size_type bucket_count=DEFAULT_BUCKET_COUNT, const hasher& hash=Hash(), const key_equal& equal=KeyEqual()) : hash(hash), equal(equal)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(UnorderedMapIterator<std::pair<const Key, T>, false> first, UnorderedMapIterator<std::pair<const Key, T>, false> last, size_type bucket_count, const hasher& hash, const key_equal& equal) : hash(hash), equal(equal)
 {
 	before_begin = new node_type;
 	past_the_last = new node_type;
@@ -526,7 +527,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(const MyUnorde
 	past_the_last=new node_type;
 	before_begin->next=past_the_last;
 	insert(um.begin(), um.end());
-	mlf=um.mlf;
+	max_lf=um.max_lf;
 	lf=um.lf;
 }
 
@@ -537,7 +538,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(MyUnorderedMap
 	before_begin=um.before_begin;
 	past_the_last = um.past_the_last;
 	buckets=um.buckets;
-	mlf=um.mlf;
+	max_lf=um.max_lf;
 	lf=um.lf;
 	last_added_bucket=um.last_added_bucket;
 	um.buckets=nullptr;
@@ -546,7 +547,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(MyUnorderedMap
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(std::initializer_list<value_type> il, size_type bucket_count = DEFAULT_BUCKET_COUNT, const hasher& hash = Hash(), const key_equal& equal = KeyEqual()) : hash(um.hash), equal(um.equal)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(std::initializer_list<value_type> il, size_type bucket_count, const hasher& hash, const key_equal& equal) : hash(hash), equal(equal)
 {
 	before_begin = new node_type;
 	past_the_last = new node_type;
@@ -570,14 +571,14 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::~MyUnorderedMap()
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::operator=(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um)
 {
-	if(this!=&um2)
+	if(this!=&um)
 	{
 		hash=um.hash;
 		equal=um.equal;
 		release_bucket_array();
 		alloc_bucket_array(um.mbc);
 		insert(um.begin(), um.end());
-		mlf=um.mlf;
+		max_lf=um.max_lf;
 		lf=um.lf;
 	}
 	return *this;
@@ -594,7 +595,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& MyUnorderedMap<Key, T, Hash, 
 	buckets=um.buckets;
 	before_begin=um.before_begin;
 	past_the_last=um.past_the_last;
-	mlf=um.mlf;
+	max_lf=um.max_lf;
 	lf=um.lf;
 	last_added_bucket=um.last_added_bucket;
 	um.buckets=nullptr;
@@ -614,7 +615,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& MyUnorderedMap<Key, T, Hash, 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Args&&... args) requires(std::constructible_from<T, Args...>)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Args&&... args) requires(std::constructible_from<T, Args...>)
 {	
 	node_type* node=alloc_node(std::forward<Args>(args)...);
 	auto result=insert_item<node_type*>(node);
@@ -627,7 +628,7 @@ std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnordere
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>)
 {
 	node_type* node=alloc_node(std::forward<Args>(args)...);
 	if(getInd(p.it->value.first)==getInd(node->value.first))
@@ -652,7 +653,7 @@ UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>)
 {
 	node_type* node=alloc_node(key, std::forward<Args>(args)...);
 	auto result=insert_item<node_type*>(node);
@@ -665,13 +666,13 @@ std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnordere
 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(const value_type& value)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(const value_type& value)
 {
 	return insert_item<value_type>(value);
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
 {
 	return insert_item<value_type&&>(value);	
 }
@@ -697,13 +698,13 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(std::initializer_
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(node_type&& nh)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(node_type&& nh)
 {
 	return insert(nh.value);
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_or_assign(const key_type& key, mapped_type&& obj)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_or_assign(const key_type& key, mapped_type&& obj)
 {
 	size_type position=getInd(key);
 	iterator result=iterator(buckets[position].find(value_type(key, obj)));
@@ -717,7 +718,7 @@ std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnordere
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-Item<std::pair<const Key&, T>>* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::node_type* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(key_type& key)
 {
 	iterator prev=find_item(key, true);
 	node_type* extr=prev.it->next;
@@ -728,7 +729,7 @@ Item<std::pair<const Key&, T>>* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator
 
 //itr points to previous position
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-Item<std::pair<const Key&, T>>* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(const_iterator itr)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::node_type* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(const_iterator itr)
 {
 	node_type* extr=itr.it->next;
 	itr.it->next=extr->next;
@@ -750,7 +751,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::merge(MyUnorderedMap<Key
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(key_type& key)
 {
 	iterator itr=erase_item(key);
 	if(itr.it->isEnd) return 0;
@@ -758,7 +759,7 @@ size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(key_type& key
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(UnorderedMapIterator<std::pair<const Key&, T>, bool> itr)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator itr)
 {
 	iterator next=iterator(itr.it->next);
 	erase(itr.it->value.first);
@@ -766,7 +767,7 @@ UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(iterator it1, iterator it2)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(iterator it1, iterator it2)
 {
 	iterator itr=it1;
 	iterator last_removed=itr;
@@ -780,19 +781,19 @@ UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear()
+void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear() noexcept
 {
 	erase(begin(), end());
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-UnorderedMapIterator<std::pair<const Key&, T>, false> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key)
 {
 	return find_item(key);	
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-UnorderedMapIterator<std::pair<const Key&, T>, true> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::const_iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key) const
 {
 	return const_iterator(find_item(key));
 }
