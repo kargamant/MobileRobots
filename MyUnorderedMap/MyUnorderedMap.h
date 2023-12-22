@@ -303,23 +303,29 @@ public:
 	iterator emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>);
 	template<class... Args>
 	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>) requires(std::constructible_from<T, Args...>);
+
 	insert_return_type insert(const value_type& value);
 	insert_return_type insert(value_type&& value);
 	void insert(iterator first, iterator last);
 	void insert(std::initializer_list<value_type> il); //insert(il.begin(), il.end());
 	insert_return_type insert(node_type&& nh);
 	insert_return_type insert_or_assign(const key_type& key, mapped_type&& obj);
+
 	node_type* extract(key_type& key);
 	node_type* extract(const_iterator itr);
 	//template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+	
 	void merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
+	
 	size_type erase(key_type& key);
 	iterator erase(iterator itr);
 	iterator erase(iterator it1, iterator it2);
 	void clear() noexcept;
+	
 	iterator find(key_type& key);
 	const_iterator find(key_type& key) const;
 	bool contains(key_type& key); //find(key)!=end()
+	
 	size_type bucket_count() { return bc; }
 	size_type max_bucket_count() { return mbc; }
 	size_type bucket(key_type& key) { return Hash(key); }
@@ -331,6 +337,7 @@ public:
 	const_iterator end(size_type n) const { return iterator(buckets[n].end); }
 	const_iterator cbegin(size_type n) const { return iterator(buckets[n].first); }
 	const_iterator cend(size_type n) const { return iterator(buckets[n].end); }
+	
 	float load_factor() { return lf; }
 	float max_load_factor() { return max_lf; }
 	void max_load_factor(float nmlf) { max_lf = nmlf; }
@@ -372,6 +379,7 @@ private:
 	size_type getInd(const key_type& key) {size_type img=hash(key); return (img>0)? img%mbc : (-img)%mbc;}
 	size_type getInd(value_type& val) {return getInd(val.first);}
 	size_type getInd(node_type* item) {return getInd(item->value);}
+	size_type getInd(iterator itr) {return getInd(itr.it);}
 
 	void alloc_bucket_array(size_type size)
 	{
@@ -395,11 +403,12 @@ private:
 		mbc = 0;
 	}
 
-	iterator find_item(const key_type& key)
+	iterator find_item(const key_type& key, bool prev=false)
 	{
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
-		while (!equal(itr.it->value.first, key) && !itr.it->isEnd) ++itr;
+		if(!prev) while (!equal(itr.it->value.first, key) && !itr.it->isEnd) ++itr;
+		else while(!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd) ++itr;
 		return itr;
 	}
 
@@ -420,15 +429,16 @@ private:
 			last_added_bucket=position;
 			bucket[position].end->next=past_the_last;
 		}
-		return result;
+		return insert_return_type(iterator(result.first), result.second);
 	}
 
 	
-	iterator erase_item(key_type key)
+	iterator erase_item(const key_type& key)
 	{
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
 		while (!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd) ++itr;
+		if(itr.it->next->isEnd && !equal(itr.it->value.first, key)) return ++itr;
 		buckets[position].erase(itr.it);
 		if (buckets[position].size == 0) 
 		{
@@ -570,7 +580,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& MyUnorderedMap<Key, T, Hash, 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Args&&... args) requires(std::constructible_from<T, Args...>)
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Args&&... args) requires(std::constructible_from<T, Args...>)
 {	
 	node_type* node=alloc_node(std::forward<Args>(args)...);
 	auto result=insert_item<node_type*>(node);
@@ -583,7 +593,7 @@ insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace(Ar
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>)
+UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<T, Args...>)
 {
 	node_type* node=alloc_node(std::forward<Args>(args)...);
 	if(getInd(p.it->value.first)==getInd(node->value.first))
@@ -608,7 +618,7 @@ iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::emplace_hint(const_i
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 template<class... Args>
-insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>)
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>)
 {
 	node_type* node=alloc_node(key, std::forward<Args>(args)...);
 	auto result=insert_item<node_type*>(node);
@@ -621,13 +631,13 @@ insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::try_emplac
 
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(const value_type& value)
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(const value_type& value)
 {
 	return insert_item<value_type>(value);
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
 {
 	return insert_item<value_type&&>(value);	
 }
@@ -653,14 +663,15 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(std::initializer_
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(node_type&& nh)
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(node_type&& nh)
 {
 	return insert(nh.value);
 }
 
-insert_return_type insert_or_assign(const key_type& key, mapped_type&& obj)
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+std::pair<UnorderedMapIterator<std::pair<const Key&, T>, bool>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_or_assign(const key_type& key, mapped_type&& obj)
 {
-	size_type position=hash(key);
+	size_type position=getInd(key);
 	iterator result=iterator(buckets[position].find(value_type(key, obj)));
 	if(result.it->isEnd)
 	{
@@ -670,6 +681,79 @@ insert_return_type insert_or_assign(const key_type& key, mapped_type&& obj)
 	result.it->value.second=std::move(obj);
 	return insert_return_type(result, true);
 }
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+Item<std::pair<const Key&, T>>* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(key_type& key)
+{
+	iterator prev=find_item(key, true);
+	node_type* extr=prev.it->next;
+	prev->next=extr->next;
+	buckets[getInd(key)].size-=1;
+	return extr;
+}
+
+//itr points to previous position
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+Item<std::pair<const Key&, T>>* MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::extract(const_iterator itr)
+{
+	node_type* extr=itr.it->next;
+	itr.it->next=extr->next;
+	buckets[getInd(itr)].size-=1;
+	return extr;
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other)
+{
+	for(auto itr: other)
+	{
+		iterator search=find_item(itr.it->value.first);
+		if(search.it->isEnd)
+		{
+			insert<node_type*>(other.extract(search));
+		}
+	}
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(key_type& key)
+{
+	iterator itr=erase_item(key);
+	if(itr.it->isEnd) return 0;
+	else return 1;
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(UnorderedMapIterator<std::pair<const Key&, T>, bool> itr)
+{
+	iterator next=iterator(itr.it->next);
+	erase(itr.it->value.first);
+	return next;
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+UnorderedMapIterator<std::pair<const Key&, T>, bool> MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(iterator it1, iterator it2)
+{
+	iterator itr=it1;
+	iterator last_removed=itr;
+	while(itr!=it2 && !itr.it->isEnd)
+	{
+		size_type result=erase(itr.it->value.first);
+		if(result) last_removed=itr;
+		++itr;
+	}
+	return last_removed;	
+}
+
+template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear()
+{
+	erase(begin(), end());
+}
+
+
+
+
 
 
 
