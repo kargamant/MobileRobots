@@ -11,7 +11,8 @@ struct Item
 {
 	bool isEnd = false;
 	V value;
-	Item* next; //last in bucket points to next bucket or nullptr if this is the last bucket
+	Item* next=nullptr; //last in bucket points to next bucket or nullptr if this is the last bucket
+	Item(V value = V()) : value(value) {}
 };
 
 template<class V>
@@ -50,8 +51,10 @@ struct Bucket
 			result.second = false;
 			return result;
 		}
-		Item<V>* item = new Item<V>;
-		item->value = value;
+		Item<V>* item = new Item<V>(value);
+		/*item->value.first.first = value.first.first;
+		item->value.first.second = value.first.second;
+		item->value.second = value.second;*/
 		if (isEmpty())
 		{
 			first = item;
@@ -187,9 +190,8 @@ requires (is_const >= other) : it(Item<V>())
 
 template<class V, bool is_const>
 template<bool other>
-UnorderedMapIterator<V, is_const>::UnorderedMapIterator(UnorderedMapIterator<V, other>&& umit) : it(Item<V>()) //requires (other==false)
+UnorderedMapIterator<V, is_const>::UnorderedMapIterator(UnorderedMapIterator<V, other>&& umit) : it(new Item<V>(umit.it->value)) //requires (other==false)
 {
-	it->value=umit.it->value;
 	it->next=umit.it->next;
 	umit.it=nullptr;
 }
@@ -220,7 +222,7 @@ template<class V, bool is_const>
 template<bool other>
 bool UnorderedMapIterator<V, is_const>::operator==(const UnorderedMapIterator<V, other>& it2) const
 {
-	return (it->value==it2.it->value) && (it->next==it2.it->next);
+	return (it->value==it2.it->value)&&(it->next==it2.it->next);
 }
 
 template<class V, bool is_const>
@@ -239,6 +241,7 @@ template<class V, bool is_const>
 UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator++() noexcept
 {
 	it=it->next;
+	if (it->isEnd) it = it->next;
 	return *this;
 }
 
@@ -247,6 +250,7 @@ UnorderedMapIterator<V, is_const> UnorderedMapIterator<V, is_const>::operator++(
 {
 	UnorderedMapIterator tmp(it);
 	it=it->next;
+	if (it->isEnd) it = it->next;
 	return tmp;
 }
 
@@ -295,8 +299,8 @@ public:
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um);
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>&& um);
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(std::initializer_list<value_type> il);
-	hasher hash_function() { return hasher(); }
-	key_equal key_eq() { return key_equal(); }
+	hasher hash_function() const { return hasher(); }
+	key_equal key_eq() const { return key_equal(); }
 
 	template<class... Args>
 	insert_return_type emplace(Args&&... args) requires(std::constructible_from<T, Args...>);
@@ -325,12 +329,12 @@ public:
 	
 	iterator find(key_type& key);
 	const_iterator find(key_type& key) const;
-	bool contains(key_type& key); //find(key)!=end()
+	bool contains(key_type& key) const; //find(key)!=end()
 	
-	size_type bucket_count() { return bc; }
-	size_type max_bucket_count() { return mbc; }
-	size_type bucket(key_type& key) { return Hash(key); }
-	size_type bucket_size(size_type n) { return buckets[n].size; }
+	size_type bucket_count() const { return bc; }
+	size_type max_bucket_count() const { return mbc; }
+	size_type bucket(key_type& key) const { return getInd(key); }
+	size_type bucket_size(size_type n) const { return buckets[n].size; }
 
 	iterator begin(size_type n) { return iterator(buckets[n].first); }
 	const_iterator begin(size_type n) const { return iterator(buckets[n].first); }
@@ -345,8 +349,8 @@ public:
 	iterator end() noexcept {return iterator(past_the_last);}
 	const_iterator cend() const noexcept {return const_iterator(past_the_last);}
 
-	float load_factor() {return lf; }
-	float max_load_factor() { return max_lf; }
+	float load_factor() const {return lf; }
+	float max_load_factor() const { return max_lf; }
 	void max_load_factor(float nmlf) { max_lf = nmlf; }
 	
 	void rehash(size_type new_count);
@@ -354,15 +358,14 @@ public:
 	void swap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
 	allocator_type get_allocator() const noexcept {return Allocator();}
-	
 
 	bool empty() const noexcept {return bc==0;}
 	size_type max_size() const noexcept {return 100;}
 	size_type size() const noexcept 
 	{
 		size_type sum=0;
-		iterator itr=begin();
-		while(itr!=end())
+		iterator itr=cbegin();
+		while(itr!=cend())
 		{
 			sum+=buckets[getInd(itr)].size;
 			itr=buckets[getInd(itr)].end->next;
@@ -374,7 +377,7 @@ public:
 	
 	mapped_type& at(const key_type& key)
 	{
-		iterator result=find_item(std::forward<key_type>(key));
+		iterator result=find_item(std::forward<const key_type&>(key));
 		if(result.it->isEnd) throw std::invalid_argument("Error. No element with such key");
 		return result.it->value.second;
 	}
@@ -386,23 +389,23 @@ public:
 		if(result.it->isEnd) throw std::invalid_argument("Error. No element with such key");
 		return result.it->value.second;
 	}
-private:
+
 	static const size_type DEFAULT_BUCKET_COUNT = 7;
-	const hasher hash=Hash();
-	const key_equal equal = KeyEqual();
+	hasher hash=Hash();
+	key_equal equal = KeyEqual();
 	size_type bc=0;
 	size_type mbc=DEFAULT_BUCKET_COUNT;
 	bucket_type* buckets=nullptr;
 	node_type* before_begin=nullptr;
 	node_type* past_the_last=nullptr;
-	size_type last_added_bucket=0;
+	size_type last_added_bucket=-1;
 	float max_lf = 3;
 	float lf = 0;
-
-	size_type getInd(const key_type& key) {size_type img=hash(key); return (img>0)? img%mbc : (-img)%mbc;}
-	size_type getInd(value_type& val) {return getInd(val.first);}
-	size_type getInd(node_type* item) {return getInd(item->value);}
-	size_type getInd(iterator itr) {return getInd(itr.it);}
+private:
+	size_type getInd(const key_type& key) const {size_type img=hash(key); return (img>0)? img%mbc : (-img)%mbc;}
+	size_type getInd(value_type& val) const {return getInd(val.first);}
+	size_type getInd(node_type* item) const {return getInd(item->value);}
+	size_type getInd(iterator itr) const {return getInd(itr.it);}
 
 	void alloc_bucket_array(size_type size)
 	{
@@ -447,10 +450,13 @@ private:
 			{
 				before_begin->next=buckets[position].first;
 			}
-			buckets[last_added_bucket].end->next=bucket[position].first;
-			bucket[position].prev_bucket=buckets[last_added_bucket];
-			last_added_bucket=position;
-			bucket[position].end->next=past_the_last;
+			if (last_added_bucket != -1)
+			{
+				buckets[last_added_bucket].end->next = buckets[position].first;
+				buckets[position].prev_bucket = buckets + last_added_bucket;
+			}
+			buckets[position].end->next = past_the_last;
+			last_added_bucket = position;
 		}
 		update_lf();
 		if(lf>max_lf)
@@ -503,6 +509,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(size_type buck
 {
 	before_begin = new node_type;
 	past_the_last = new node_type;
+	past_the_last->next = nullptr;
 	before_begin->next=past_the_last;
 	alloc_bucket_array(bucket_count);
 }
@@ -601,6 +608,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& MyUnorderedMap<Key, T, Hash, 
 	um.buckets=nullptr;
 	um.before_begin=nullptr;
 	um.past_the_last=nullptr;
+	return *this;
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
@@ -693,7 +701,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(std::initializer_
 {
 	for(auto it: il)
 	{
-		insert(*it);
+		insert(it);
 	}
 }
 
@@ -799,7 +807,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::const_iterator MyUnorderedMap
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(key_type& key)
+bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(key_type& key) const
 {
 	return !find(key).it->isEnd;
 }

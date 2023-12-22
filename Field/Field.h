@@ -16,9 +16,25 @@ namespace Field
 		}
 	};
 
+	struct nonConstCoordHash
+	{
+		std::size_t operator()(std::pair<int, int>& key)
+		{
+			return std::hash<int>()((key.first + key.second) * (key.first - key.second));
+		}
+	};
+
 	struct CoordEqual
 	{
 		bool operator()(const std::pair<int, int>& key1, const std::pair<int, int>& key2) const
+		{
+			return (key1.first == key2.first) && (key1.second == key2.second);
+		}
+	};
+
+	struct nonConstCoordEqual
+	{
+		bool operator()(std::pair<int, int>& key1, std::pair<int, int>& key2)
 		{
 			return (key1.first == key2.first) && (key1.second == key2.second);
 		}
