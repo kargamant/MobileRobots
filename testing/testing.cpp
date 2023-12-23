@@ -237,4 +237,66 @@ TEST_CASE("MyUnorderedMap")
 			itr2 = next;
 		}
 	}
+	SECTION("insert or assign")
+	{
+		field_map um{};
+		Robots::Platform plt = Robots::RobotCommander();
+		plt.setCoordinates(1, 3);
+		Robots::Platform plt2 = Robots::RobotDestroyer();
+		plt2.setCoordinates(1, 3);
+		um.insert({ {plt.getCoordinates(), &plt} });
+		um.insert_or_assign(plt2.getCoordinates(), &plt2);
+		REQUIRE(um.find({1, 3}).it->value.second==&plt2);
+	}
+	SECTION("emplace")
+	{
+		field_map um{};
+		Robots::Platform plt = Robots::RobotDestroyer();
+		um.emplace(std::make_pair(std::pair<int, int>(2, 5) , &plt));
+		REQUIRE(um.find({2, 5}).it->value.second==&plt);
+	}
+	SECTION("emplace hint")
+	{
+		field_map um{};
+		Robots::Platform plt = Robots::RobotCommander();
+		plt.setCoordinates(1, 3);
+		Robots::Platform plt2 = Robots::RobotDestroyer();
+		plt2.setCoordinates(5, 1);
+		um.emplace(std::make_pair(plt.getCoordinates(), &plt));
+		um.emplace(std::make_pair(plt2.getCoordinates(), &plt2));
+		Robots::Platform plt3 = Robots::RobotDestroyer();
+		plt3.setCoordinates(5, 1);
+		REQUIRE(um.emplace_hint(um.find({ 5, 1 }), std::make_pair(plt3.getCoordinates(), &plt3)) == um.end());
+		plt3.setCoordinates(0, 8);
+		REQUIRE(um.emplace_hint(um.find({ 5, 1 }), std::make_pair(plt3.getCoordinates(), &plt3)) != um.end());
+		REQUIRE(um.contains(plt.getCoordinates()));
+		REQUIRE(um.contains(plt2.getCoordinates()));
+		REQUIRE(um.contains(plt3.getCoordinates()));
+	}
+	SECTION("extract")
+	{
+		field_map um{};
+		Robots::Platform plt = Robots::RobotCommander();
+		plt.setCoordinates(1, 3);
+		um.insert({ {plt.getCoordinates(), &plt} });
+		field_map::node_type* node = um.extract(plt.getCoordinates());
+		REQUIRE(node->value.second==&plt);
+		field_map::iterator itr = um.find({ 1, 3 });
+
+		REQUIRE(um.find({ 1, 3 }) == um.end());
+
+		/*Robots::Platform plt2 = Robots::RobotDestroyer();
+		plt2.setCoordinates(0, 1);
+		um.insert({ {plt.getCoordinates(), &plt}, {plt2.getCoordinates(), &plt2}});
+		REQUIRE(um.bucket({ 1, 3 }) == um.bucket({0, 1}));
+		field_map::node_type* node2 = um.extract(um.find({0, 1}, true));
+		REQUIRE(node2->value.second==&plt2);
+		REQUIRE(um.find({ 0, 1 }) == um.end());
+		REQUIRE(um.find({ 1, 3 }) != um.end());
+		REQUIRE(um.size()==1);*/
+	}
+	SECTION("erase")
+	{
+		
+	}
 }
