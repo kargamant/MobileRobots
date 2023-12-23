@@ -1,6 +1,7 @@
 #include <functional>
 #include <concepts>
 #include <stdexcept>
+#include <cmath>
 //structs
 
 template<std::default_initializable Key, std::default_initializable T, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
@@ -108,7 +109,7 @@ struct Bucket
 		if (!isEmpty())
 		{
 			Item<V>* ptr = first;
-			while (!ptr->isEnd && ptr->value!=value)
+			while (!ptr->isEnd && ptr->value.first!=value.first)
 			{
 				ptr = ptr->next;
 			}
@@ -328,13 +329,13 @@ public:
 	iterator erase(iterator it1, iterator it2);
 	void clear() noexcept;
 	
-	iterator find(key_type& key);
-	const_iterator find(key_type& key) const;
-	bool contains(key_type& key) const; //find(key)!=end()
+	iterator find(const key_type& key);
+	const_iterator find(const key_type& key) const;
+	bool contains(const key_type& key) const; //find(key)!=end()
 	
 	size_type bucket_count() const { return bc; }
 	size_type max_bucket_count() const { return mbc; }
-	size_type bucket(key_type& key) const { return getInd(key); }
+	size_type bucket(const key_type& key) const { return getInd(key); }
 	size_type bucket_size(size_type n) const { return buckets[n].size; }
 
 	iterator begin(size_type n) { return iterator(buckets[n].first); }
@@ -403,7 +404,12 @@ public:
 	float max_lf = 3;
 	float lf = 0;
 private:
-	size_type getInd(const key_type& key) const {size_type img=hash(key); return (img>0)? img%mbc : (-img)%mbc;}
+	size_type getInd(const key_type& key) const 
+	{
+		size_type img=hash(key);
+		if (img < 0) img = -img;
+		return img%mbc; 
+	}
 	size_type getInd(value_type& val) const {return getInd(val.first);}
 	size_type getInd(node_type* item) const {return getInd(item->value);}
 	size_type getInd(iterator itr) const {return getInd(itr.it);}
@@ -418,8 +424,7 @@ private:
 	template<class... Args>
 	node_type* alloc_node(Args&&... args)
 	{
-		node_type* node=new node_type;
-		node->value=value_type(std::forward<Args>(args)...);
+		node_type* node=new node_type(value_type(std::forward<Args>(args)...));
 		return node;
 	}
 
@@ -432,6 +437,7 @@ private:
 
 	iterator find_item(const key_type& key, bool prev=false) const
 	{
+		//std::cout << key.first << " " << key.second << std::endl;
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
 		if(!prev) while (!equal(itr.it->value.first, key) && !itr.it->isEnd) ++itr;
@@ -535,7 +541,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(const MyUnorde
 	before_begin=new node_type;
 	past_the_last=new node_type;
 	before_begin->next=past_the_last;
-	insert(um.begin(), um.end());
+	insert(um.cbegin(), um.cend());
 	max_lf=um.max_lf;
 	lf=um.lf;
 }
@@ -553,6 +559,9 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(MyUnorderedMap
 	um.buckets=nullptr;
 	um.before_begin=nullptr;
 	um.past_the_last=nullptr;
+	um.bc = 0;
+	um.mbc = 0;
+	um.last_added_bucket = -1;
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
@@ -564,7 +573,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(std::initializ
 	alloc_bucket_array(bucket_count);
 	for(auto itr: il)
 	{
-		insert(*itr);
+		insert(itr);
 	}
 }
 
@@ -684,7 +693,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnordere
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert_return_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(value_type&& value)
 {
-	return insert_item<value_type&&>(value);	
+	return insert_item<value_type>(value);	
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
@@ -797,19 +806,19 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear() noexcept
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(const key_type& key)
 {
 	return find_item(key);	
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::const_iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(key_type& key) const
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::const_iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::find(const key_type& key) const
 {
 	return const_iterator(find_item(key));
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(key_type& key) const
+bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(const key_type& key) const
 {
 	return !find(key).it->isEnd;
 }

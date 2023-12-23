@@ -37,19 +37,19 @@ namespace Robots
 
 	std::string moduleToString(Module& mod)
 	{
-		if (isComponentCastable<Robots::Module&, Robots::EnergyGenerator&>(mod))
+		if (mod.isEnergyGenerator)
 		{
 			return "energy generator";
 		}
-		else if (isComponentCastable<Robots::Module&, Robots::Sensor&>(mod))
+		else if (mod.isSensor)
 		{
 			return "sensor";
 		}
-		else if (isComponentCastable<Robots::Module&, Robots::ManageModule&>(mod))
+		else if (mod.isRulling)
 		{
 			return "manage module";
 		}
-		else if (isComponentCastable<Robots::Module&, Robots::Gun&>(mod))
+		else if (mod.isGun)
 		{
 			return "gun";
 		}

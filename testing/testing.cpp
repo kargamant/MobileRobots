@@ -4,12 +4,12 @@
 #include "../Field/Field.h"
 #include "../MyUnorderedMap/MyUnorderedMap.h"
 #include "../Platforms/RobotCommander.h"
+#include "../Platforms/RobotDestroyer.h"
 
 typedef MyUnorderedMap<std::pair<int, int>, Robots::Platform*, Field::CoordHash, Field::CoordEqual> field_map;
 
-std::pair<Item<field_map::value_type>*, Item<field_map::value_type>*> generateItemVec(int n)
+Item<field_map::value_type>* generateItemVec(int n)
 {
-	//std::vector<Item<field_map::value_type>*> result;
 	Item<field_map::value_type>* last = nullptr;
 	Item<field_map::value_type>* first = nullptr;
 	Item<field_map::value_type>* prev = nullptr;
@@ -22,20 +22,27 @@ std::pair<Item<field_map::value_type>*, Item<field_map::value_type>*> generateIt
 		else first = ptr;
 		prev = ptr;
 		if (i == (n-1)) last = ptr;
-		//result.push_back(ptr);
-		std::cout << "db1" << std::endl;
 	}
-	return {first, last};
+	return first;
 }
 
 
 TEST_CASE("MyUnorderedMap")
 {
-	SECTION("empty constructor")
+	SECTION("default constructor")
 	{
 		field_map um{};
 		field_map::size_type def = field_map::DEFAULT_BUCKET_COUNT;
 		REQUIRE(um.mbc == def);
+	}
+	SECTION("standard constructor with arguments")
+	{
+		field_map um{ 20 };
+		REQUIRE(um.mbc==20);
+		Robots::Platform plt = Robots::RobotDestroyer();
+		um.insert({ {2, 3},  &plt.setCoordinates(2, 3)});
+		REQUIRE(um.bc == 1);
+		REQUIRE(um.contains({ 2, 3 }));
 	}
 	SECTION("iterator range constructor")
 	{
@@ -61,13 +68,20 @@ TEST_CASE("MyUnorderedMap")
 			if (pr->getCoordinates().first != 9) REQUIRE(um.contains(pr->getCoordinates()));
 		}
 		
-		/*ﬂ ¬¿’”≈ ¡Àﬂ“‹, ŒÕŒ ¬€«€¬¿≈“  ŒÕ—“–” “Œ– Õ≈— ŒÀ‹ Œ –¿«  ¿ Œ√Œ ’”ﬂ ¡Àﬂ“‹
-		std::pair<Item<field_map::value_type>*, Item<field_map::value_type>*> items = generateItemVec(10);
-		field_map::iterator last = field_map::iterator(items.second);
-		field_map::iterator first = field_map::iterator(items.first);
-		field_map um{ first, last};
-		field_map::iterator ir = first;
-		while (ir != last)
+		/*
+		//Some wierd shit
+		//Constructor called multiple times wtf
+		Item<field_map::value_type>* first = generateItemVec(10);
+		Item<field_map::value_type>* ptr = first;
+		while (ptr->next != nullptr)
+		{
+			ptr->value.second->consoleOut();
+			ptr = ptr->next;
+		}
+		Item<field_map::value_type>* last = ptr;
+		field_map um{ field_map::iterator(first), field_map::iterator(last)};
+		field_map::iterator ir = field_map::iterator(first);
+		while (ir != field_map::iterator(last))
 		{
 			if(ir.it->value.first.first!=9) REQUIRE(um.contains(ir.it->value.second->getCoordinates()));
 			++ir;
@@ -83,9 +97,90 @@ TEST_CASE("MyUnorderedMap")
 		while (itr != field_map::iterator(last))
 		{
 			field_map::iterator next = field_map::iterator(itr.it->next);
+			//delete itr.it->value.second;
 			delete itr.it;
 			itr = next;
 		}
+	}
+	SECTION("Copy constructor")
+	{
+		Item<field_map::value_type>* last = nullptr;
+		Item<field_map::value_type>* first = nullptr;
+		Item<field_map::value_type>* prev = nullptr;
+
+		std::vector<Robots::Platform*> platforms;
+		for (int i = 0; i < 10; i++)
+		{
+			Robots::Platform* plt = new Robots::RobotCommander();
+			plt->setCoordinates(i, 0);
+			if (i != 9) platforms.push_back(plt);
+			Item<field_map::value_type>* ptr = new Item<field_map::value_type>(field_map::value_type({ plt->getCoordinates(), plt }));
+			if (prev != nullptr) prev->next = ptr;
+			else first = ptr;
+			prev = ptr;
+			if (i == 9) last = ptr;
+		}
+		field_map um{ field_map::iterator(first), field_map::iterator(last) };
+		field_map um2{ um };
+		field_map::iterator itr = um.begin();
+		while (itr != um.end())
+		{
+			REQUIRE(um2.find(itr.it->value.first)!=um2.end());
+			++itr;
+		}
+
+		field_map::iterator it = field_map::iterator(first);
+		while (it != field_map::iterator(last))
+		{
+			field_map::iterator next = field_map::iterator(it.it->next);
+			//delete it.it->value.second;
+			delete it.it;
+			it = next;
+		}
+	}
+	SECTION("Move constructor")
+	{
+		Item<field_map::value_type>* last = nullptr;
+		Item<field_map::value_type>* first = nullptr;
+		Item<field_map::value_type>* prev = nullptr;
+
+		std::vector<Robots::Platform*> platforms;
+		for (int i = 0; i < 10; i++)
+		{
+			Robots::Platform* plt = new Robots::RobotCommander();
+			plt->setCoordinates(i, 0);
+			if (i != 9) platforms.push_back(plt);
+			Item<field_map::value_type>* ptr = new Item<field_map::value_type>(field_map::value_type({ plt->getCoordinates(), plt }));
+			if (prev != nullptr) prev->next = ptr;
+			else first = ptr;
+			prev = ptr;
+			if (i == 9) last = ptr;
+		}
+		field_map um{ field_map::iterator(first), field_map::iterator(last) };
+		field_map tmp{ um };
+		field_map um2{ std::move(um) };
+		field_map::iterator itr = tmp.begin();
+		while (itr != tmp.end())
+		{
+			REQUIRE(um2.contains(itr.it->value.first));
+			++itr;
+		}
+		REQUIRE(um.buckets==nullptr);
+		REQUIRE(um.before_begin==nullptr);
+		REQUIRE(um.past_the_last==nullptr);
+		REQUIRE(um.bc==0);
+		REQUIRE(um.mbc==0);
+		REQUIRE(um.last_added_bucket==-1);
+	}
+	SECTION("initializer list constructor")
+	{
+		Robots::Platform* plt1 = new Robots::RobotDestroyer();
+		Robots::Platform* plt2 = new Robots::RobotCommander();
+		field_map um{ { {{1, 3}, &plt1->setCoordinates(1, 3)}, {{2, 5}, &plt2->setCoordinates(2, 5)} } };
+		field_map::size_type def = field_map::DEFAULT_BUCKET_COUNT;
+		REQUIRE(um.mbc == def);
+		//um.try_emplace({ 2, 5 }, plt1);
+		REQUIRE(!um.try_emplace({2, 5}, plt1).second);
 	}
 	SECTION("insert by initializer list")
 	{
@@ -122,7 +217,7 @@ TEST_CASE("MyUnorderedMap")
 		int k = 0;
 		while (itr != um.end())
 		{
-			itr.it->value.second->consoleOut();
+			//itr.it->value.second->consoleOut();
 			k++;
 			++itr;
 		}

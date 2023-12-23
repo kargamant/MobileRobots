@@ -15,7 +15,7 @@ namespace Robots
 		CommandCentre(int radius = 1, int sub = 2, double energy = 3, int slots = 3, int cost = 5000, std::pair<int, int> coordinates = std::pair<int, int>(0, 0));
 		~CommandCentre()
 		{
-			std::cout << "command centre destructor" << std::endl;
+			//std::cout << "command centre destructor" << std::endl;
 			delete robo[manageInd];
 		}
 
