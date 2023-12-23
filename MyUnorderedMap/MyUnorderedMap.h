@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 //structs
-
+#pragma once
 template<std::default_initializable Key, std::default_initializable T, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
 class MyUnorderedMap;
 
@@ -330,7 +330,7 @@ public:
 	node_type* extract(iterator itr);
 	//template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 	
-	void merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
+	//void merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
 	size_type erase(const key_type& key);
 	iterator erase(iterator itr);
@@ -363,9 +363,9 @@ public:
 	float max_load_factor() const { return max_lf; }
 	void max_load_factor(float nmlf) { max_lf = nmlf; }
 	
-	void rehash(size_type new_count);
-	void reserve(size_type new_count);
-	void swap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
+	//void rehash(size_type new_count);
+	//void reserve(size_type new_count);
+	//void swap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
 	allocator_type get_allocator() const noexcept {return Allocator();}
 
@@ -488,11 +488,11 @@ private:
 			buckets[position].end->next = past_the_last;
 			last_added_bucket = position;
 		}
-		update_lf();
+		/*update_lf();
 		if(lf>max_lf)
 		{
 			rehash(mbc+DEFAULT_BUCKET_COUNT);
-		}
+		}*/
 		return insert_return_type(iterator(result.first), result.second);
 	}
 
@@ -504,7 +504,6 @@ private:
 		iterator prev = itr;
 		while (!equal(itr.it->value.first, key) && !itr.it->isEnd)
 		{
-			std::cout << "db1: "<<key.first<<" "<<key.second << std::endl;
 			prev = itr;
 			++itr;
 		}
@@ -815,7 +814,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::node_type* MyUnorderedMap<Key
 	return extr;
 }
 
-template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+/*template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other)
 {
 	for(auto itr: other)
@@ -826,7 +825,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::merge(MyUnorderedMap<Key
 			insert<node_type*>(other.extract(search));
 		}
 	}
-}
+}*/
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(const key_type& key)
@@ -894,14 +893,14 @@ bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(const key_type&
 }
 
 
-template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
+/*template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::rehash(size_type new_count)
 {
 	if(new_count<=mbc) throw std::invalid_argument("Error. You cant rehash to the smaller size.");
 
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator> nmap(begin(), end(), new_count);
 	*this=std::move(nmap);
-	/*
+	
 	size_type nmbc=new_count;
 	mbc=nmbc;
 	size_type nbc=0;
@@ -931,7 +930,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::rehash(size_type new_cou
 	release_bucket_array();
 	mbc=nmbc;
 	bc=nbc;
-	*/
+	
 }
 //void reserve(size_type new_count);
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
@@ -952,7 +951,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::swap(MyUnorderedMap<Key,
 	std::swap(last_added_bucket, other.last_added_bucket);
 	std::swap(max_lf, other.max_lf);
 	std::swap(lf, other.lf);
-}
+}*/
 
 
 

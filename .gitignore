@@ -3,3 +3,7 @@ cocos2d/
 build/
 Catch2/
 MessAround/
+report/
+*.gcda
+*.gcno
+*.info

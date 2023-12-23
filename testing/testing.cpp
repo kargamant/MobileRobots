@@ -293,15 +293,55 @@ TEST_CASE("MyUnorderedMap")
 		um.erase(um.find(platforms[8]->getCoordinates()));
 		REQUIRE(!um.contains({8, 0}));
 		REQUIRE(um.size() == 7);
-		//um.emplace(std::make_pair(platforms[0]->getCoordinates(), platforms[0]));
-		//um.emplace(std::make_pair(platforms[8]->getCoordinates(), platforms[8]));
 		um.erase(um.find({ 6, 0 }), um.find({ 5, 0 }));
 		REQUIRE(!um.contains({ 6, 0 }));
 		REQUIRE(!um.contains({ 2, 0 }));
 		REQUIRE(um.contains({ 5, 0 }));
-		//um.clear();
-		//REQUIRE(um.bc==0);
-		//REQUIRE(um.mbc == 0);
-		//REQUIRE();
+	}
+	SECTION("getters setters")
+	{
+		field_map um{};
+		REQUIRE(um.empty());
+		REQUIRE(um.bucket_count() == um.bc);
+		REQUIRE(um.max_bucket_count() == um.mbc);
+		Robots::Platform plt = Robots::RobotDestroyer();
+		Robots::Platform plt2 = Robots::RobotDestroyer();
+		Robots::Platform plt3 = Robots::RobotDestroyer();
+		um.insert({ {{1, 2}, &plt}, {{2, 2}, &plt2}, {{3, 2}, &plt3} });
+		REQUIRE(um.size() == 3);
+		REQUIRE(um.bucket_size(5)==1);
+	}
+	SECTION("iterator base methods")
+	{
+		field_map um{};
+		Item<field_map::value_type>* last = nullptr;
+		Item<field_map::value_type>* first = nullptr;
+		Item<field_map::value_type>* prev = nullptr;
+
+		std::vector<Robots::Platform*> platforms;
+		for (int i = 0; i < 10; i++)
+		{
+			Robots::Platform* plt = new Robots::RobotCommander();
+			plt->setCoordinates(i, 0);
+			if (i != 9) platforms.push_back(plt);
+			Item<field_map::value_type>* ptr = new Item<field_map::value_type>(field_map::value_type({ plt->getCoordinates(), plt }));
+			if (prev != nullptr) prev->next = ptr;
+			else first = ptr;
+			prev = ptr;
+			if (i == 9) last = ptr;
+		}
+
+		um.insert(field_map::iterator(first), field_map::iterator(last));
+		field_map::iterator itr1 = um.find({ 1, 0 });
+		field_map::iterator itr2 = um.find({ 2, 0 });
+		REQUIRE((*itr1).second == platforms[1]);
+		itr1 = itr2;
+		REQUIRE(itr1 == itr2);
+		field_map::iterator itr3 = um.find({ 3, 0 });
+		field_map::iterator nitr{std::move(itr3)};
+		REQUIRE(nitr.operator->()->second==platforms[3]);
+		REQUIRE(itr3.it == nullptr);
+		field_map::iterator nitr2{ itr1 };
+		REQUIRE(nitr2 == itr1);
 	}
 }
