@@ -26,12 +26,20 @@ int main(int argc, char* argv[])
 	{
 		it.second->consoleOut();
 	}
+	/*auto itr = app.getField().getPlatforms().begin();
+	while(itr!= app.getField().getPlatforms().end())
+	{
+		itr.it->value.second->consoleOut();
+		~itr;
+	}*/
 	std::cout << std::endl << "Let's start the game!" << std::endl;
 
 
 	if (Dialogue::isArg(argv, argv + argc, "-ai"))
 	{
-		app.play(true);
+		if (Dialogue::isArg(argv, argv + argc, "-wmode")) app.play();
+		else app.play(false);
+		
 	}
 	else if (Dialogue::isArg(argv, argv + argc, "-sand-box"))
 	{

@@ -178,6 +178,7 @@ public:
 	pointer operator->() const noexcept;
 	
 	UnorderedMapIterator<V, is_const>& operator++() noexcept;
+	UnorderedMapIterator<V, is_const>& operator~() noexcept;
 	UnorderedMapIterator<V, is_const> operator++(int) noexcept;
 };
 
@@ -249,6 +250,18 @@ UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator++
 	{
 		if (it->isEnd) it = it->next;
 	}*/
+	return *this;
+}
+
+//floating map iterator. float over end of buckets
+template<class V, bool is_const>
+UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator~() noexcept
+{
+	it = it->next;
+	if (it != nullptr)
+	{
+		if (it->isEnd) it = it->next;
+	}
 	return *this;
 }
 

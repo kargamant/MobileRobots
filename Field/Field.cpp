@@ -240,7 +240,7 @@ namespace Field
 			throw std::invalid_argument("Error. There is platform on this cell.");
 		}
 		changeCellType(plt->getCoordinates(), CellType::ground);
-		platforms.insert({plt->getCoordinates(), plt});
+		platforms.insert({ {plt->getCoordinates(), plt} });
 	}
 
 	void Field::erasePlatform(std::pair<int, int> coordinates)
