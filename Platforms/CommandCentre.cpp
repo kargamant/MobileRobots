@@ -106,7 +106,7 @@ namespace Robots
 
 	void CommandCentre::placeModule(Module& mod)
 	{
-		std::cout << robo.size() << std::endl;
+		//std::cout << robo.size() << std::endl;
 		if (robo.size() != slots)
 		{
 			robo.push_back(&mod);

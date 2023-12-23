@@ -12,7 +12,7 @@ struct Item
 	bool isEnd = false;
 	V value;
 	Item* next=nullptr; //last in bucket points to next bucket or nullptr if this is the last bucket
-	Item(V value = V()) : value(value) {}
+	Item(V value = V(), Item* next=nullptr) : value(value), next(next) {}
 };
 
 template<class V>
@@ -190,9 +190,8 @@ requires (is_const >= other) : it(Item<V>())
 
 template<class V, bool is_const>
 template<bool other>
-UnorderedMapIterator<V, is_const>::UnorderedMapIterator(UnorderedMapIterator<V, other>&& umit) : it(new Item<V>(umit.it->value)) //requires (other==false)
+UnorderedMapIterator<V, is_const>::UnorderedMapIterator(UnorderedMapIterator<V, other>&& umit) : it(new Item<V>(umit.it->value, umit.it->next)) //requires (other==false)
 {
-	it->next=umit.it->next;
 	umit.it=nullptr;
 }
 
@@ -212,7 +211,9 @@ template<class V, bool is_const>
 template<bool other>
 UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator=(UnorderedMapIterator<V, other>&& it2) //requires (other==false)
 {	
-	it->value=it2.it->value;
+	it->value.first.first=it2.it->value.first.first;
+	it->value.first.second=it2.it->value.first.second;
+	it->value.second=it2.it->value.second;
 	it->next=it2.it->next;
 	it2.it=nullptr;
 	return *this;
@@ -429,7 +430,7 @@ private:
 		mbc = 0;
 	}
 
-	iterator find_item(const key_type& key, bool prev=false)
+	iterator find_item(const key_type& key, bool prev=false) const
 	{
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
@@ -522,6 +523,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::MyUnorderedMap(UnorderedMapIt
 	past_the_last = new node_type;
 	before_begin->next=past_the_last;
 	alloc_bucket_array(bucket_count);
+	//std::cout << "iterator constructor" << std::endl;
 	insert(first, last);
 }
 
