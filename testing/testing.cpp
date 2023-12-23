@@ -67,30 +67,6 @@ TEST_CASE("MyUnorderedMap")
 		{
 			if (pr->getCoordinates().first != 9) REQUIRE(um.contains(pr->getCoordinates()));
 		}
-		
-		/*
-		//Some wierd shit
-		//Constructor called multiple times wtf
-		Item<field_map::value_type>* first = generateItemVec(10);
-		Item<field_map::value_type>* ptr = first;
-		while (ptr->next != nullptr)
-		{
-			ptr->value.second->consoleOut();
-			ptr = ptr->next;
-		}
-		Item<field_map::value_type>* last = ptr;
-		field_map um{ field_map::iterator(first), field_map::iterator(last)};
-		field_map::iterator ir = field_map::iterator(first);
-		while (ir != field_map::iterator(last))
-		{
-			if(ir.it->value.first.first!=9) REQUIRE(um.contains(ir.it->value.second->getCoordinates()));
-			++ir;
-		}*/
-		/*for (auto itr : items)
-		{
-			//std::cout << "db2" << std::endl;
-			if(itr->value.second->getCoordinates().first!=9) REQUIRE(um.contains(itr->value.second->getCoordinates()));
-		}*/
 
 		//partial freeing. Platforms aren't cleaned because of some bugg in destructor
 		field_map::iterator itr = field_map::iterator(first);
@@ -189,7 +165,7 @@ TEST_CASE("MyUnorderedMap")
 		um.insert({ {{1, 2}, plt} });
 		REQUIRE(um[{1, 2}]==plt);
 		REQUIRE(um.begin().it->value.second == plt);
-		REQUIRE(++um.begin() == um.end());
+		REQUIRE(++(++um.begin()) == um.end());
 	}
 	SECTION("insert by iterator range")
 	{
@@ -218,7 +194,7 @@ TEST_CASE("MyUnorderedMap")
 		while (itr != um.end())
 		{
 			//itr.it->value.second->consoleOut();
-			k++;
+			if(!itr.it->isEnd)k++;
 			++itr;
 		}
 		REQUIRE(k == 9);
@@ -285,18 +261,47 @@ TEST_CASE("MyUnorderedMap")
 
 		REQUIRE(um.find({ 1, 3 }) == um.end());
 
-		/*Robots::Platform plt2 = Robots::RobotDestroyer();
-		plt2.setCoordinates(0, 1);
-		um.insert({ {plt.getCoordinates(), &plt}, {plt2.getCoordinates(), &plt2}});
-		REQUIRE(um.bucket({ 1, 3 }) == um.bucket({0, 1}));
-		field_map::node_type* node2 = um.extract(um.find({0, 1}, true));
-		REQUIRE(node2->value.second==&plt2);
-		REQUIRE(um.find({ 0, 1 }) == um.end());
-		REQUIRE(um.find({ 1, 3 }) != um.end());
-		REQUIRE(um.size()==1);*/
+		
 	}
 	SECTION("erase")
 	{
-		
+		field_map um{};
+		Item<field_map::value_type>* last = nullptr;
+		Item<field_map::value_type>* first = nullptr;
+		Item<field_map::value_type>* prev = nullptr;
+		Item<field_map::value_type>* mid = nullptr;
+
+		std::vector<Robots::Platform*> platforms;
+		for (int i = 0; i < 10; i++)
+		{
+			Robots::Platform* plt = new Robots::RobotCommander();
+			plt->setCoordinates(i, 0);
+			if (i != 9) platforms.push_back(plt);
+			Item<field_map::value_type>* ptr = new Item<field_map::value_type>(field_map::value_type({ plt->getCoordinates(), plt }));
+			if (prev != nullptr) prev->next = ptr;
+			else first = ptr;
+			prev = ptr;
+			if (i == 9) last = ptr;
+			if (i == 4) mid = ptr;
+		}
+
+		um.insert(field_map::iterator(first), field_map::iterator(last));
+
+		um.erase({ 0, 0 });
+		REQUIRE(!um.contains({ 0, 0 }));
+		REQUIRE(um.size() == 8);
+		um.erase(um.find(platforms[8]->getCoordinates()));
+		REQUIRE(!um.contains({8, 0}));
+		REQUIRE(um.size() == 7);
+		//um.emplace(std::make_pair(platforms[0]->getCoordinates(), platforms[0]));
+		//um.emplace(std::make_pair(platforms[8]->getCoordinates(), platforms[8]));
+		um.erase(um.find({ 6, 0 }), um.find({ 5, 0 }));
+		REQUIRE(!um.contains({ 6, 0 }));
+		REQUIRE(!um.contains({ 2, 0 }));
+		REQUIRE(um.contains({ 5, 0 }));
+		//um.clear();
+		//REQUIRE(um.bc==0);
+		//REQUIRE(um.mbc == 0);
+		//REQUIRE();
 	}
 }

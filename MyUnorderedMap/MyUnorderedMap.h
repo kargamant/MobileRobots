@@ -120,20 +120,15 @@ struct Bucket
 
 	void erase(Item<V>* prev)
 	{
-		if (prev->next != end)
+		Item<V>* target = prev->next;
+		prev->next = target->next;
+		if (last == target)
 		{
-			Item<V>* target = prev->next;
-			prev->next = target->next;
-			delete target;
-			size--;
+			last = prev;
+			prev->next = end;
 		}
-		else if (size == 1)
-		{
-			first = end;
-			last = end;
-			size--;
-			delete prev;
-		}
+		delete target;
+		size -= 1;
 	}
 };
 
@@ -250,10 +245,10 @@ template<class V, bool is_const>
 UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator++() noexcept
 {
 	it=it->next;
-	if (it != nullptr)
+	/*if (it != nullptr)
 	{
 		if (it->isEnd) it = it->next;
-	}
+	}*/
 	return *this;
 }
 
@@ -262,10 +257,10 @@ UnorderedMapIterator<V, is_const> UnorderedMapIterator<V, is_const>::operator++(
 {
 	UnorderedMapIterator tmp(it);
 	it=it->next;
-	if (it != nullptr)
+	/*if (it != nullptr)
 	{
 		if (it->isEnd) it = it->next;
-	}
+	}*/
 	return tmp;
 }
 
@@ -337,7 +332,7 @@ public:
 	
 	void merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
-	size_type erase(key_type& key);
+	size_type erase(const key_type& key);
 	iterator erase(iterator itr);
 	iterator erase(iterator it1, iterator it2);
 	void clear() noexcept;
@@ -453,8 +448,22 @@ private:
 		//std::cout << key.first << " " << key.second << std::endl;
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
-		if(!prev) while (!equal(itr.it->value.first, key) && !itr.it->isEnd) ++itr;
-		else while(!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd) ++itr;
+		if (!prev)
+		{
+			while (!equal(itr.it->value.first, key) && !itr.it->isEnd)
+			{
+				++itr;
+				//if (itr.it==buckets[position].end) break;
+			}
+		}
+		else
+		{
+			while (!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd)
+			{
+				++itr;
+				//if (itr.it->next== buckets[position].end) break;
+			}
+		}
 		if (itr.it->isEnd) return cend();
 		return itr;
 	}
@@ -492,9 +501,26 @@ private:
 	{
 		size_type position = getInd(key);
 		iterator itr = iterator(buckets[position].first);
-		while (!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd) ++itr;
-		if(itr.it->next->isEnd && !equal(itr.it->value.first, key)) return end();
-		buckets[position].erase(itr.it);
+		iterator prev = itr;
+		while (!equal(itr.it->value.first, key) && !itr.it->isEnd)
+		{
+			std::cout << "db1: "<<key.first<<" "<<key.second << std::endl;
+			prev = itr;
+			++itr;
+		}
+
+		if (itr.it->isEnd) return end();
+		else if (prev == itr)
+		{
+			node_type* target = buckets[position].first;
+			buckets[position].first = buckets[position].first->next;
+			buckets[position].size -= 1;
+			target->next = nullptr;
+			delete target;
+			if (buckets[position].size == 0) buckets[position].last = buckets[position].end;
+		}
+		//if(itr.it->next->isEnd && !equal(itr.it->value.first, key)) return end();
+		else buckets[position].erase(prev.it);
 		if (buckets[position].size == 0) 
 		{
 			bc--;
@@ -517,7 +543,7 @@ private:
 			}
 			
 		}
-		update_lf();
+		//update_lf();
 		return itr;
 	}
 	
@@ -803,7 +829,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::merge(MyUnorderedMap<Key
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(key_type& key)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::size_type MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(const key_type& key)
 {
 	iterator itr=erase_item(key);
 	if(itr.it->isEnd) return 0;
@@ -819,23 +845,34 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, 
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
-MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(iterator it1, iterator it2)
+MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator it1, MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator it2)
 {
 	iterator itr=it1;
 	iterator last_removed=itr;
-	while(itr!=it2 && !itr.it->isEnd)
+	while(itr!=it2)
 	{
+		if (itr.it->isEnd)
+		{
+			++itr;
+			continue;
+		}
+		iterator next = iterator(itr.it->next);
 		size_type result=erase(itr.it->value.first);
 		if(result) last_removed=itr;
-		++itr;
+		itr=next;
 	}
-	return last_removed;	
+	return last_removed;
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear() noexcept
 {
-	erase(begin(), end());
+	iterator itr = iterator(before_begin->next);
+	while (itr != end())
+	{
+		erase(itr);
+		itr = iterator(before_begin->next);
+	}
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
@@ -853,7 +890,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::const_iterator MyUnorderedMap
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 bool MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::contains(const key_type& key) const
 {
-	return !find(key).it->isEnd;
+	return find(key)!=cend();
 }
 
 
