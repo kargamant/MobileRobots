@@ -356,5 +356,98 @@ TEST_CASE("MyUnorderedMap")
 
 TEST_CASE("Field class")
 {
+	SECTION("constructors and getters/setters")
+	{
+		Field::Field fld{10, 10};
+		REQUIRE(fld.getWidth() == 10);
+		REQUIRE(fld.getHeight() == 10);
+		Field::Field fld2{};
+		REQUIRE(fld2.getSize().first < 5+Field::Field::MAX_RANDOM_SIZE);
+		REQUIRE(fld2.getSize().second < 5+Field::Field::MAX_RANDOM_SIZE);
 
+		Field::Field::GROUND_MODE_ON = true;
+		Field::Field fld3{};
+		for (int i = 0; i < fld3.getWidth(); i++)
+		{
+			for (int j = 0; j < fld3.getHeight(); j++)
+			{
+				REQUIRE(fld3.getCellByCoordinates(i, j).getType() == Field::CellType::ground);
+			}
+		}
+		fld.changeCellType({ 1, 2 }, Field::CellType::obstacle);
+		REQUIRE(fld.getCellByCoordinates({ 1, 2 }).getType() == Field::CellType::obstacle);
+		REQUIRE_THROWS(fld.changeCellType(100, 10, Field::CellType::pointOfInterest));
+	}
+	SECTION("resize")
+	{
+		Field::Field::GROUND_MODE_ON = false;
+		Field::Field fld{ 10, 10 };
+		Field::Field::GROUND_MODE_ON = true;
+		fld.resize(15, 15);
+		REQUIRE(fld.getWidth() == 15);
+		REQUIRE(fld.getHeight() == 15);
+		for (int i = 10; i < 15; i++)
+		{
+			for (int j = 10; j < 15; j++)
+			{
+				
+				REQUIRE(fld.getCellByCoordinates(i, j).getType() == Field::CellType::ground);
+				REQUIRE(fld.getCellByCoordinates(j, i).getType() == Field::CellType::ground);
+			}
+		}
+		fld.resize({ 8, 8 });
+		for (int i = 8; i < 15; i++)
+		{
+			for (int j = 8; j < 15; j++)
+			{
+				REQUIRE_THROWS(fld.getCellByCoordinates(i, j));
+				REQUIRE_THROWS(fld.getCellByCoordinates(j, i));
+			}
+		}
+		REQUIRE(fld.getWidth() == 8);
+		REQUIRE(fld.getHeight() == 8);
+	}
+	SECTION("Platform placement, moving and erasing")
+	{
+		Field::Field::GROUND_MODE_ON = false;
+		Field::Field fld{ 10, 10 };
+		Robots::Platform plt = Robots::RobotCommander();
+		plt.setCoordinates(1, 1);
+		fld.placePlatform(&plt);
+		REQUIRE(fld.checkPlatformOnField({ 1, 1 }) == &plt);
+		Robots::Platform plt2 = Robots::RobotDestroyer();
+		plt2.setCoordinates(1000, 1000);
+		REQUIRE_THROWS(fld.placePlatform(&plt2));
+
+		fld.changeCellType({ 3, 3 }, Field::CellType::ground);
+		fld.movePlatform({ 1, 1 }, { 2, 2 });
+		REQUIRE(fld.checkPlatformOnField({ 1, 1 }) == nullptr);
+		REQUIRE(fld.checkPlatformOnField({ 3, 3 }) == &plt);
+		REQUIRE_THROWS(fld.movePlatform({ 3, 3 }, { 1000, 1 }));
+		int old_total = fld.total_poi;
+		fld.changeCellType({ 3, 5 }, Field::CellType::pointOfInterest);
+		REQUIRE(old_total < fld.total_poi);
+		fld.movePlatform({ 3, 3 }, { 0, 2 });
+		REQUIRE(old_total == fld.total_poi);
+
+		fld.erasePlatform(&plt);
+		REQUIRE(fld.checkPlatformOnField({ 2, 2 }) == nullptr);
+		REQUIRE_THROWS(fld.erasePlatform({ 1000, 2 }));
+	}
+	SECTION("cell destruction")
+	{
+		Field::Field::GROUND_MODE_ON = false;
+		Field::Field fld{ 10, 10 };
+		fld.changeCellType({ 1, 8 }, Field::CellType::obstacle);
+		fld.destroyCell({ 1, 8 });
+		REQUIRE(fld.getCellByCoordinates({ 1, 8 }).getType() == Field::CellType::ground);
+		fld.destroyCell({ 1, 8 });
+		REQUIRE(fld.getCellByCoordinates({ 1, 8 }).getType() == Field::CellType::ground);
+		REQUIRE_THROWS(fld.destroyCell({1, 10}));
+
+		fld.destroyArea(1, { 0, 0 });
+		REQUIRE(fld.getCellByCoordinates({ 0, 1 }).getType() != Field::CellType::obstacle);
+		REQUIRE(fld.getCellByCoordinates({ 1, 0 }).getType() != Field::CellType::obstacle);
+		REQUIRE(fld.getCellByCoordinates({ 1, 1 }).getType() != Field::CellType::obstacle);
+	}
 }

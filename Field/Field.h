@@ -86,8 +86,8 @@ namespace Field
 		int getWidth() { return size.first; }
 		int getHeight() { return size.second; }
 		std::pair<int, int> getSize() { return size; }
-		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { return map[coordinates.first][coordinates.second]; }
-		Cell& getCellByCoordinates(int x, int y) { return map[x][y]; }
+		Cell& getCellByCoordinates(std::pair<int, int> coordinates) { checkCoordinates(coordinates); return map[coordinates.first][coordinates.second]; }
+		Cell& getCellByCoordinates(int x, int y) { checkCoordinates(x, y); return map[x][y]; }
 		std::vector<std::vector<Cell>>& getMap() { return map; }
 		std::unordered_map<std::pair<int, int>, Robots::Platform*, CoordHash, CoordEqual>& getPlatforms() { return platforms; }
 		
