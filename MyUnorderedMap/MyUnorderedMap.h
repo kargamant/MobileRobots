@@ -246,10 +246,10 @@ template<class V, bool is_const>
 UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator++() noexcept
 {
 	it=it->next;
-	/*if (it != nullptr)
+	if (it != nullptr)
 	{
 		if (it->isEnd) it = it->next;
-	}*/
+	}
 	return *this;
 }
 
@@ -258,10 +258,10 @@ template<class V, bool is_const>
 UnorderedMapIterator<V, is_const>& UnorderedMapIterator<V, is_const>::operator~() noexcept
 {
 	it = it->next;
-	if (it != nullptr)
+	/*if (it != nullptr)
 	{
 		if (it->isEnd) it = it->next;
-	}
+	}*/
 	return *this;
 }
 
@@ -270,10 +270,10 @@ UnorderedMapIterator<V, is_const> UnorderedMapIterator<V, is_const>::operator++(
 {
 	UnorderedMapIterator tmp(it);
 	it=it->next;
-	/*if (it != nullptr)
+	if (it != nullptr)
 	{
 		if (it->isEnd) it = it->next;
-	}*/
+	}
 	return tmp;
 }
 
@@ -465,7 +465,7 @@ private:
 		{
 			while (!equal(itr.it->value.first, key) && !itr.it->isEnd)
 			{
-				++itr;
+				~itr;
 				//if (itr.it==buckets[position].end) break;
 			}
 		}
@@ -473,7 +473,7 @@ private:
 		{
 			while (!equal(itr.it->next->value.first, key) && !itr.it->next->isEnd)
 			{
-				++itr;
+				~itr;
 				//if (itr.it->next== buckets[position].end) break;
 			}
 		}
@@ -518,7 +518,7 @@ private:
 		while (!equal(itr.it->value.first, key) && !itr.it->isEnd)
 		{
 			prev = itr;
-			++itr;
+			~itr;
 		}
 
 		if (itr.it->isEnd) return end();
@@ -526,14 +526,31 @@ private:
 		{
 			node_type* target = buckets[position].first;
 			buckets[position].first = buckets[position].first->next;
+			if (buckets[position].prev_bucket != nullptr) buckets[position].prev_bucket->end->next = buckets[position].first;
 			buckets[position].size -= 1;
-			target->next = nullptr;
+			if (before_begin->next == target)
+			{
+				before_begin->next = target->next;
+				if (target->next->isEnd)
+				{
+					before_begin->next = target->next->next;
+				}
+			}
+			//target->next = nullptr;
 			delete target;
-			if (buckets[position].size == 0) buckets[position].last = buckets[position].end;
+			if (buckets[position].size == 0)
+			{
+				buckets[position].first = buckets[position].first;
+				buckets[position].last = buckets[position].end;
+			}
 		}
 		//if(itr.it->next->isEnd && !equal(itr.it->value.first, key)) return end();
-		else buckets[position].erase(prev.it);
-		if (buckets[position].size == 0) 
+		else
+		{
+			buckets[position].erase(prev.it);
+			if (last_added_bucket == position) buckets[position].end->next = past_the_last;
+		}
+		if (buckets[position].size == 0)
 		{
 			bc--;
 			if(buckets[position].prev_bucket==nullptr)
@@ -755,7 +772,7 @@ void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::insert(UnorderedMapItera
 	while(itr!=last)
 	{
 		insert(itr.it->value);
-		++itr;
+		~itr;
 	}
 }
 
@@ -861,17 +878,23 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, 
 {
 	iterator itr=it1;
 	iterator last_removed=itr;
+	//if (it2 == end()) it2 = buckets[last_added_buckets].end;
 	while(itr!=it2)
 	{
+		
+		iterator next = iterator(itr.it->next);
+		size_type result=erase(itr.it->value.first);
+		if (result) 
+		{
+			//std::cout << "removed" << std::endl;
+			last_removed = itr;
+		}
+		itr=next;
+		if (itr.it == nullptr) break;
 		if (itr.it->isEnd)
 		{
 			++itr;
-			continue;
 		}
-		iterator next = iterator(itr.it->next);
-		size_type result=erase(itr.it->value.first);
-		if(result) last_removed=itr;
-		itr=next;
 	}
 	return last_removed;
 }
@@ -879,12 +902,13 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 void MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::clear() noexcept
 {
-	iterator itr = iterator(before_begin->next);
+	erase(begin(), end());
+	/*iterator itr = iterator(before_begin->next);
 	while (itr != end())
 	{
 		erase(itr);
 		itr = iterator(before_begin->next);
-	}
+	}*/
 }
 
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>

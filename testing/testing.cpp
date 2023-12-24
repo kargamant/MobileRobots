@@ -165,7 +165,7 @@ TEST_CASE("MyUnorderedMap")
 		um.insert({ {{1, 2}, plt} });
 		REQUIRE(um[{1, 2}]==plt);
 		REQUIRE(um.begin().it->value.second == plt);
-		REQUIRE(++(++um.begin()) == um.end());
+		REQUIRE(++um.begin() == um.end());
 	}
 	SECTION("insert by iterator range")
 	{
@@ -297,6 +297,9 @@ TEST_CASE("MyUnorderedMap")
 		REQUIRE(!um.contains({ 6, 0 }));
 		REQUIRE(!um.contains({ 2, 0 }));
 		REQUIRE(um.contains({ 5, 0 }));
+		um.clear();
+		REQUIRE(um.bc == 0);
+		REQUIRE(um.begin() == um.end());
 	}
 	SECTION("getters setters")
 	{
@@ -344,4 +347,9 @@ TEST_CASE("MyUnorderedMap")
 		field_map::iterator nitr2{ itr1 };
 		REQUIRE(nitr2 == itr1);
 	}
+}
+
+TEST_CASE("Field class")
+{
+
 }
