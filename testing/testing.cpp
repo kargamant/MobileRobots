@@ -7,6 +7,7 @@
 #include "../Platforms/RobotDestroyer.h"
 #include "../Modules/Sensor.h"
 #include "../Modules/EnergyGenerator.h"
+#include "../Platforms/MobilePlatform.h"
 
 typedef MyUnorderedMap<std::pair<int, int>, Robots::Platform*, Field::CoordHash, Field::CoordEqual> field_map;
 
@@ -535,5 +536,83 @@ TEST_CASE("Gun class")
 		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 2, 2 }));
 		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 3, 3 }));
 		delete eg;
+	}
+}
+
+TEST_CASE("Energy generator")
+{
+	SECTION("connect/dissconnect and turn on/off")
+	{
+		std::vector<Robots::Module*> sens_vec;
+		for (int i = 0; i < 5; i++)
+		{
+			Robots::Module* sens = new Robots::Sensor{};
+			sens_vec.push_back(sens);
+		}
+		Robots::EnergyGenerator eg{10};
+		for (auto mod : sens_vec)
+		{
+			eg.connect(*mod);
+		}
+		eg.turnOn();
+		for (auto mod : sens_vec)
+		{
+			REQUIRE(mod->getState());
+		}
+		eg.turnOff();
+		for (auto mod : sens_vec)
+		{
+			REQUIRE(!mod->getState());
+		}
+		Robots::Module* gun = new Robots::Gun{nullptr, 3};
+		REQUIRE_THROWS(eg.connect(*gun));
+		eg.dissconnect(sens_vec[0]);
+		REQUIRE_NOTHROW(eg.connect(*gun));
+		REQUIRE_THROWS(eg.turnOn());
+		//eg.dissconnect(sens_vec[1]);
+		//REQUIRE_NOTHROW(eg.connect(*gun));
+	}
+}
+
+TEST_CASE("Manage module")
+{
+	SECTION("subdue/release")
+	{
+		Field::Field::GROUND_MODE_ON = true;
+		Field::Field fld{ 10, 10 };
+		Robots::Platform* rc=new Robots::RobotCommander{};
+		rc->setCoordinates(1, 1);
+		Robots::Platform* mp=new Robots::MobilePlatform{};
+		fld.placePlatform(rc);
+		fld.placePlatform(mp);
+
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp));
+		Robots::EnergyGenerator eg{};
+		eg.connect(*rc->getRobo()[0]);
+		eg.turnOn();
+		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp);
+		dynamic_cast<Robots::MobilePlatform*>(mp)->move(&fld, { 5, 5 });
+		REQUIRE_THROWS(dynamic_cast<Robots::MobilePlatform*>(mp)->move(&fld, { 1, 0 }));
+
+		Robots::Platform* mp2 = new Robots::MobilePlatform{};
+		Robots::Platform* mp3 = new Robots::MobilePlatform{};
+		mp2->setCoordinates(3, 3);
+		mp3->setCoordinates(4, 4);
+		fld.placePlatform(mp2);
+		fld.placePlatform(mp3);
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp2));
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp3));
+
+		REQUIRE_THROWS(dynamic_cast<Robots::MobilePlatform*>(mp2)->move(&fld, { -1, -1 }));
+
+		//fld.changeCellType({ 1, 1 }, Field::CellType::ground);
+		dynamic_cast<Robots::Moving*>(rc)->move(&fld, {1, 1});
+		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp2);
+		dynamic_cast<Robots::MobilePlatform*>(mp2)->move(&fld, { 0, 1 });
+		dynamic_cast<Robots::Moving*>(rc)->move(&fld, { 1, 1 });
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp3));
+		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->release(mp);
+		REQUIRE_NOTHROW(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp3));
+
 	}
 }
