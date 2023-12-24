@@ -7,15 +7,27 @@
 template<std::default_initializable Key, std::default_initializable T, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
 class MyUnorderedMap;
 
+/*!
+template item class - class that stores value of unordered map and pointer to next item.
+*/
 template<class V>
 struct Item
 {
 	bool isEnd = false;
 	V value;
 	Item* next=nullptr; //last in bucket points to next bucket or nullptr if this is the last bucket
+
+	/*!
+	Constructor of item.
+	@param V value - value of type V. Must be the same as value_type in unordered map.
+	@param Item* next - pointer to next item.
+	*/
 	Item(V value = V(), Item* next=nullptr) : value(value), next(next) {}
 };
 
+/*!
+template bucket class - class that is a list of items with same hash of key(value.first).
+*/
 template<class V>
 struct Bucket
 {
@@ -25,8 +37,14 @@ struct Bucket
 	Item<V>* end=nullptr;
 	Bucket<V>* prev_bucket=nullptr;
 
+	/*!
+	Empty constructor of bucket.
+	*/
 	Bucket() : end(new Item<V>) { end->isEnd = true; first = end; last = end; }
 
+	/*!
+	Bucket destructor.
+	*/
 	~Bucket()
 	{
 		Item<V>* ptr = first;
@@ -40,8 +58,18 @@ struct Bucket
 		size = 0;
 	}
 
+	/*!
+	empty checker.
+	@returns true if bucket is empty, false otherwise.
+	*/
 	bool isEmpty() { return first == end; }
 
+	/*!
+	Push method. Adds given value to bucket. 
+	This is an inner method, so it doesnt have much checks for incorrect data.
+	@param value of type V
+	@returns pair of pointer to item and bool that is true if pushing was succesfull and false, otherwise. If second item of this pair is false, first is pointing to end.
+	*/
 	std::pair<Item<V>*, bool> push(V value)
 	{
 		std::pair<Item<V>*, bool> result;
@@ -75,6 +103,13 @@ struct Bucket
 		return result;
 	}
 
+	/*!
+	Push method. Adds given item to bucket.
+	This is an inner method, so it doesnt have much checks for incorrect data.
+	@param Item<V>* - item to be pushed
+	@returns pair of pointer to item and bool that is true if pushing was succesfull and false, otherwise. 
+	If second element of this pair is false, first is pointing to end.
+	*/
 	std::pair<Item<V>*, bool> push(Item<V>* item)
 	{
 		std::pair<Item<V>*, bool> result;
@@ -104,6 +139,11 @@ struct Bucket
 		return result;
 	}
 
+	/*!
+	inner searching method for bucket. Searches for item of given value.
+	@param value of type V
+	@returns pointer to item, which points to end if search was unsuccesfull and points to target of search if it was succesfull.
+	*/
 	Item<V>* find(V value)
 	{
 		if (!isEmpty())
@@ -118,6 +158,10 @@ struct Bucket
 		return end;
 	}
 
+	/*!
+	inner erase method. Erases item from bucket by pointer to item BEFORE(!!!) target that is going to be erased.
+	@param pointer to item BEFORE the target of erasement
+	*/
 	void erase(Item<V>* prev)
 	{
 		Item<V>* target = prev->next;
@@ -141,7 +185,9 @@ struct ReturnType
 };*/
 
 
-
+/*!
+Iterator of my unordered map. Satisfies LegacyForwardIterator category.
+*/
 template<class V, bool is_const>
 class UnorderedMapIterator
 {
@@ -158,27 +204,89 @@ public:
 
 	friend UnorderedMapIterator<V, !is_const>;
 
+	/*!
+	Empty constructor of iterator. Sets inner value(called as it further) to nullptr.
+	*/
 	UnorderedMapIterator() :it(nullptr) {}
+
+	/*!
+	Standard constructor. Sets it to a given item pointer.
+	@param item_ptr it
+	*/
 	UnorderedMapIterator(item_ptr it) : it(it) {}
 
+	/*!
+	Copy constructor of iterator. 
+	@param const UnorderedMapIterator<V, other>& umit - other iterator - must satisfy is_const>=other.
+	*/
 	template<bool other>
 	UnorderedMapIterator(const UnorderedMapIterator<V, other>& umit) noexcept requires (is_const >= other);
+
+	/*!
+	Move constructor of iterator.
+	@param UnorderedMapIterator<V, other>&& umit - other iterator.
+	*/
 	template<bool other>
 	UnorderedMapIterator(UnorderedMapIterator<V, other>&& umit);//requires (other==false)
+
+	/*!
+	Destructor of iteraor. Generally just set it to nullptr.
+	*/
 	~UnorderedMapIterator() { it = nullptr; }
 
+	/*!
+	Copy assignment operator.
+	@param const UnorderedMapIterator<V, other>& umit - other iterator - must satisfy is_const>=other.
+	@returns *this
+	*/
 	template<bool other>
 	UnorderedMapIterator<V, is_const>& operator=(const UnorderedMapIterator<V, other>& it2) requires (is_const>=other);
+
+	/*!
+	Move assignment operator.
+	@param UnorderedMapIterator<V, other>&& it2 - other iterator.
+	@returns *this
+	*/
 	template<bool other>
 	UnorderedMapIterator<V, is_const>& operator=(UnorderedMapIterator<V, other>&& it2); //requires (other==false)
+
+	/*!
+	Comparison operator for 2 iterators. Compare value and next.
+	@param const UnorderedMapIterator<V, other>& umit - other iterator.
+	@returns true if values and next pointers are equal and false otherwise.
+	*/
 	template<bool other>
 	bool operator==(const UnorderedMapIterator<V, other>& it2) const;
 
+	/*!
+	operator* overload for iterator. returns value of inner pointer to item.
+	@returns reference to a stored value.
+	*/
 	reference operator*() const noexcept;
+
+	/*!
+	operator* overload for iterator. returns pointer to a value of inner pointer to item.
+	@returns pointer to a stored value.
+	*/
 	pointer operator->() const noexcept;
 	
+	/*!
+	prefix increment operator ++ for iterator. Sets current iterator to next one and if iterator met end of bucket than just jump to next one.
+	@returns reference to next iterator
+	*/
 	UnorderedMapIterator<V, is_const>& operator++() noexcept;
+
+	/*!
+	operator~ overload. The same as ++ operator, but without jumping over ends of buckets. Used mostly in inner logic.
+	@returns reference to next iterator even if it is end of bucket.
+	*/
 	UnorderedMapIterator<V, is_const>& operator~() noexcept;
+
+	/*!
+	postfix increment operator ++ for iterator. Sets current iterator to next one, but returns copy of it before incrementation. 
+	If iterator met end of bucket than just jump to next one.
+	@returns copy of current iterator before incrementation
+	*/
 	UnorderedMapIterator<V, is_const> operator++(int) noexcept;
 };
 
@@ -280,6 +388,9 @@ UnorderedMapIterator<V, is_const> UnorderedMapIterator<V, is_const>::operator++(
 static_assert(std::forward_iterator<UnorderedMapIterator<int, true>>);
 static_assert(std::forward_iterator<UnorderedMapIterator<int, false>>);
 
+/*!
+MyUnorderedMap class - template class that implements logic of unordered map.
+*/
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 class MyUnorderedMap
 {
@@ -307,69 +418,291 @@ public:
 	
 	//MyUnorderedMap();
 	// : bucket_size(DEFAULT_BUCKET_SIZE), buckets(new bucket_type[DEFAULT_BUCKET_SIZE]),
+	/*!
+	Basic constructor of MyUnorderedMap.
+	@param bucket_count - max size of buckets that will be allocated. By default set to DEFAULT_BUCKET_COUNT.
+	@param hash - hash function that will be used to map key into integer that later will be mapped into index of bucket_array.
+	@param equal - predicate of 2 keys that returns true if they are equal and false otherwise.
+	*/
 	MyUnorderedMap(size_type bucket_count=DEFAULT_BUCKET_COUNT, const hasher& hash = Hash(), const key_equal& equal = KeyEqual());
 
+	/*!
+	Range iterator constructor. Not only builds bucket array, but also inserts elements in range [first, last)
+	@param first - iterator of beginning of the range to be inserted.
+	@param last - closing iterator of range.
+	@param bucket_count - max size of buckets that will be allocated. By default set to DEFAULT_BUCKET_COUNT.
+	@param hash - hash function that will be used to map key into integer that later will be mapped into index of bucket_array.
+	@param equal - predicate of 2 keys that returns true if they are equal and false otherwise.
+	@throws same exceptions as insert by iterator range.
+	*/
 	MyUnorderedMap(iterator first, iterator last, size_type bucket_count=DEFAULT_BUCKET_COUNT, const hasher& hash=Hash(), const key_equal& equal=KeyEqual());
 
+	/*!
+	Copy constructor.
+	@param um - other unordered map
+	@throws same exceptions as insert by iterator range
+	*/
 	MyUnorderedMap(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um);
 
+	/*!
+	Move constructor.
+	@param um - other unordered map
+	*/
 	MyUnorderedMap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>&& um);
 
+	/*!
+	Constructor by intializer list.
+	@param il - initializer list of values to be inserted.
+	@param bucket_count - max size of buckets that will be allocated. By default set to DEFAULT_BUCKET_COUNT.
+	@param hash - hash function that will be used to map key into integer that later will be mapped into index of bucket_array.
+	@param equal - predicate of 2 keys that returns true if they are equal and false otherwise.
+	@throws same exceptions as insert by value
+	*/
 	MyUnorderedMap(std::initializer_list<value_type> il, size_type bucket_count = DEFAULT_BUCKET_COUNT, const hasher& hash = Hash(), const key_equal& equal = KeyEqual());
 
+	/*!
+	destructor. releases bucket array. freeing iterators.
+	*/
 	~MyUnorderedMap();
 
+	/*!
+	Copy assignment operator.
+	@param um - other unordered map
+	@returns *this
+	@throws same exceptions as insert by iterator range.
+	*/
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(const MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& um);
+
+	/*!
+	Move assignment operator.
+	@param um - other unordered map
+	@returns *this
+	*/
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>&& um);
+
+	/*!
+	Initializer list assignment operator.
+	@param il - initializer list of values.
+	@returns *this
+	@throws same exceptions as insert by value
+	*/
 	MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& operator=(std::initializer_list<value_type> il);
+
+	/*!
+	hash function getter
+	@returns hasher
+	*/
 	hasher hash_function() const { return hasher(); }
+
+	/*!
+	key equal predicate getter
+	@returns key_equal
+	*/
 	key_equal key_eq() const { return key_equal(); }
 
+	/*!
+	Constructs item in place.
+	@param args... - arguments to construct value type. Must correspond requirenment std::constructible_from<value_type, Args...>.
+	@return insert_return_type - pair of item pointer and boolean result of operation depending on was it succesfull or not.
+	*/
 	template<class... Args>
 	insert_return_type emplace(Args&&... args) requires(std::constructible_from<value_type, Args...>);
+
+	/*!
+	Emplace, but now you can pass it a hint that can possibly make operation faster. If hint was useless, this method will just ignore hint.
+	@param const_iterator p - hint
+	@param args... - arguments to construct value type. Must correspond requirenment std::constructible_from<value_type, Args...>.
+	@return iterator - which is iterator to an emplaced item if emplacement was succesfull. Or it is equal to end iterator if it was unsuccesfull.
+	*/
 	template<class... Args>
 	iterator emplace_hint(const_iterator p, Args&&... args) requires(std::constructible_from<value_type, Args...>);
+
+	/*!
+	The same as emplace in my implementation LOL
+	*/
 	template<class... Args>
 	insert_return_type try_emplace(const key_type& key, Args&&... args) requires(std::constructible_from<T, Args...>);
 
+	/*!
+	Insert a value into unordered map.
+	@param value - value to be inserted.
+	@returns insert_return_type
+	*/
 	insert_return_type insert(const value_type& value);
+
+	/*!
+	Insert a value of rvalue into unordered map.
+	@param value - value to be inserted.
+	@returns insert_return_type
+	*/
 	insert_return_type insert(value_type&& value);
+
+	/*!
+	Insert a range of items in unordered map. Range is assumed to be [first, last)
+	@param first - beginning of the range
+	@param last - end of the range
+	*/
 	void insert(iterator first, iterator last);
+
+	/*!
+	inserts all values in initializer list.
+	@param il - initializer list of values.
+	*/
 	void insert(std::initializer_list<value_type> il); //insert(il.begin(), il.end());
+
+	/*!
+	Inserts by node_type aka Item* rvalue.
+	@param nh - node to be inserted
+	@returns insert_return_type
+	*/
 	insert_return_type insert(node_type&& nh);
+
+	/*!
+	Tries to insert a key-value pair into unordered map. If meets duplicate key, assigns it new value.
+	@param key
+	@param obj - mapped value
+	@returns insert_return_type
+	*/
 	insert_return_type insert_or_assign(const key_type& key, mapped_type&& obj);
 
+	/*!
+	extracts node with given key. That means it will be erased from unordered map and returned as a pointer.
+	@param key - key of extraction target
+	@returns node corresponding to given key.
+	*/
 	node_type* extract(const key_type& key);
+
+	/*!
+	extracts node by given iterator. That means it will be erased from unordered map and returned as a pointer.
+	@param itr - iterator on extraction target.
+	@returns node corresponding to given iterator.
+	*/
 	node_type* extract(iterator itr);
 	//template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 	
 	//void merge(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
+	/*!
+	erases element with given key.
+	@param key - key of item to be erased.
+	@returns size-type which is 1 if erasing was succesfull and 0 otherwise.
+	*/
 	size_type erase(const key_type& key);
+
+	/*!
+	erases item by given iterator.
+	@param iterator of target to be erased.
+	@returns iterator to next item.
+	@throws std::invalid_argument if end iterator is given.
+	*/
 	iterator erase(iterator itr);
+
+	/*!
+	erases items in range [it1, it2).
+	@param it1 - beginning of range
+	@param it2 - end of range
+	@returns iterator to last succesfully removed item
+	*/
 	iterator erase(iterator it1, iterator it2);
+
+	/*!
+	Erases ALL items from unordered map.
+	*/
 	void clear() noexcept;
 	
+	/*!
+	finds item by key.
+	@param key - key of search target.
+	@param prev - optional argument. if true. than returns previous item before actual target.
+	@returns iterator to target or to item before target if search was succesfull, otherwise end()
+	*/
 	iterator find(const key_type& key, bool prev=false);
+
+	/*!
+	Same as original find, but for const objects.
+	*/
 	const_iterator find(const key_type& key, bool prev=false) const;
+
+	/*!
+	Checks if there an element of given key in an unordered map. Basically checks find()!=end()
+	@param key - target of checking.
+	@returns true if it is in this map, false otherwise
+	*/
 	bool contains(const key_type& key) const; //find(key)!=end()
 	
+	/*!
+	Bucket count getter.
+	@returns bc - bucket count
+	*/
 	size_type bucket_count() const { return bc; }
+
+	/*!
+	Max bucket count getter.
+	@returns mbc - max bucket count
+	*/
 	size_type max_bucket_count() const { return mbc; }
+
+	/*!
+	Gets index of a bucket corrsponding to given key.
+	@param key - key to get index of.
+	@returns index of bucket, where key should be stored.
+	*/
 	size_type bucket(const key_type& key) const { return getInd(key); }
+
+	/*!
+	Gets size of nth bucket.
+	@param n - index of bucket
+	@returns size of this bucket
+	*/
 	size_type bucket_size(size_type n) const { return buckets[n].size; }
 
+	/*!
+	Gives an iterator to first item in nth bucket
+	@param n - number of bucket
+	@returns buckets[n].first iterator
+	*/
 	iterator begin(size_type n) { return iterator(buckets[n].first); }
+
+	/*!
+	Same as begin(n) but returns const_iterator
+	*/
 	const_iterator begin(size_type n) const { return iterator(buckets[n].first); }
+
+	/*!
+	Gives an iterator to end item in nth bucket
+	@param n - number of bucket
+	@returns buckets[n].end iterator
+	*/
 	iterator end(size_type n) { return iterator(buckets[n].end); }
+
+	/*!
+	Same as end(n) but returns const_iterator
+	*/
 	const_iterator end(size_type n) const { return iterator(buckets[n].end); }
+
 	const_iterator cbegin(size_type n) const { return iterator(buckets[n].first); }
 	const_iterator cend(size_type n) const { return iterator(buckets[n].end); }
 	
+	/*!
+	gives an iterator to the very first inserted item of unordered map. All iterations should begin from it.
+	@returns next item of before_begin
+	*/
 	iterator begin() noexcept {return iterator(before_begin->next);}
+
+	/*!
+	Same as begin() but returns const_iterator
+	*/
 	const_iterator cbegin() const noexcept {return const_iterator(before_begin->next);}
 
+	/*!
+	gives an iterator to the very last inserted item of unordered map. All iterations should end on it.
+	@returns previous item to past_the_last
+	*/
 	iterator end() noexcept {return iterator(past_the_last);}
+
+	/*!
+	Same as end() but returns const_iterator
+	*/
 	const_iterator cend() const noexcept {return const_iterator(past_the_last);}
 
 	float load_factor() const {return lf; }
@@ -380,10 +713,28 @@ public:
 	//void reserve(size_type new_count);
 	//void swap(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>& other);
 	
+	/*!
+	allocator getter
+	@returns allocator
+	*/
 	allocator_type get_allocator() const noexcept {return Allocator();}
 
+	/*!
+	checks if unordered map is empty
+	@returns true if it is empty and false otherwise
+	*/
 	bool empty() const noexcept {return bc==0;}
+
+	/*!
+	gives heuristic max possible size of this unordered map
+	@returns max_size
+	*/
 	size_type max_size() const noexcept {return 100;}
+
+	/*!
+	Gives total number of items stored in this unordered map. Goes through all buckets and sum up their sizes.
+	@returns size of unordered map
+	*/
 	size_type size() const noexcept 
 	{
 		size_type sum=0;
@@ -398,14 +749,35 @@ public:
 
 	//template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 	
+	/*!
+	Gives mapped type associated with the given key.
+	@param key - key to search for
+	@returns mapped value corresponding to given key.
+	@throws std::invalid_argument if there is no such key
+	*/
 	mapped_type& at(const key_type& key)
 	{
 		iterator result=find_item(std::forward<const key_type&>(key));
 		if(result.it->isEnd) throw std::invalid_argument("Error. No element with such key");
 		return result.it->value.second;
 	}
+
+	/*!
+	operator[] overload for at(key) method
+	@param key - key to search for
+	@returns mapped value corresponding to given key.
+	@throws std::invalid_argument if there is no such key
+	*/
 	mapped_type& operator[](const key_type& key) {return at(key);}
+
+	/*!
+	same as operator[] but for rvalue
+	*/
 	mapped_type& operator[](key_type&& key) {return at(std::move(key));}
+
+	/*!
+	same as at, but for const
+	*/
 	const mapped_type& at(const key_type& key) const
 	{
 		const_iterator result=find_item(std::forward<key_type>(key));
@@ -425,16 +797,38 @@ public:
 	float max_lf = 3;
 	float lf = 0;
 private:
+	/*!
+	Inner implementation of bucket(key).
+	@param key
+	@returns index corresponding to given key
+	*/
 	size_type getInd(const key_type& key) const 
 	{
 		size_type img=hash(key);
 		if (img < 0) img = -img;
 		return img%mbc; 
 	}
+
+	/*!
+	same as getInd(key) but for value_type
+	*/
 	size_type getInd(value_type& val) const {return getInd(val.first);}
+
+	/*!
+	same as getInd(key) but for node_type
+	*/
 	size_type getInd(node_type* item) const {return getInd(item->value);}
+
+	/*!
+	same as getInd(key) but for iterator
+	*/
 	size_type getInd(iterator itr) const {return getInd(itr.it);}
 
+	/*!
+	Inner method of allocating buckets_array of certain size
+	@param size - size to be allocated
+	@throws bad alloc...
+	*/
 	void alloc_bucket_array(size_type size)
 	{
 		buckets = new bucket_type[size];
@@ -442,6 +836,11 @@ private:
 		mbc = size;
 	}
 
+	/*!
+	template inner method to allocate node with given args for constructor.
+	@param args... - arguments for constructor.
+	@returns pointer to allocated node.
+	*/
 	template<class... Args>
 	node_type* alloc_node(Args&&... args)
 	{
@@ -449,6 +848,9 @@ private:
 		return node;
 	}
 
+	/*!
+	inner method to free bucket array.
+	*/
 	void release_bucket_array()
 	{
 		delete[] buckets;
@@ -456,6 +858,12 @@ private:
 		mbc = 0;
 	}
 
+	/*!
+	Inner method of item search.
+	@param key - key of search target
+	@param prev - optional flag. If true find will return iterator to item before target and to target itself otherwise.
+	@returns iterator to target or to item before target if search was succesfull and end() otherwise
+	*/
 	iterator find_item(const key_type& key, bool prev=false) const
 	{
 		//std::cout << key.first << " " << key.second << std::endl;
@@ -481,6 +889,11 @@ private:
 		return itr;
 	}
 
+	/*!
+	template inner insertion method.
+	@param nitem - either value or item_ptr. If value, than node is allocated right in this method
+	@returns insert_return_type
+	*/
 	template<class Insert>
 	insert_return_type insert_item(Insert nitem)
 	{
@@ -509,7 +922,11 @@ private:
 		return insert_return_type(iterator(result.first), result.second);
 	}
 
-	
+	/*!
+	Inner erase method.
+	@param key - key to erase.
+	@returns iterator to erased key or end() if there was no such key
+	*/
 	iterator erase_item(const key_type& key)
 	{
 		size_type position = getInd(key);

@@ -4,6 +4,7 @@ build/
 Catch2/
 MessAround/
 report/
+docs/
 *.gcda
 *.gcno
 *.info
