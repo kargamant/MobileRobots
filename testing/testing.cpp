@@ -293,10 +293,15 @@ TEST_CASE("MyUnorderedMap")
 		um.erase(um.find(platforms[8]->getCoordinates()));
 		REQUIRE(!um.contains({8, 0}));
 		REQUIRE(um.size() == 7);
-		um.erase(um.find({ 6, 0 }), um.find({ 5, 0 }));
+		um.erase(um.find({1, 0}), um.find({1, 0}));
+		REQUIRE(um.contains({ 1, 0 }));
+		um.erase(um.find({ 1, 0 }), um.find({ 2, 0 }));
+		REQUIRE(!um.contains({ 1, 0 }));
 		REQUIRE(!um.contains({ 6, 0 }));
-		REQUIRE(!um.contains({ 2, 0 }));
-		REQUIRE(um.contains({ 5, 0 }));
+		REQUIRE(um.contains({ 2, 0 }));
+		REQUIRE(um.erase({ 5, 0 })==1);
+		REQUIRE_THROWS(um.erase(um.find({ 5, 0 })));
+		REQUIRE(!um.contains({ 5, 0 }));
 		um.clear();
 		REQUIRE(um.bc == 0);
 		REQUIRE(um.begin() == um.end());

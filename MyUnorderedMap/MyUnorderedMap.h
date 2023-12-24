@@ -538,11 +538,11 @@ private:
 			}
 			//target->next = nullptr;
 			delete target;
-			if (buckets[position].size == 0)
+			/*if (buckets[position].size == 0)
 			{
-				buckets[position].first = buckets[position].first;
+				buckets[position].first = buckets[position].end;
 				buckets[position].last = buckets[position].end;
-			}
+			}*/
 		}
 		//if(itr.it->next->isEnd && !equal(itr.it->value.first, key)) return end();
 		else
@@ -550,6 +550,7 @@ private:
 			buckets[position].erase(prev.it);
 			if (last_added_bucket == position) buckets[position].end->next = past_the_last;
 		}
+
 		if (buckets[position].size == 0)
 		{
 			bc--;
@@ -569,8 +570,10 @@ private:
 			else
 			{
 				buckets[position].prev_bucket->end->next=buckets[position].end->next;
+				buckets[getInd(buckets[position].end->next)].prev_bucket = buckets[position].prev_bucket;
 			}
-			
+			buckets[position].first = buckets[position].end;
+			buckets[position].last = buckets[position].end;
 		}
 		//update_lf();
 		return itr;
@@ -868,6 +871,7 @@ MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::size_type MyUnorderedMap<Key,
 template<std::default_initializable Key, std::default_initializable T, class Hash, class KeyEqual, class Allocator>
 MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::erase(MyUnorderedMap<Key, T, Hash, KeyEqual, Allocator>::iterator itr)
 {
+	if (itr == end()) throw std::invalid_argument("Error. Cnat erase end iterator.");
 	iterator next=iterator(itr.it->next);
 	erase(itr.it->value.first);
 	return next;
