@@ -14,9 +14,9 @@ namespace Robots
 		int radius;
 		int subord;
 		std::vector<Platform*> subordinates;
-		void checkInd(int ind);
+		
 		void checkDuplicate(Platform* plt);
-		void checkSubOrd(Platform* plt);
+		
 	public:
 		ManageModule(Platform* mom, int radius=1, int subord=2, double energy=2, bool state=false, Priority priority=Priority::high, int cost=5000) :motherboard(mom), radius(radius), subord(subord), Module(energy, state, priority, cost) { isRulling = true; } //automatically set priority high on module
 		//ManageModule(int radius, int subord, Platform* subordinates, Module& mod);
@@ -39,5 +39,7 @@ namespace Robots
 		void checkReachable(int ind);
 		void checkReachable(Platform* plt);
 		int checkSensor(Platform* plt);
+		void checkInd(int ind);
+		void checkSubOrd(Platform* plt);
 	};
 }

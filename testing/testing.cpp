@@ -8,6 +8,8 @@
 #include "../Modules/Sensor.h"
 #include "../Modules/EnergyGenerator.h"
 #include "../Platforms/MobilePlatform.h"
+#include "../Platforms/KamikazeRobot.h"
+#include "../Platforms/QuantumPlatform.h"
 
 typedef MyUnorderedMap<std::pair<int, int>, Robots::Platform*, Field::CoordHash, Field::CoordEqual> field_map;
 
@@ -455,6 +457,18 @@ TEST_CASE("Field class")
 	}
 }
 
+TEST_CASE("Cell class")
+{
+	SECTION("string format methods")
+	{
+		Field::Cell cell{};
+		cell.setType(Field::CellType::ground);
+		REQUIRE(Field::CellTypeToChar(cell.getType())=='g');
+		REQUIRE(Field::CellTypeToString(cell.getType())=="ground");
+		REQUIRE(Field::CellTypeToInt(cell.getType())==1);
+	}
+}
+
 TEST_CASE("Platform class")
 {
 	SECTION("delete and place modules")
@@ -475,6 +489,10 @@ TEST_CASE("Platform class")
 		plt->deleteModule(&eg);
 		Robots::ManageModule mm{plt};
 		REQUIRE_THROWS(plt->placeModule(dynamic_cast<Robots::Module&>(mm)));
+		Robots::Platform plt2{};
+		REQUIRE_THROWS(plt2.deleteModule(&sens));
+		REQUIRE_THROWS(plt2.deleteModule(1000));
+		REQUIRE_THROWS(plt2.turnOff(&sens));
 		//delete plt;
 	}
 }
@@ -510,10 +528,26 @@ TEST_CASE("Sensor class")
 		rc.placeModule(*sens);
 		rc.placeModule(*eg);
 		auto report=dynamic_cast<Robots::Sensor*>(rc[1])->scan(&fld, rc.getCoordinates());
+		int k = 0;
 		for (Field::Cell cell : report)
 		{
+			k++;
 			REQUIRE(Field::inArea(rc.getCoordinates(), cell.getCoordinates(), 1));
 		}
+		for (std::vector<Field::Cell> row : fld.getMap())
+		{
+			for (Field::Cell cell : row)
+			{
+				if (Field::inArea(rc.getCoordinates(), cell.getCoordinates(), 1) && cell.getCoordinates()!=rc.getCoordinates()) k--;
+
+			}
+		}
+		REQUIRE(k == 0);
+	}
+	SECTION("angle funcs")
+	{
+		REQUIRE(Robots::scalar({1, 0}, {0, 1})==0);
+		REQUIRE(Robots::angleToString(Robots::ViewAngles::pie) == "pi");
 	}
 }
 
@@ -530,7 +564,7 @@ TEST_CASE("Gun class")
 		Robots::Module* eg=new Robots::EnergyGenerator{};
 		dynamic_cast<Robots::EnergyGenerator*>(eg)->connect(*plt->getRobo()[0]);
 		eg->turnOn();
-		dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 2, 2 });
+		dynamic_cast<Robots::RobotDestroyer*>(plt)->getGun().destroy(&fld, {2, 2});
 		REQUIRE(fld.getCellByCoordinates(2, 2).getType() == Field::CellType::ground);
 		fld.changeCellType(2, 2, Field::CellType::pointOfInterest);
 		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 2, 2 }));
@@ -576,7 +610,7 @@ TEST_CASE("Energy generator")
 
 TEST_CASE("Manage module")
 {
-	SECTION("subdue/release")
+	SECTION("subdue/release, checkers")
 	{
 		Field::Field::GROUND_MODE_ON = true;
 		Field::Field fld{ 10, 10 };
@@ -602,6 +636,7 @@ TEST_CASE("Manage module")
 		fld.placePlatform(mp3);
 		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp2));
 		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp3));
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->checkReachable(mp2));
 
 		REQUIRE_THROWS(dynamic_cast<Robots::MobilePlatform*>(mp2)->move(&fld, { -1, -1 }));
 
@@ -614,5 +649,128 @@ TEST_CASE("Manage module")
 		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->release(mp);
 		REQUIRE_NOTHROW(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp3));
 
+
+		//chekers
+		Robots::ManageModule manage{rc};
+		REQUIRE_THROWS(manage.checkSubOrd(mp2));
+	}
+	SECTION("get report and move subord")
+	{
+		Field::Field::GROUND_MODE_ON = true;
+		Field::Field fld{ 10, 10 };
+		Robots::Platform* rc = new Robots::RobotCommander{};
+		rc->setCoordinates(1, 1);
+		Robots::Platform* mp = new Robots::MobilePlatform{};
+		fld.placePlatform(rc);
+		fld.placePlatform(mp);
+		Robots::EnergyGenerator eg{};
+		eg.connect(*rc->getRobo()[0]);
+		eg.turnOn();
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->moveRobo(&fld, 0, {1, 0}));
+		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->subdue(*mp);
+		dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->moveRobo(&fld, 0, { 1, 0 });
+		REQUIRE(fld.checkPlatformOnField({1, 0})==mp);
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->getReport(&fld, mp));
+		Robots::Sensor sens{};
+		mp->placeModule(sens);
+		REQUIRE_THROWS(dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->getReport(&fld, mp));
+		eg.connect(sens);
+		sens.turnOn();
+		auto report = dynamic_cast<Robots::ManageModule*>(rc->getRobo()[0])->getReport(&fld, mp);
+		for (auto cell : report)
+		{
+			REQUIRE(Field::inArea(mp->getCoordinates(), cell.getCoordinates(), 1));
+		}
+	}
+}
+
+TEST_CASE("Command centre")
+{
+	SECTION("place, delete")
+	{
+		Field::Field::GROUND_MODE_ON = true;
+		Field::Field fld{ 10, 10 };
+		Robots::CommandCentre cc{};
+		cc.setCoordinates(1, 1);
+		Robots::RobotDestroyer rd{};
+		//fld.placePlatform(cc);
+		//fld.placePlatform(rd);
+		Robots::EnergyGenerator eg{};
+		eg.connect(*cc.getRobo()[0]);
+		eg.turnOn();
+		cc.placeModule(eg);
+		dynamic_cast<Robots::ManageModule*>(cc.getRobo()[0])->subdue(rd);
+		REQUIRE_THROWS(cc.getReport(&fld, &rd));
+		Robots::Sensor sens{};
+		eg.connect(sens);
+		sens.turnOn();
+		rd.placeModule(sens);
+		auto report = cc.getReport(&fld, 0);
+		int k = 0;
+		for (Field::Cell cell : report)
+		{
+			k++;
+			REQUIRE(Field::inArea(rd.getCoordinates(), cell.getCoordinates(), sens.getRad()));
+		}
+		for (std::vector<Field::Cell> row : fld.getMap())
+		{
+			for (Field::Cell cell : row)
+			{
+				if (Field::inArea(rd.getCoordinates(), cell.getCoordinates(), 1) && cell.getCoordinates() != rd.getCoordinates()) k--;
+
+			}
+		}
+		REQUIRE(k == 0);
+		cc.deleteModule(&eg);
+		REQUIRE_THROWS(cc.deleteModule(0));
+		//cc.placeModule(sens);
+		//cc.deleteModule(1);
+
+	}
+}
+TEST_CASE("Kamikaze robot")
+{
+	SECTION("DESTROY!!!!111111!!!1!")
+	{
+		Field::Field::GROUND_MODE_ON = false;
+		Field::Field fld{ 10, 10 };
+		Robots::KamikazeRobot kz{};
+		kz.setCoordinates(1, 1);
+		fld.placePlatform(&kz);
+		fld.changeCellType(0, 0, Field::CellType::obstacle);
+		fld.changeCellType(0, 1, Field::CellType::obstacle);
+		fld.changeCellType(0, 2, Field::CellType::obstacle);
+		fld.changeCellType(1, 0, Field::CellType::obstacle);
+		fld.changeCellType(1, 2, Field::CellType::obstacle);
+		fld.changeCellType(2, 0, Field::CellType::obstacle);
+		fld.changeCellType(2, 1, Field::CellType::obstacle);
+		fld.changeCellType(2, 2, Field::CellType::obstacle);
+		kz.destroy(&fld, { 0, 0 });
+		for (auto row : fld.getMap())
+		{
+			for (auto cell : row)
+			{
+				if (Field::inArea({ 1, 1 }, cell.getCoordinates(), 1)) REQUIRE(cell.getType() != Field::CellType::obstacle);
+			}
+		}
+	}
+}
+TEST_CASE("Quantum platform")
+{
+	SECTION("link and place delete")
+	{
+		Robots::QuantumPlatform qp1{};
+		Robots::QuantumPlatform qp2{};
+		qp1.setCoordinates(1, 1);
+		qp1.link(qp2);
+		REQUIRE(qp1.getLinkPlatforms()[0] == &qp2);
+		REQUIRE(qp2.getLinkPlatforms()[0] == &qp1);
+		Robots::Sensor sens{};
+		qp1.placeModule(sens);
+		REQUIRE(qp1.getRobo()[0] == &sens);
+		REQUIRE(qp2.getRobo()[0] == &sens);
+		qp1.deleteModule(0);
+		REQUIRE(qp1.getRobo().size() == 0);
+		REQUIRE(qp2.getRobo().size() == 0);
 	}
 }

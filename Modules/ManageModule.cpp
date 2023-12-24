@@ -60,6 +60,7 @@ namespace Robots
 	void ManageModule::checkInd(int ind)
 	{
 		if (ind < 0 || ind >= subord) throw std::invalid_argument("Error. Invalid index for manage module.");
+		else if (ind >= subordinates.size()) throw std::invalid_argument("Error. Correct index, but no subord with this index.");
 	}
 
 	int ManageModule::checkSensor(Platform* plt)

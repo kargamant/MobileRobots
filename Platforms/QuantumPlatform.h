@@ -9,13 +9,13 @@ namespace Robots
 	private:
 		int linkageRadius;
 		int linked;
-		std::vector<QuantumPlatform> platforms;
+		std::vector<QuantumPlatform*> platforms;
 	public:
 		QuantumPlatform(int linkageRadius = 1, std::string name = "c3po", double energy = 0, int slots = 3, int cost = 0, std::pair<int, int> coordinates = { 0, 0 }) : linkageRadius(linkageRadius), Platform(name, energy, slots, cost, coordinates) { roboPriority = Priority::low; }
 
 		int getLinkRad() { return linkageRadius; }
 		int getLinked() { return linked; }
-		std::vector<QuantumPlatform> getLinkPlatforms() { return platforms; }
+		std::vector<QuantumPlatform*> getLinkPlatforms() { return platforms; }
 
 		QuantumPlatform& setLinkRad(int nrad) { linkageRadius = nrad; return *this; }
 
