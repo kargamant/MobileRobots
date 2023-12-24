@@ -1,1 +1,5 @@
+if(COVERAGE)
+	add_compile_options(--coverage)
+	add_link_options(--coverage)
+endif()
 add_library(Interfaces Platform.cpp Rulling.cpp Moving.cpp Destroying.h)

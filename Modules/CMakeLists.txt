@@ -1,1 +1,5 @@
+if(COVERAGE)
+	add_compile_options(--coverage)
+	add_link_options(--coverage)
+endif()
 add_library(Modules EnergyGenerator.cpp Gun.cpp ManageModule.cpp Module.cpp Sensor.cpp)

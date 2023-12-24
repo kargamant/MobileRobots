@@ -1,1 +1,5 @@
+if(COVERAGE)
+	add_compile_options(--coverage)
+	add_link_options(--coverage)
+endif()
 add_library(Platforms CommandCentre.cpp KamikazeRobot.cpp MobilePlatform.cpp QuantumPlatform.cpp RobotCommander.cpp RobotDestroyer.cpp)
