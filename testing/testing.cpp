@@ -5,6 +5,8 @@
 #include "../MyUnorderedMap/MyUnorderedMap.h"
 #include "../Platforms/RobotCommander.h"
 #include "../Platforms/RobotDestroyer.h"
+#include "../Modules/Sensor.h"
+#include "../Modules/EnergyGenerator.h"
 
 typedef MyUnorderedMap<std::pair<int, int>, Robots::Platform*, Field::CoordHash, Field::CoordEqual> field_map;
 
@@ -449,5 +451,89 @@ TEST_CASE("Field class")
 		REQUIRE(fld.getCellByCoordinates({ 0, 1 }).getType() != Field::CellType::obstacle);
 		REQUIRE(fld.getCellByCoordinates({ 1, 0 }).getType() != Field::CellType::obstacle);
 		REQUIRE(fld.getCellByCoordinates({ 1, 1 }).getType() != Field::CellType::obstacle);
+	}
+}
+
+TEST_CASE("Platform class")
+{
+	SECTION("delete and place modules")
+	{
+		Robots::Platform* plt =new Robots::RobotDestroyer{};
+		REQUIRE_THROWS(plt->deleteModule(0));
+		Robots::Sensor sens{};
+		plt->placeModule(dynamic_cast<Robots::Module&>(sens));
+		REQUIRE(plt->getRobo()[1] == &sens);
+		REQUIRE_THROWS(plt->turnOn(&sens));
+		Robots::EnergyGenerator eg{};
+		plt->placeModule(dynamic_cast<Robots::Module&>(eg));
+		eg.connect(sens);
+		plt->turnOn(&sens);
+		REQUIRE(plt->getRobo()[1]->getState());
+		Robots::Gun gun{};
+		REQUIRE_THROWS(plt->placeModule(dynamic_cast<Robots::Module&>(gun)));
+		plt->deleteModule(&eg);
+		Robots::ManageModule mm{plt};
+		REQUIRE_THROWS(plt->placeModule(dynamic_cast<Robots::Module&>(mm)));
+		//delete plt;
+	}
+}
+
+TEST_CASE("Module class")
+{
+	SECTION("turn on/off and get energy")
+	{
+		Robots::Module* sens = new Robots::Sensor{};
+		Robots::Module* eg = new Robots::EnergyGenerator{};
+		REQUIRE_THROWS(sens->turnOn());
+		dynamic_cast<Robots::EnergyGenerator*>(eg)->connect(*sens);
+		sens->turnOn();
+		REQUIRE(sens->getState());
+		REQUIRE(sens->getEnergy() == 2);
+		delete sens;
+		delete eg;
+	}
+}
+
+TEST_CASE("Sensor class")
+{
+	SECTION("scanning")
+	{
+		Field::Field fld{ 10, 10 };
+		Robots::RobotCommander rc{};
+		rc.setCoordinates(std::rand() % 10, std::rand() % 10);
+
+		Robots::Module* sens= new Robots::Sensor{};
+		Robots::Module* eg=new Robots::EnergyGenerator{};
+		dynamic_cast<Robots::EnergyGenerator*>(eg)->connect(*sens);
+		dynamic_cast<Robots::EnergyGenerator*>(eg)->turnOn();
+		rc.placeModule(*sens);
+		rc.placeModule(*eg);
+		auto report=dynamic_cast<Robots::Sensor*>(rc[1])->scan(&fld, rc.getCoordinates());
+		for (Field::Cell cell : report)
+		{
+			REQUIRE(Field::inArea(rc.getCoordinates(), cell.getCoordinates(), 1));
+		}
+	}
+}
+
+TEST_CASE("Gun class")
+{
+	SECTION("destroy")
+	{
+		Field::Field fld{ 10, 10 };
+		fld.changeCellType(2, 2, Field::CellType::obstacle);
+		Robots::Platform* plt = new Robots::RobotDestroyer{};
+		plt->setCoordinates(1, 1);
+		fld.placePlatform(plt);
+		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, {2, 2}));
+		Robots::Module* eg=new Robots::EnergyGenerator{};
+		dynamic_cast<Robots::EnergyGenerator*>(eg)->connect(*plt->getRobo()[0]);
+		eg->turnOn();
+		dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 2, 2 });
+		REQUIRE(fld.getCellByCoordinates(2, 2).getType() == Field::CellType::ground);
+		fld.changeCellType(2, 2, Field::CellType::pointOfInterest);
+		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 2, 2 }));
+		REQUIRE_THROWS(dynamic_cast<Robots::RobotDestroyer*>(plt)->destroy(&fld, { 3, 3 }));
+		delete eg;
 	}
 }
