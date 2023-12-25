@@ -9,17 +9,20 @@
 #include "Platforms/RobotDestroyer.h"
 #include "utils/CheckComponent.h"
 #include "MenueLib/Menue.h"
+#include <time.h>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 70;
-	Game::Application app = Game::Application(10, 10);
+	Game::Application app = Game::Application(20, 20);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
 	std::cout << "Field:" << std::endl;
 	app.getField().consoleOutField();
+	//exit(0);
 	std::cout << std::endl;
 	std::cout << "Robots on field:" << std::endl;
 
@@ -66,9 +69,21 @@ int main(int argc, char* argv[])
 		if (Dialogue::isArg(argv, argv + argc, "-wmode")) app.play();
 		else if (Dialogue::isArg(argv, argv + argc, "-mthread"))
 		{
+			double start = (double)time(NULL) / (double)CLOCKS_PER_SEC;
 			app.play_parallel();
+			double finish = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			//std::cout << std::endl << "Time passed: " << finish - start << std::endl;
+			printf("Time passed: %.10lf\n", (finish - start));
 		}
-		else app.play(false);
+		else
+		{
+			double start = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			app.play(false);
+			double finish = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			//std::cout << std::endl << "Time passed: " << finish - start << std::endl;
+			printf("Time passed: %.10lf\n", (finish - start));
+
+		}
 		
 	}
 	else if (Dialogue::isArg(argv, argv + argc, "-sand-box"))

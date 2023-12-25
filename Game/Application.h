@@ -15,7 +15,11 @@ namespace Game
 		Application(Field::Field& fld, Robots::ArtificialIntelligence& ai) : field(fld), ai(ai) { createGraph(); }
 		Application() : field(Field::Field()), ai(Robots::ArtificialIntelligence()) { createGraph(); } //in this case Field will be totally random
 		Application(int width, int height) : field(width, height), ai(Robots::ArtificialIntelligence()) 
-		{ 
+		{
+			std::fstream fstr;
+			fstr.open("../Presets/big.txt", std::ios_base::out);
+			field.consoleOutField(fstr);
+			fstr.close();
 			field.placeRandomPlatforms(2 + field.getWidth() / 4); 
 			createGraph();
 			connectGraph();

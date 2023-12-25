@@ -31,6 +31,7 @@ namespace Field
 			map.push_back(std::vector<Cell>());
 			for (int j = 0; j < height; j++)
 			{
+				//std::cout << "generating cell: " << i << " " << j << std::endl;
 				if (Field::Field::GROUND_MODE_ON)
 				{
 					map[i].push_back(Cell(i, j, CellType::ground));

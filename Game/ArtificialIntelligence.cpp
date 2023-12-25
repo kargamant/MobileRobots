@@ -433,9 +433,9 @@ namespace Robots
 						}
 						catch (std::invalid_argument)
 						{
-							if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
+							if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub() != nullptr)
 							{
-								Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
+								Robots::Platform* last_sub = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub();
 								//std::cout << "last sub: " << last_sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(last_sub->getCoordinates().first), std::to_string(last_sub->getCoordinates().second)) << (int)last_sub->getRoboPriority() << std::endl;
 								//std::cout << "sub: " << sub->getName()<<" "<<std::format("({}, {}) ", std::to_string(sub->getCoordinates().first), std::to_string(sub->getCoordinates().second)) << (int)sub->getRoboPriority() << std::endl;
 								if (last_sub->getRoboPriority() > sub->getRoboPriority())
@@ -681,8 +681,14 @@ namespace Robots
 				return log;
 			}
 		}
-		
-		if (!plt.getIsMaster() && fld.total_poi!=0)
+		field_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
+		bool total_poi_not_null = fld.total_poi != 0;
+		output_mute->unlock();
+		graph_mute->unlock();
+		field_mute->unlock();
+		if (!plt.getIsMaster() && total_poi_not_null)
 		{
 			field_mute->lock();
 			graph_mute->lock();
@@ -746,6 +752,20 @@ namespace Robots
 									graph_mute->unlock();
 									field_mute->unlock();
 
+									if (i == pth.size())
+									{
+
+										//graph_mute->lock();
+										//clean_mute->lock();
+										graph_mute->lock();
+										output_mute->lock();
+										cleanPath(pth);
+										output_mute->unlock();
+										graph_mute->unlock();
+										//clean_mute->unlock();
+										//graph_mute->unlock();
+										return "No path";
+									}
 									graph_mute->lock();
 									output_mute->lock();
 									closest_cell = pth[i]->cell;

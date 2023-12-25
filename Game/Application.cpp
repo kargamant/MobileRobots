@@ -31,8 +31,28 @@ namespace Game
 			}
 		}
 	}
+
+	struct CellPairHasher
+	{
+		std::size_t operator()(const std::pair<Field::Cell, Field::Cell>& key) const
+		{
+			return std::hash<int>()(key.first.getX()*key.second.getX()+key.first.getY()*key.second.getY());
+		}
+	};
+
+	struct CellPairEqual
+	{
+		bool operator()(const std::pair<Field::Cell, Field::Cell>& key1, const std::pair<Field::Cell, Field::Cell>& key2) const
+		{
+			return (key1.first.getCoordinates() == key2.first.getCoordinates() && key1.second.getCoordinates() == key2.second.getCoordinates());
+		}
+	};
+
 	void Application::connectGraph()
 	{
+		std::unordered_map<std::pair<Field::Cell, Field::Cell>, bool, CellPairHasher, CellPairEqual> checked_pairs;
+		//std::vector<std::vector<int>> vec(field.getWidth());
+		int sieve[field.getWidth()][field.getHeight()];
 		for (std::vector<Field::Cell>& row1 : field.getMap())
 		{
 			for (Field::Cell& cell1 : row1)
@@ -43,6 +63,10 @@ namespace Game
 					{
 						for (Field::Cell& cell2 : row2)
 						{
+							
+							if (checked_pairs.find({ cell1, cell2 })!=checked_pairs.end() || checked_pairs.find({cell2, cell1})!=checked_pairs.end()) continue;
+							//std::cout << "cell1: " << cell1.getX() << " " << cell1.getY() << "|" << " cell2: " << cell2.getX() << " " << cell2.getY() << std::endl;
+							checked_pairs.emplace(std::make_pair(std::pair<Field::Cell, Field::Cell>(cell1, cell2), true));
 							if (cell1.getCoordinates() != cell2.getCoordinates() && cell2.getType()!=Field::CellType::obstacle)
 							{
 								auto pth = ai.path(&cell1, &cell2, field);
@@ -58,7 +82,8 @@ namespace Game
 								while(!pth[0]->isTraversable)
 								{
 									field.changeCellType(pth[0]->cell->getCoordinates(), Field::CellType::ground);
-									updateGraphTraversity();
+									ai.getGraph()[pth[0]->cell->getCoordinates()].isTraversable = true;
+									//updateGraphTraversity();
 									ai.cleanPath(pth);
 									pth = ai.path(&cell1, &cell2, field);
 									std::reverse(pth.begin(), pth.end());
