@@ -3,6 +3,10 @@
 project("MobileRobots")
 set(CMAKE_CXX_STANDARD 20)
 add_compile_options(-fmax-errors=1 -g)
+#-fsanitize=thread
+#add_link_options(-fsanitize=thread)
+find_package(Threads REQUIRED)
+link_libraries(Threads::Threads)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lsfml-graphics -lsfml-window -lsfml-system")
 
 set(COVERAGE false)

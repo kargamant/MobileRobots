@@ -214,6 +214,149 @@ namespace Robots
 		}
 	}
 
+	int ArtificialIntelligence::parallel_rulling_decision(Field::Field& fld, Robots::Platform* plt, Robots::Platform* sub, bool& endOfGame)
+	{
+			//log << "sub name: " << sub->getName() << std::endl;
+			//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
+		bool isReachable = true;
+		try
+		{
+			dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().checkReachable(sub);
+		}
+		catch (std::invalid_argument)
+		{
+			if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
+			{
+				Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
+				if (last_sub->getRoboPriority() > sub->getRoboPriority())
+				{
+					std::string out = masterSwitchTarget(plt, last_sub, fld);
+					viewMove(out);
+					return 0;
+				}
+				else if (last_sub->getRoboPriority() == sub->getRoboPriority())
+				{
+					if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
+					{
+						std::string out = masterSwitchTarget(plt, last_sub, fld);
+						viewMove(out);
+						return 0;
+					}
+					else
+					{
+						isReachable = false;
+						std::string out = masterSwitchTarget(plt, sub, fld);
+						viewMove(out);
+					}
+				}
+				else
+				{
+					isReachable = false;
+					std::string out = masterSwitchTarget(plt, sub, fld);
+					viewMove(out);
+
+				}
+			}
+			else
+			{
+				isReachable = false;
+				std::string out = masterSwitchTarget(plt, sub, fld);
+				viewMove(out);
+			}
+		}
+		if (isReachable)
+		{
+			std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+
+			//updating clone map
+			for (Field::Cell cell : report)
+			{
+				cloneMap[cell.getX()][cell.getY()].setType(cell.getType());
+			}
+
+
+			std::string out = makeMove(*sub, fld, report);
+			viewMove(out);
+		}
+		viewField(&fld);
+		if (fld.total_poi == 0)
+		{
+			if(!endOfGame) endOfGame = true;
+		}
+		return 0;
+		//std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	void ArtificialIntelligence::find_parallel(Field::Field& fld, bool windowView, std::ostream& log, Game::Drawer* dr)
+	{
+		cloneMap = std::vector<std::vector<Field::Cell>>(fld.getWidth());
+		for (int i = 0; i < fld.getWidth(); i++)
+		{
+			//cloneMap[i] = std::vector<Field::Cell>();
+			for (int j = 0; j < fld.getHeight(); j++)
+			{
+				cloneMap[i].push_back(Field::Cell(i, j, Field::CellType::unknown));
+			}
+		}
+
+		std::vector<Robots::Platform*> rulling;
+		for (auto pt : fld.getPlatforms())
+		{
+			if(pt.second->getIsMaster()) rulling.push_back(pt.second);
+		}
+		bool endOfGame = false;
+		while (fld.total_poi != 0)
+		{
+			auto map = fld.getPlatforms();
+			for (auto plt : rulling)
+			{
+				if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() != 0 && dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub() == nullptr) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
+				if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() != 0)
+				{
+					std::size_t qouta = std::thread::hardware_concurrency();
+					std::vector<std::thread> threads(qouta);
+					for (int i = 0; i < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size(); i++)
+					{
+						Robots::Platform* sub = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[i];
+						threads[i] = std::thread(&ArtificialIntelligence::parallel_rulling_decision, this, std::ref(fld), plt, sub, std::ref(endOfGame));
+					}
+					for (int j=0; j< dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size(); j++)
+					{
+						threads[j].join();
+					}
+					//if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0) exit(0);
+					if (endOfGame)
+					{
+						break;
+					}
+				}
+				
+				if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub())
+				{
+					int min_dist = std::numeric_limits<int>::max();
+					Robots::Platform* potentialSubord;
+					for (auto itr : map)
+					{
+						Robots::Platform* robo = itr.second;
+						if (robo != plt)
+						{
+							if ((Field::distance(plt->getCoordinates(), robo->getCoordinates()) < min_dist))
+							{
+								min_dist = Field::distance(plt->getCoordinates(), robo->getCoordinates());
+								potentialSubord = robo;
+							}
+						}
+					}
+					if (potentialSubord->getMaster() == nullptr)
+					{
+						std::string out = masterSwitchTarget(plt, potentialSubord, fld);
+						viewMove(out);
+					}
+				}
+			}
+		}
+	}
+
 	void ArtificialIntelligence::find(Field::Field& fld, bool windowView, std::ostream& log, Game::Drawer* dr)
 	{
 		cloneMap = std::vector<std::vector<Field::Cell>>(fld.getWidth());
@@ -242,7 +385,7 @@ namespace Robots
 				if (plt->getIsMaster())
 				{
 					
-				
+					
 					if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0 && dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub()==nullptr) dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[0]);
 					for (Robots::Platform* sub : dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd())
 					{

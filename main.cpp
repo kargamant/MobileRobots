@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 70;
-	Game::Application app = Game::Application(7, 7);
+	Game::Application app = Game::Application(5, 5);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
@@ -38,6 +38,10 @@ int main(int argc, char* argv[])
 	if (Dialogue::isArg(argv, argv + argc, "-ai"))
 	{
 		if (Dialogue::isArg(argv, argv + argc, "-wmode")) app.play();
+		else if (Dialogue::isArg(argv, argv + argc, "-mthread"))
+		{
+			app.play_parallel();
+		}
 		else app.play(false);
 		
 	}

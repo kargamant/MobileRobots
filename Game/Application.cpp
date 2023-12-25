@@ -93,4 +93,9 @@ namespace Game
 			ai.find(field, false);
 		}
 	}
+
+	void Application::play_parallel()
+	{
+		ai.find_parallel(field);
+	}
 }

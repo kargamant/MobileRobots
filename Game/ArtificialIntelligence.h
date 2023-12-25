@@ -36,7 +36,7 @@ namespace Robots
 		static const int MINIMUM_CHUNKABLE_FIELD_SIZE=3;
 		int money;
 		int points;
-		
+		//bool endOfGame = false;
 	public:
 		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
 
@@ -60,6 +60,8 @@ namespace Robots
 		void consoleOutGraph(std::ostream& stream);
 
 		void find(Field::Field& fld, bool windowView=false, std::ostream& log = std::cout, Game::Drawer* dr=nullptr);
+		void find_parallel(Field::Field& fld, bool windowView = false, std::ostream& log = std::cout, Game::Drawer* dr = nullptr);
+		int parallel_rulling_decision(Field::Field& fld, Robots::Platform* plt, Robots::Platform* sub, bool& endOfGame);
 		std::string makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target = {-1, -1});
 		std::vector<Node*> path(Field::Cell* from, Field::Cell* to, Field::Field& field);
 		void cleanPath(std::vector<Node*>& path);

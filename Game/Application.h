@@ -40,6 +40,7 @@ namespace Game
 		void loadFieldFromFile(std::string filename, std::fstream& stream);
 
 		void play(bool windowView=true); //starts game mode
+		void play_parallel();
 		void sandBox(); //starts sandBox mode
 		void connectGraph();
 		void updateGraphTraversity();
