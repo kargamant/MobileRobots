@@ -5,6 +5,7 @@
 #include <limits>
 #include <unordered_map>
 #include "Chunk.h"
+#include <mutex>
 #pragma once
 
 namespace Robots
@@ -36,9 +37,12 @@ namespace Robots
 		static const int MINIMUM_CHUNKABLE_FIELD_SIZE=3;
 		int money;
 		int points;
+		std::mutex* output_mute; //priority 1
+		std::mutex* graph_mute; //priority 2
+		std::mutex* field_mute; //priority 3
 		//bool endOfGame = false;
 	public:
-		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0) {}
+		ArtificialIntelligence() :obstacles(), poi(), money(20000), points(0), output_mute(new std::mutex()), graph_mute(new std::mutex()), field_mute(new std::mutex()) {}
 
 		int getMoney() { return money; }
 		int getPoints() { return points; }

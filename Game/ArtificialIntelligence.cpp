@@ -10,6 +10,7 @@
 #include "../Platforms/RobotDestroyer.h"
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 namespace Robots
 {
@@ -218,71 +219,45 @@ namespace Robots
 	{
 			//log << "sub name: " << sub->getName() << std::endl;
 			//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
-		bool isReachable = true;
-		try
+		std::cout << "Hello from: " << std::this_thread::get_id << " thread" << std::endl;
+		std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+
+		//updating clone map
+		//mute->lock();
+		field_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
+		for (Field::Cell cell : report)
 		{
-			dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().checkReachable(sub);
+			cloneMap[cell.getX()][cell.getY()].setType(cell.getType());
 		}
-		catch (std::invalid_argument)
-		{
-			if (dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub() != nullptr)
-			{
-				Robots::Platform* last_sub = dynamic_cast<Robots::RobotCommander*>(plt)->getCpu().getLastSub();
-				if (last_sub->getRoboPriority() > sub->getRoboPriority())
-				{
-					std::string out = masterSwitchTarget(plt, last_sub, fld);
-					viewMove(out);
-					return 0;
-				}
-				else if (last_sub->getRoboPriority() == sub->getRoboPriority())
-				{
-					if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
-					{
-						std::string out = masterSwitchTarget(plt, last_sub, fld);
-						viewMove(out);
-						return 0;
-					}
-					else
-					{
-						isReachable = false;
-						std::string out = masterSwitchTarget(plt, sub, fld);
-						viewMove(out);
-					}
-				}
-				else
-				{
-					isReachable = false;
-					std::string out = masterSwitchTarget(plt, sub, fld);
-					viewMove(out);
+		output_mute->unlock();
+		graph_mute->unlock();
+		field_mute->unlock();
+		//mute->unlock();
 
-				}
-			}
-			else
-			{
-				isReachable = false;
-				std::string out = masterSwitchTarget(plt, sub, fld);
-				viewMove(out);
-			}
-		}
-		if (isReachable)
-		{
-			std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+		std::string out = makeMove(*sub, fld, report);
 
-			//updating clone map
-			for (Field::Cell cell : report)
-			{
-				cloneMap[cell.getX()][cell.getY()].setType(cell.getType());
-			}
-
-
-			std::string out = makeMove(*sub, fld, report);
-			viewMove(out);
-		}
+		field_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
+		viewMove(out);
 		viewField(&fld);
+		output_mute->unlock();
+		graph_mute->unlock();
+		field_mute->unlock();
+
+		field_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
 		if (fld.total_poi == 0)
 		{
 			if(!endOfGame) endOfGame = true;
 		}
+		output_mute->unlock();
+		graph_mute->unlock();
+		field_mute->unlock();
+		//mute->unlock();
 		return 0;
 		//std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
@@ -315,20 +290,74 @@ namespace Robots
 				{
 					std::size_t qouta = std::thread::hardware_concurrency();
 					std::vector<std::thread> threads(qouta);
+					std::vector<int> reachable_subs;
 					for (int i = 0; i < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size(); i++)
 					{
 						Robots::Platform* sub = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd()[i];
-						threads[i] = std::thread(&ArtificialIntelligence::parallel_rulling_decision, this, std::ref(fld), plt, sub, std::ref(endOfGame));
+						bool isReachable = true;
+						try
+						{
+							dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().checkReachable(sub);
+						}
+						catch (std::invalid_argument)
+						{
+							if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub() != nullptr)
+							{
+								Robots::Platform* last_sub = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getLastSub();
+								if (last_sub->getRoboPriority() > sub->getRoboPriority())
+								{
+									std::string out = masterSwitchTarget(plt, last_sub, fld);
+									viewMove(out);
+									continue;
+								}
+								else if (last_sub->getRoboPriority() == sub->getRoboPriority())
+								{
+									if (Field::distance(plt->getCoordinates(), last_sub->getCoordinates()) <= Field::distance(plt->getCoordinates(), sub->getCoordinates()))
+									{
+										std::string out = masterSwitchTarget(plt, last_sub, fld);
+										viewMove(out);
+										continue;
+									}
+									else
+									{
+										isReachable = false;
+										std::string out = masterSwitchTarget(plt, sub, fld);
+										viewMove(out);
+									}
+								}
+								else
+								{
+									isReachable = false;
+									std::string out = masterSwitchTarget(plt, sub, fld);
+									viewMove(out);
+
+								}
+							}
+							else
+							{
+								isReachable = false;
+								std::string out = masterSwitchTarget(plt, sub, fld);
+								viewMove(out);
+							}
+						}
+						if (isReachable)
+						{
+							threads[i] = std::thread(&ArtificialIntelligence::parallel_rulling_decision, this, std::ref(fld), plt, sub, std::ref(endOfGame));
+							reachable_subs.push_back(i);
+						}
 					}
-					for (int j=0; j< dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size(); j++)
+					std::cout << "joining threads" << std::endl;
+					for (int j: reachable_subs)
 					{
 						threads[j].join();
 					}
+					
 					//if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0) exit(0);
 					if (endOfGame)
 					{
 						break;
 					}
+					//exit(0);
 				}
 				
 				if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSub())
@@ -338,7 +367,7 @@ namespace Robots
 					for (auto itr : map)
 					{
 						Robots::Platform* robo = itr.second;
-						if (robo != plt)
+						if (robo != plt && !robo->getIsMaster())
 						{
 							if ((Field::distance(plt->getCoordinates(), robo->getCoordinates()) < min_dist))
 							{
@@ -563,12 +592,24 @@ namespace Robots
 			else if (isComponentCastable<Robots::Platform&, Robots::Destroying&>(plt) && target.getType() == Field::CellType::obstacle)
 			{
 				bool isDestroyed = true;
+				//mute->lock();
+				field_mute->lock();
+				graph_mute->lock();
+				output_mute->lock();
 				try
 				{
 					dynamic_cast<Robots::RobotDestroyer&>(plt).getGun().destroy(&fld, target.getCoordinates());
+					output_mute->unlock();
+					graph_mute->unlock();
+					field_mute->unlock();
+					//mute->unlock();
 				}
 				catch (std::invalid_argument)
 				{
+					output_mute->unlock();
+					graph_mute->unlock();
+					field_mute->unlock();
+					//mute->unlock();
 					isDestroyed = false;
 					std::string log = goToTarget(plt, target, fld);
 					if (log == "no path") continue;
@@ -578,8 +619,22 @@ namespace Robots
 				}
 				if (isDestroyed)
 				{
+					//mute->lock();
+					//clean_mute->lock();
+					graph_mute->lock();
+					output_mute->lock();
 					graph[target.getCoordinates()].isTraversable = true;
+					output_mute->unlock();
+					graph_mute->unlock();
+					//clean_mute->unlock();
+					field_mute->lock();
+					graph_mute->lock();
+					output_mute->lock();
 					cloneMap[target.getX()][target.getY()].setType(Field::CellType::ground);
+					output_mute->unlock();
+					graph_mute->unlock();
+					field_mute->unlock();
+					//mute->unlock();
 				}
 				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
 				if (old_total_poi > fld.total_poi) addPoint();
@@ -599,13 +654,29 @@ namespace Robots
 					{
 						//std::cout << "current unknown target: ";
 						//cell.consoleOut();
+						//mute->lock();
+						//clean_mute->lock();
+						graph_mute->lock();
+						output_mute->lock();
 						std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &fld.getCellByCoordinates(cell.getCoordinates()), fld);
 						std::reverse(pth.begin(), pth.end());
+						output_mute->unlock();
+						graph_mute->unlock();
+						//clean_mute->unlock();
+						//mute->unlock();
 						if (pth[0]->isTraversable)
 						{
 							if (pth.size() == 1)
 							{
+								//mute->lock();
+								field_mute->lock();
+								graph_mute->lock();
+								output_mute->lock();
 								cloneMap[plt.getCoordinates().first][plt.getCoordinates().second].setType(fld.getCellByCoordinates(plt.getCoordinates()).getType());
+								output_mute->unlock();
+								graph_mute->unlock();
+								field_mute->unlock();
+								//mute->unlock();
 								continue;
 							}
 							Field::Cell* closest_cell = pth[1]->cell;
@@ -613,19 +684,34 @@ namespace Robots
 							int i = 2;
 							while (1)
 							{
+								field_mute->lock();
+								graph_mute->lock();
+								output_mute->lock();
 								try
 								{
 									fld.movePlatform(plt.getCoordinates(), { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
+									output_mute->unlock();
+									graph_mute->unlock();
+									field_mute->unlock();
 								}
 								catch (std::invalid_argument)
 								{
+									output_mute->unlock();
+									graph_mute->unlock();
+									field_mute->unlock();
 									closest_cell = pth[i]->cell;
 									i++;
 									continue;
 								}
 								break;
 							}
+							//clean_mute->lock();
+							graph_mute->lock();
+							output_mute->lock();
 							cleanPath(pth);
+							output_mute->unlock();
+							graph_mute->unlock();
+							//clean_mute->unlock();
 							std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
 							if (old_total_poi < fld.total_poi) addPoint();
 
@@ -634,7 +720,9 @@ namespace Robots
 						else
 						{
 							std::cout << "No path to this unknown cell exists: ";
+							output_mute->lock();
 							cell.consoleOut();
+							output_mute->unlock();
 
 						}
 					}
@@ -679,7 +767,9 @@ namespace Robots
 		{
 			std::vector<Field::Cell> pseudo_report;
 			pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
+			//mute->lock();
 			std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
+			//mute->unlock();
 			dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().setLastSub(sub);
 			return out;
 		}
@@ -687,8 +777,15 @@ namespace Robots
 
 	std::string ArtificialIntelligence::goToTarget(Robots::Platform& plt, Field::Cell& target, Field::Field& fld)
 	{
+		//mute->lock();
+		//clean_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
 		std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
 		std::reverse(pth.begin(), pth.end());
+		output_mute->unlock();
+		graph_mute->unlock();
+		//clean_mute->unlock();
 
 		if (!pth[0]->isTraversable)
 		{
@@ -697,30 +794,66 @@ namespace Robots
 		Field::Cell* closest_cell = pth[1]->cell;
 		std::pair<int, int> old_coordinates = plt.getCoordinates();
 		int i = 2;
+		//mute->lock();
+		
 		while (1)
 		{
+			field_mute->lock();
+			graph_mute->lock();
+			output_mute->lock();
 			try
 			{
 				fld.movePlatform(plt.getCoordinates(), { closest_cell->getX() - plt.getCoordinates().first, closest_cell->getY() - plt.getCoordinates().second });
+				output_mute->unlock();
+				graph_mute->unlock();
+				field_mute->unlock();
 			}
 			catch (std::invalid_argument)
 			{
+				output_mute->unlock();
+				graph_mute->unlock();
+				field_mute->unlock();
 				if (i == pth.size())
 				{
+					
+					//graph_mute->lock();
+					//clean_mute->lock();
+					graph_mute->lock();
+					output_mute->lock();
 					cleanPath(pth);
+					output_mute->unlock();
+					graph_mute->unlock();
+					//clean_mute->unlock();
+					//graph_mute->unlock();
 					return "No path";
 				}
 				closest_cell = pth[i]->cell;
 				i++;
 				continue;
 			}
+			//mute->unlock();
 			break;
 		}
+
+		//mute->unlock();
 		//if (i == pth.size()) return "No path";
 		std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
 
+		//clean_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
 		cleanPath(pth);
+		output_mute->unlock();
+		graph_mute->unlock();
+		//clean_mute->unlock();
+		
+		field_mute->lock();
+		graph_mute->lock();
+		output_mute->lock();
 		cloneMap[closest_cell->getX()][closest_cell->getY()].setType(closest_cell->getType());
+		output_mute->unlock();
+		graph_mute->unlock();
+		field_mute->unlock();
 		return log;
 	}
 }

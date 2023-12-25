@@ -56,7 +56,7 @@ namespace Field
 		{
 			RobotsTypes type{std::rand()%static_cast<int>(RobotsTypes::count)};
 			if (type == RobotsTypes::KamikazeRobot || type == RobotsTypes::QuantumPlatform) type = RobotsTypes::RobotDestroyer;
-			else if ((type == RobotsTypes::RobotCommander || type == RobotsTypes::CommandCentre) && commander_placed) type = RobotsTypes::RobotDestroyer;
+			//else if ((type == RobotsTypes::RobotCommander || type == RobotsTypes::CommandCentre) && commander_placed) type = RobotsTypes::RobotDestroyer;
 			Robots::Platform* plt;
 			switch (type)
 			{

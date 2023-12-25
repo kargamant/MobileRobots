@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 70;
-	Game::Application app = Game::Application(5, 5);
+	Game::Application app = Game::Application(10, 10);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
@@ -22,10 +22,36 @@ int main(int argc, char* argv[])
 	app.getField().consoleOutField();
 	std::cout << std::endl;
 	std::cout << "Robots on field:" << std::endl;
+
+	std::vector<Robots::Platform*> potential_subs;
+	Robots::Platform* ruller;
 	for (auto it : app.getField().getPlatforms())
 	{
 		it.second->consoleOut();
+		
+		if (!it.second->getIsMaster())
+		{
+			potential_subs.push_back(it.second);
+		}
+		else
+		{
+			ruller = it.second;
+		}
 	}
+	dynamic_cast<Robots::CommandCentre*>(ruller)->getCpu().setRadius(app.getField().getWidth()/2);
+	for (auto it : potential_subs)
+	{
+		try
+		{
+			dynamic_cast<Robots::CommandCentre*>(ruller)->getCpu().subdue(*it);
+
+		}
+		catch (std::invalid_argument)
+		{
+			continue;
+		}
+	}
+	std::cout << "fectively subdued: " << dynamic_cast<Robots::CommandCentre*>(ruller)->getCpu().getSubOrd().size() << std::endl;
 	/*auto itr = app.getField().getPlatforms().begin();
 	while(itr!= app.getField().getPlatforms().end())
 	{
