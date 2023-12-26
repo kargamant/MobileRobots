@@ -14,7 +14,7 @@ namespace Game
 			for (Field::Cell& cell : row)
 			{
 				Robots::Node node = Robots::Node(&cell);
-				if (field.checkPlatformOnField(cell.getCoordinates()) != nullptr) node.isTraversable = false;
+				//if (field.checkPlatformOnField(cell.getCoordinates()) != nullptr) node.isTraversable = false;
 				ai.getGraph().insert({ cell.getCoordinates(), node });
 			}
 		}
@@ -52,7 +52,7 @@ namespace Game
 	{
 		std::unordered_map<std::pair<Field::Cell, Field::Cell>, bool, CellPairHasher, CellPairEqual> checked_pairs;
 		//std::vector<std::vector<int>> vec(field.getWidth());
-		int sieve[field.getWidth()][field.getHeight()];
+		//int sieve[field.getWidth()][field.getHeight()];
 		for (std::vector<Field::Cell>& row1 : field.getMap())
 		{
 			for (Field::Cell& cell1 : row1)
@@ -65,7 +65,7 @@ namespace Game
 						{
 							
 							if (checked_pairs.find({ cell1, cell2 })!=checked_pairs.end() || checked_pairs.find({cell2, cell1})!=checked_pairs.end()) continue;
-							//std::cout << "cell1: " << cell1.getX() << " " << cell1.getY() << "|" << " cell2: " << cell2.getX() << " " << cell2.getY() << std::endl;
+							std::cout << "cell1: " << cell1.getX() << " " << cell1.getY() << "|" << " cell2: " << cell2.getX() << " " << cell2.getY() << std::endl;
 							checked_pairs.emplace(std::make_pair(std::pair<Field::Cell, Field::Cell>(cell1, cell2), true));
 							if (cell1.getCoordinates() != cell2.getCoordinates() && cell2.getType()!=Field::CellType::obstacle)
 							{

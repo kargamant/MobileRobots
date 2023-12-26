@@ -22,7 +22,7 @@ namespace Game
 			fstr.close();
 			field.placeRandomPlatforms(2 + field.getWidth() / 4); 
 			createGraph();
-			connectGraph();
+			if(Field::Field::OBSTACLE_PERCENTAGE!=0 && !Field::Field::GROUND_MODE_ON) connectGraph();
 		}
 		
 		Robots::ArtificialIntelligence& getAi() { return ai; }
