@@ -219,29 +219,29 @@ namespace Robots
 	{
 			//log << "sub name: " << sub->getName() << std::endl;
 			//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
-		std::cout << "Hello from: " << std::this_thread::get_id << " thread" << std::endl;
+		//std::cout << "Hello from: " << std::this_thread::get_id << " thread" << std::endl;
 		field_mute->lock();
 		//graph_mute->lock();
-		output_mute->lock();
-		Field::Field copy_fld = fld;
-		output_mute->unlock();
+		//output_mute->lock();
+		//Field::Field copy_fld = fld;
+		std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
+		//output_mute->unlock();
 		//graph_mute->unlock();
 		field_mute->unlock();
 
-		std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&copy_fld, sub);
 		
 		//updating clone map
 		//mute->lock();
-		//field_mute->lock();
+		field_mute->lock();
 		graph_mute->lock();
-		output_mute->lock();
+		//output_mute->lock();
 		for (Field::Cell cell : report)
 		{
 			cloneMap[cell.getX()][cell.getY()].setType(cell.getType());
 		}
-		output_mute->unlock();
+		//output_mute->unlock();
 		graph_mute->unlock();
-		//field_mute->unlock();
+		field_mute->unlock();
 		//mute->unlock();
 
 		std::string out = makeMove(*sub, fld, report);
