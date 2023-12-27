@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
 	Field::Field::OBSTACLE_PERCENTAGE = 0;
-	Game::Application app = Game::Application(50, 50);
+	Game::Application app = Game::Application(100, 100);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
@@ -69,17 +69,17 @@ int main(int argc, char* argv[])
 		if (Dialogue::isArg(argv, argv + argc, "-wmode")) app.play();
 		else if (Dialogue::isArg(argv, argv + argc, "-mthread"))
 		{
-			double start = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			double start = (double)time(NULL);
 			app.play_parallel();
-			double finish = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			double finish = (double)time(NULL);
 			//std::cout << std::endl << "Time passed: " << finish - start << std::endl;
 			printf("Time passed: %.10lf\n", (finish - start));
 		}
 		else
 		{
-			double start = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			double start = (double)time(NULL);
 			app.play(false);
-			double finish = (double)time(NULL) / (double)CLOCKS_PER_SEC;
+			double finish = (double)time(NULL);
 			//std::cout << std::endl << "Time passed: " << finish - start << std::endl;
 			printf("Time passed: %.10lf\n", (finish - start));
 

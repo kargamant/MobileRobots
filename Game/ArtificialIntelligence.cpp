@@ -11,6 +11,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <future>
 
 namespace Robots
 {
@@ -219,15 +220,15 @@ namespace Robots
 	{
 			//log << "sub name: " << sub->getName() << std::endl;
 			//log << (fld.checkPlatformOnField(sub->getCoordinates()) == nullptr) << std::endl;
-		//std::cout << "Hello from: " << std::this_thread::get_id << " thread" << std::endl;
-		field_mute->lock();
+		//std::cout << "Hello from: " << std::this_thread::get_id << " async_thread" << std::endl;
+		//field_mute->lock();
 		//graph_mute->lock();
 		//output_mute->lock();
 		//Field::Field copy_fld = fld;
 		std::vector<Field::Cell> report = dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getReport(&fld, sub);
 		//output_mute->unlock();
 		//graph_mute->unlock();
-		field_mute->unlock();
+		//field_mute->unlock();
 
 		
 		//updating clone map
@@ -246,24 +247,24 @@ namespace Robots
 
 		std::string out = makeMove(*sub, fld, report);
 
-		field_mute->lock();
+		//field_mute->lock();
 		//graph_mute->lock();
 		output_mute->lock();
 		viewMove(out);
 		viewField(&fld);
 		output_mute->unlock();
 		//graph_mute->unlock();
-		field_mute->unlock();
+		//field_mute->unlock();
 
 		field_mute->lock();
-		graph_mute->lock();
-		output_mute->lock();
+		//graph_mute->lock();
+		//output_mute->lock();
 		if (fld.total_poi == 0)
 		{
 			if(!endOfGame) endOfGame = true;
 		}
-		output_mute->unlock();
-		graph_mute->unlock();
+		//output_mute->unlock();
+		//graph_mute->unlock();
 		field_mute->unlock();
 		//mute->unlock();
 		return 0;
@@ -297,7 +298,7 @@ namespace Robots
 				if (dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size() != 0)
 				{
 					std::size_t qouta = std::thread::hardware_concurrency();
-					std::vector<std::thread> threads(qouta);
+					std::vector<std::future<int>> threads(qouta);
 					std::vector<int> reachable_subs;
 					for (int i = 0; i < dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size(); i++)
 					{
@@ -350,14 +351,14 @@ namespace Robots
 						}
 						if (isReachable)
 						{
-							threads[i] = std::thread(&ArtificialIntelligence::parallel_rulling_decision, this, std::ref(fld), plt, sub, std::ref(endOfGame));
+							threads[i] = std::async(std::launch::deferred, &ArtificialIntelligence::parallel_rulling_decision, this, std::ref(fld), plt, sub, std::ref(endOfGame));
 							reachable_subs.push_back(i);
 						}
 					}
 					std::cout << "joining threads" << std::endl;
 					for (int j: reachable_subs)
 					{
-						threads[j].join();
+						threads[j].get();
 					}
 					
 					//if(dynamic_cast<Robots::CommandCentre*>(plt)->getCpu().getSubOrd().size()!=0) exit(0);
@@ -575,7 +576,7 @@ namespace Robots
 
 	std::string ArtificialIntelligence::makeMove(Robots::Platform& plt, Field::Field& fld, std::vector<Field::Cell>& targets, std::pair<int, int> specific_target)
 	{
-		field_mute->lock();
+		//field_mute->lock();
 		//graph_mute->lock();
 		output_mute->lock();
 		std::cout << "total poi: " << fld.total_poi << std::endl;
@@ -583,27 +584,27 @@ namespace Robots
 		int old_total_poi = fld.total_poi;
 		output_mute->unlock();
 		//graph_mute->unlock();
-		field_mute->unlock();
+		//field_mute->unlock();
 		for (Field::Cell& target : targets)
 		{
 			field_mute->lock();
 			//graph_mute->lock();
-			output_mute->lock();
+			//output_mute->lock();
 			bool isOnField = (fld.checkPlatformOnField(target.getCoordinates()) != nullptr);
-			output_mute->unlock();
+			//output_mute->unlock();
 			//graph_mute->unlock();
 			field_mute->unlock();
 			if (target.getType() == Field::CellType::pointOfInterest && !plt.getIsMaster())
 			{
 				std::string log = goToTarget(plt, target, fld);
 				if (log == "no path") continue;
-				field_mute->lock();
+				//field_mute->lock();
 				//graph_mute->lock();
-				output_mute->lock();
+				//output_mute->lock();
 				if (old_total_poi > fld.total_poi) addPoint();
-				output_mute->unlock();
+				//output_mute->unlock();
 				//graph_mute->unlock();
-				field_mute->unlock();
+				//field_mute->unlock();
 				return log;
 			}
 			else if (plt.getIsMaster() && isOnField)
@@ -614,13 +615,13 @@ namespace Robots
 					std::string log = goToTarget(plt, target, fld);
 					if (log == "no path") continue;
 
-					field_mute->lock();
+					//field_mute->lock();
 					//graph_mute->lock();
-					output_mute->lock();
+					//output_mute->lock();
 					if (old_total_poi > fld.total_poi) addPoint();
-					output_mute->unlock();
+					//output_mute->unlock();
 					//graph_mute->unlock();
-					field_mute->unlock();
+					//field_mute->unlock();
 
 					return log;
 				}
@@ -658,9 +659,9 @@ namespace Robots
 					//mute->lock();
 					//clean_mute->lock();
 					graph_mute->lock();
-					output_mute->lock();
+					//output_mute->lock();
 					graph[target.getCoordinates()].isTraversable = true;
-					output_mute->unlock();
+					//output_mute->unlock();
 					graph_mute->unlock();
 					//clean_mute->unlock();
 					field_mute->lock();
@@ -673,32 +674,32 @@ namespace Robots
 					//mute->unlock();
 				}
 				std::string log = std::format("{} succesfully destroyed ({}, {})", plt.getName(), std::to_string(target.getX()), std::to_string(target.getY()));
-				field_mute->lock();
+				//field_mute->lock();
 				//graph_mute->lock();
-				output_mute->lock();
+				//output_mute->lock();
 				if (old_total_poi > fld.total_poi) addPoint();
-				output_mute->unlock();
+				//output_mute->unlock();
 				//graph_mute->unlock();
-				field_mute->unlock();
+				//field_mute->unlock();
 				return log;
 			}
 		}
-		field_mute->lock();
+		//field_mute->lock();
 		//graph_mute->lock();
-		output_mute->lock();
+		//output_mute->lock();
 		bool total_poi_not_null = fld.total_poi != 0;
-		output_mute->unlock();
+		//output_mute->unlock();
 		//graph_mute->unlock();
-		field_mute->unlock();
+		//field_mute->unlock();
 		if (!plt.getIsMaster() && total_poi_not_null)
 		{
-			field_mute->lock();
+			//field_mute->lock();
 			//graph_mute->lock();
-			output_mute->lock();
+			//output_mute->lock();
 			auto clone_map_copy = cloneMap;
-			output_mute->unlock();
+			//output_mute->unlock();
 			//graph_mute->unlock();
-			field_mute->unlock();
+			//field_mute->unlock();
 			for (std::vector<Field::Cell> row : clone_map_copy)
 			{
 				for (Field::Cell cell : row)
@@ -710,10 +711,10 @@ namespace Robots
 						//mute->lock();
 						//clean_mute->lock();
 						graph_mute->lock();
-						output_mute->lock();
+						//output_mute->lock();
 						std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &fld.getCellByCoordinates(cell.getCoordinates()), fld);
 						std::reverse(pth.begin(), pth.end());
-						output_mute->unlock();
+						//output_mute->unlock();
 						graph_mute->unlock();
 						//clean_mute->unlock();
 						//mute->unlock();
@@ -760,19 +761,19 @@ namespace Robots
 										//graph_mute->lock();
 										//clean_mute->lock();
 										graph_mute->lock();
-										output_mute->lock();
+										//output_mute->lock();
 										cleanPath(pth);
-										output_mute->unlock();
+										//output_mute->unlock();
 										graph_mute->unlock();
 										//clean_mute->unlock();
 										//graph_mute->unlock();
 										return "No path";
 									}
-									graph_mute->lock();
-									output_mute->lock();
+									//graph_mute->lock();
+									//output_mute->lock();
 									closest_cell = pth[i]->cell;
-									output_mute->unlock();
-									graph_mute->unlock();
+									//output_mute->unlock();
+									//graph_mute->unlock();
 									
 									i++;
 									continue;
@@ -781,19 +782,19 @@ namespace Robots
 							}
 							//clean_mute->lock();
 							graph_mute->lock();
-							output_mute->lock();
+							//output_mute->lock();
 							cleanPath(pth);
-							output_mute->unlock();
+							//output_mute->unlock();
 							graph_mute->unlock();
 							//clean_mute->unlock();
 							std::string log = std::format("{} moved from ({}, {}) to ({}, {})", plt.getName(), std::to_string(old_coordinates.first), std::to_string(old_coordinates.second), std::to_string(closest_cell->getX()), std::to_string(closest_cell->getY()));
-							field_mute->lock();
+							//field_mute->lock();
 							//graph_mute->lock();
-							output_mute->lock();
+							//output_mute->lock();
 							if (old_total_poi < fld.total_poi) addPoint();
-							output_mute->unlock();
+							//output_mute->unlock();
 							//graph_mute->unlock();
-							field_mute->unlock();
+							//field_mute->unlock();
 
 							return log;
 						}
@@ -811,13 +812,13 @@ namespace Robots
 			std::cout << "No unknown target for " <<plt.getName() <<" found." << std::endl;
 			std::cout << "poi now: " << fld.total_poi << std::endl;
 			std::vector<Robots::Platform> emptyPlt;
-			field_mute->lock();
+			//field_mute->lock();
 			//graph_mute->lock();
-			output_mute->lock();
+			//output_mute->lock();
 			Field::Field tmp = Field::Field(fld.getWidth(), fld.getHeight(), cloneMap, emptyPlt);
-			output_mute->unlock();
+			//output_mute->unlock();
 			//graph_mute->unlock();
-			field_mute->unlock();
+			//field_mute->unlock();
 			tmp.consoleOutField();
 			//exit(0);
 		}
@@ -854,13 +855,13 @@ namespace Robots
 		{
 			std::vector<Field::Cell> pseudo_report;
 			std::vector<Robots::Platform> emptyPlt;
-			field_mute->lock();
+			//field_mute->lock();
 			//graph_mute->lock();
-			output_mute->lock();
+			//output_mute->lock();
 			pseudo_report.push_back(fld.getCellByCoordinates(sub->getCoordinates()));
-			output_mute->unlock();
+			//output_mute->unlock();
 			//graph_mute->unlock();
-			field_mute->unlock();
+			//field_mute->unlock();
 			//mute->lock();
 			std::string out = makeMove(*plt, fld, pseudo_report, sub->getCoordinates());
 			//mute->unlock();
@@ -874,10 +875,10 @@ namespace Robots
 		//mute->lock();
 		//clean_mute->lock();
 		graph_mute->lock();
-		output_mute->lock();
+		//output_mute->lock();
 		std::vector<Node*> pth = path(&fld.getCellByCoordinates(plt.getCoordinates()), &target, fld);
 		std::reverse(pth.begin(), pth.end());
-		output_mute->unlock();
+		//output_mute->unlock();
 		graph_mute->unlock();
 		//clean_mute->unlock();
 
@@ -914,9 +915,9 @@ namespace Robots
 					//graph_mute->lock();
 					//clean_mute->lock();
 					graph_mute->lock();
-					output_mute->lock();
+					//output_mute->lock();
 					cleanPath(pth);
-					output_mute->unlock();
+					//output_mute->unlock();
 					graph_mute->unlock();
 					//clean_mute->unlock();
 					//graph_mute->unlock();
@@ -936,17 +937,17 @@ namespace Robots
 
 		//clean_mute->lock();
 		graph_mute->lock();
-		output_mute->lock();
+		//output_mute->lock();
 		cleanPath(pth);
-		output_mute->unlock();
+		//output_mute->unlock();
 		graph_mute->unlock();
 		//clean_mute->unlock();
 		
 		field_mute->lock();
 		//graph_mute->lock();
-		output_mute->lock();
+		//output_mute->lock();
 		cloneMap[closest_cell->getX()][closest_cell->getY()].setType(closest_cell->getType());
-		output_mute->unlock();
+		//output_mute->unlock();
 		//graph_mute->unlock();
 		field_mute->unlock();
 		return log;
