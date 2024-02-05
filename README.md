@@ -1,7 +1,8 @@
 # MobileRobots
 Cool auto-game project about robots discovering a planet🚀🤖
 
-![for_github](https://github.com/kargamant/MobileRobots/assets/54020145/4be8d0ba-1c69-400b-96e5-8826d22df6d0)  
+![mobile_robots_mp-ezgif com-video-to-gif-converter](https://github.com/kargamant/MobileRobots/assets/54020145/191e9491-3a77-449f-a7ca-d7cd96274c3d)
+
 
 
 # What is game about?
@@ -57,8 +58,3 @@ To play game with this mode run:
 This mode is availiable with following flags:  
 `-mthread` - game will be played with multi thread ai algorithm instead of regular one.  
 `-wmode` - turns on graphics(unavailiable with multi thread mode, because multi thread algorithm was developed for big fields that can't normally fit into window).  
-
-### One more thing...  
-### Gameplay ofcourse  
-![mobile_robots_gponline-video-cutter com-ezgif com-video-to-gif-converter](https://github.com/kargamant/MobileRobots/assets/54020145/3e57fc91-fa54-4a52-9894-ffae5cea5c98)
-
