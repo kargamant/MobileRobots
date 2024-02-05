@@ -413,7 +413,7 @@ namespace Robots
 		{
 			int size = fld.getPlatforms().size();
 			auto map = fld.getPlatforms();
-			for(auto& it : map)
+			for(auto it: map)
 			{
 				if (gameEnd) break;
 				//if (it == fld.getPlatforms().end()) std::cout << "END" << std::endl;
@@ -532,7 +532,7 @@ namespace Robots
 					{
 						int min_dist = std::numeric_limits<int>::max();
 						Robots::Platform* potentialSubord;
-						for (auto itr : map)
+						for (auto itr: map)
 						{
 							Robots::Platform* robo = itr.second;
 							if (robo != plt)

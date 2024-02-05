@@ -65,7 +65,7 @@ namespace Game
 						{
 							
 							if (checked_pairs.find({ cell1, cell2 })!=checked_pairs.end() || checked_pairs.find({cell2, cell1})!=checked_pairs.end()) continue;
-							std::cout << "cell1: " << cell1.getX() << " " << cell1.getY() << "|" << " cell2: " << cell2.getX() << " " << cell2.getY() << std::endl;
+							//std::cout << "cell1: " << cell1.getX() << " " << cell1.getY() << "|" << " cell2: " << cell2.getX() << " " << cell2.getY() << std::endl;
 							checked_pairs.emplace(std::make_pair(std::pair<Field::Cell, Field::Cell>(cell1, cell2), true));
 							if (cell1.getCoordinates() != cell2.getCoordinates() && cell2.getType()!=Field::CellType::obstacle)
 							{
@@ -73,7 +73,7 @@ namespace Game
 								std::reverse(pth.begin(), pth.end());
 								if (pth.size() == 0)
 								{
-									std::cout << "cells: " << std::endl;
+									//std::cout << "cells: " << std::endl;
 									ai.getGraph()[cell1.getCoordinates()].consoleOut();
 									ai.getGraph()[cell2.getCoordinates()].consoleOut();
 									field.consoleOutField();

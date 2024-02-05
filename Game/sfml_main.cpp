@@ -176,6 +176,7 @@ void Game::Application::sandBox()
                 }
             }
         }
+        
         window.clear();
         if (isFieldChanged)
         {
@@ -188,11 +189,11 @@ void Game::Application::sandBox()
             dr.viewField(fld, true);
         }
         //if (dr.field->total_poi == 0) window.draw(win.sprite);
-        
         for (Game::View* view : dr.views)
         {
             window.draw(view->sprite);
         }
+        
         dr.Ai->draw();
         window.draw(dr.Ai->sprite);
         window.draw(dr.Ai->description);

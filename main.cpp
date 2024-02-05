@@ -15,8 +15,8 @@
 int main(int argc, char* argv[])
 {
 	Field::Field::GROUND_MODE_ON = false;
-	Field::Field::OBSTACLE_PERCENTAGE = 0;
-	Game::Application app = Game::Application(100, 100);
+	Field::Field::OBSTACLE_PERCENTAGE = 70;
+	Game::Application app = Game::Application(10, 10);
 
 	//hello
 	std::cout << "total points of interest: " << app.getField().total_poi << std::endl << std::endl;
